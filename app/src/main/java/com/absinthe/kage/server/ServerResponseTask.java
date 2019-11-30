@@ -1,5 +1,7 @@
 package com.absinthe.kage.server;
 
+import android.util.Log;
+
 import com.absinthe.kage.protocol.BaseProtocol;
 import com.absinthe.kage.protocol.DataAckProtocol;
 import com.absinthe.kage.protocol.DataProtocol;
@@ -15,7 +17,8 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class ServerResponseTask implements Runnable {
 
-    private ReciveTask reciveTask;
+    private static final String TAG = ServerResponseTask.class.getSimpleName();
+    private ReceiveTask receiveTask;
     private SendTask sendTask;
     private Socket socket;
     private IResponseCallback tBack;
@@ -33,16 +36,16 @@ public class ServerResponseTask implements Runnable {
         this.socket = socket;
         this.tBack = tBack;
         this.userIP = socket.getInetAddress().getHostAddress();
-        System.out.println("用户IP地址：" + userIP);
+        Log.d(TAG, "用户IP地址：" + userIP);
     }
 
     @Override
     public void run() {
         try {
             //开启接收线程
-            reciveTask = new ReciveTask();
-            reciveTask.inputStream = new DataInputStream(socket.getInputStream());
-            reciveTask.start();
+            receiveTask = new ReceiveTask();
+            receiveTask.inputStream = new DataInputStream(socket.getInputStream());
+            receiveTask.start();
 
             //开启发送线程
             sendTask = new SendTask();
@@ -54,18 +57,18 @@ public class ServerResponseTask implements Runnable {
     }
 
     public void stop() {
-        if (reciveTask != null) {
-            reciveTask.isCancle = true;
-            reciveTask.interrupt();
-            if (reciveTask.inputStream != null) {
-                SocketUtil.closeInputStream(reciveTask.inputStream);
-                reciveTask.inputStream = null;
+        if (receiveTask != null) {
+            receiveTask.isCancel = true;
+            receiveTask.interrupt();
+            if (receiveTask.inputStream != null) {
+                SocketUtil.closeInputStream(receiveTask.inputStream);
+                receiveTask.inputStream = null;
             }
-            reciveTask = null;
+            receiveTask = null;
         }
 
         if (sendTask != null) {
-            sendTask.isCancle = true;
+            sendTask.isCancel = true;
             sendTask.interrupt();
             if (sendTask.outputStream != null) {
                 synchronized (sendTask.outputStream) {//防止写数据时停止，写完再停
@@ -97,7 +100,7 @@ public class ServerResponseTask implements Runnable {
             return;
         }
         for (String s : onLineClient.keySet()) {
-            System.out.println("client:" + s);
+            Log.d(TAG, "client:" + s);
         }
     }
 
@@ -121,22 +124,22 @@ public class ServerResponseTask implements Runnable {
         if (socket.isClosed() || !socket.isConnected()) {
             onLineClient.remove(userIP);
             ServerResponseTask.this.stop();
-            System.out.println("socket closed...");
+            Log.d(TAG, "socket closed...");
             return false;
         }
         return true;
     }
 
-    public class ReciveTask extends Thread {
+    public class ReceiveTask extends Thread {
 
         private DataInputStream inputStream;
-        private boolean isCancle;
+        private boolean isCancel;
 
         @Override
         public void run() {
-            while (!isCancle) {
+            while (!isCancel) {
                 if (!isConnected()) {
-                    isCancle = true;
+                    isCancel = true;
                     break;
                 }
 
@@ -144,7 +147,7 @@ public class ServerResponseTask implements Runnable {
 
                 if (clientData != null) {
                     if (clientData.getProtocolType() == 0) {
-                        System.out.println("dtype: " + ((DataProtocol) clientData).getDtype() + ", pattion: " + ((DataProtocol) clientData).getPattion() + ", msgId: " + ((DataProtocol) clientData).getMsgId() + ", data: " + ((DataProtocol) clientData).getData());
+                        Log.d(TAG, "dtype: " + ((DataProtocol) clientData).getDtype() + ", pattion: " + ((DataProtocol) clientData).getPattion() + ", msgId: " + ((DataProtocol) clientData).getMsgId() + ", data: " + ((DataProtocol) clientData).getData());
 
                         DataAckProtocol dataAck = new DataAckProtocol();
                         dataAck.setUnused("收到消息：" + ((DataProtocol) clientData).getData());
@@ -153,7 +156,7 @@ public class ServerResponseTask implements Runnable {
 
                         tBack.targetIsOnline(userIP);
                     } else if (clientData.getProtocolType() == 2) {
-                        System.out.println("pingId: " + ((PingProtocol) clientData).getPingId());
+                        Log.d(TAG, "pingId: " + ((PingProtocol) clientData).getPingId());
 
                         PingAckProtocol pingAck = new PingAckProtocol();
                         pingAck.setUnused("收到心跳");
@@ -163,7 +166,7 @@ public class ServerResponseTask implements Runnable {
                         tBack.targetIsOnline(userIP);
                     }
                 } else {
-                    System.out.println("client is offline...");
+                    Log.d(TAG, "client is offline...");
                     break;
                 }
             }
@@ -175,22 +178,22 @@ public class ServerResponseTask implements Runnable {
     public class SendTask extends Thread {
 
         private DataOutputStream outputStream;
-        private boolean isCancle;
+        private boolean isCancel;
 
         @Override
         public void run() {
-            while (!isCancle) {
+            while (!isCancel) {
                 if (!isConnected()) {
-                    isCancle = true;
+                    isCancel = true;
                     break;
                 }
 
-                BaseProtocol procotol = dataQueue.poll();
-                if (procotol == null) {
+                BaseProtocol protocol = dataQueue.poll();
+                if (protocol == null) {
                     toWaitAll(dataQueue);
                 } else if (outputStream != null) {
                     synchronized (outputStream) {
-                        SocketUtil.write2Stream(procotol, outputStream);
+                        SocketUtil.write2Stream(protocol, outputStream);
                     }
                 }
             }

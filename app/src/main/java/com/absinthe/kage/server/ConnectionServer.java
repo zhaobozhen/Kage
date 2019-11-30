@@ -1,5 +1,7 @@
 package com.absinthe.kage.server;
 
+import android.util.Log;
+
 import com.absinthe.kage.protocol.Config;
 import com.absinthe.kage.protocol.DataProtocol;
 
@@ -11,14 +13,14 @@ import java.util.concurrent.Executors;
 
 public class ConnectionServer {
 
+    private static final String TAG = ConnectionServer.class.getSimpleName();
     private static boolean isStart = true;
     private static ServerResponseTask serverResponseTask;
 
     public ConnectionServer() {
     }
 
-    public static void main(String[] args) {
-
+    public void start() {
         ServerSocket serverSocket = null;
         ExecutorService executorService = Executors.newCachedThreadPool();
         try {
@@ -29,16 +31,16 @@ public class ConnectionServer {
                         new IResponseCallback() {
 
                             @Override
-                            public void targetIsOffline(DataProtocol reciveMsg) {// 对方不在线
-                                if (reciveMsg != null) {
-                                    System.out.println(reciveMsg.getData());
+                            public void targetIsOffline(DataProtocol receiveMsg) {
+                                if (receiveMsg != null) {
+                                    Log.d(TAG, receiveMsg.getData());
                                 }
                             }
 
                             @Override
                             public void targetIsOnline(String clientIp) {
-                                System.out.println(clientIp + " is onLine");
-                                System.out.println("-----------------------------------------");
+                                Log.d(TAG, clientIp + " is online");
+                                Log.d(TAG, "-----------------------------------------");
                             }
                         });
 
