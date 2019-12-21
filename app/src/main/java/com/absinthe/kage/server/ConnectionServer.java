@@ -65,4 +65,8 @@ public class ConnectionServer {
             }
         }
     }
+
+    public void stop() {
+        isStart = false;
+    }
 }

@@ -146,7 +146,7 @@ public class ServerResponseTask implements Runnable {
                 BaseProtocol clientData = SocketUtil.readFromStream(inputStream);
 
                 if (clientData != null) {
-                    if (clientData.getProtocolType() == 0) {
+                    if (clientData.getProtocolType() == DataProtocol.PROTOCOL_TYPE) {
                         Log.d(TAG, "dtype: " + ((DataProtocol) clientData).getDtype() + ", pattion: " + ((DataProtocol) clientData).getPattion() + ", msgId: " + ((DataProtocol) clientData).getMsgId() + ", data: " + ((DataProtocol) clientData).getData());
 
                         DataAckProtocol dataAck = new DataAckProtocol();
@@ -155,7 +155,7 @@ public class ServerResponseTask implements Runnable {
                         toNotifyAll(dataQueue); //唤醒发送线程
 
                         tBack.targetIsOnline(userIP);
-                    } else if (clientData.getProtocolType() == 2) {
+                    } else if (clientData.getProtocolType() == PingProtocol.PROTOCOL_TYPE) {
                         Log.d(TAG, "pingId: " + ((PingProtocol) clientData).getPingId());
 
                         PingAckProtocol pingAck = new PingAckProtocol();
