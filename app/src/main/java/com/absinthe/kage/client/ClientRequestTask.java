@@ -27,6 +27,7 @@ public class ClientRequestTask implements Runnable {
     private static final int FAILED = -1;
 
     private boolean isLongConnection = true;
+    private String mIPAddress;
     private Handler mHandler;
     private SendTask mSendTask;
     private ReceiveTask mReceiveTask;
@@ -38,7 +39,8 @@ public class ClientRequestTask implements Runnable {
 
     protected volatile ConcurrentLinkedQueue<BaseProtocol> dataQueue = new ConcurrentLinkedQueue<>();
 
-    public ClientRequestTask(IRequestCallBack requestCallBacks) {
+    public ClientRequestTask(String address, IRequestCallBack requestCallBacks) {
+        mIPAddress = address;
         mHandler = new KageHandler(requestCallBacks);
     }
 
@@ -46,7 +48,7 @@ public class ClientRequestTask implements Runnable {
     public void run() {
         try {
             try {
-                mSocket = SocketFactory.getDefault().createSocket(Config.ADDRESS, Config.PORT);
+                mSocket = SocketFactory.getDefault().createSocket(mIPAddress, Config.PORT);
 //                mSocket.setSoTimeout(10);
             } catch (ConnectException e) {
                 failedMessage(-1, "服务器连接异常，请检查网络");

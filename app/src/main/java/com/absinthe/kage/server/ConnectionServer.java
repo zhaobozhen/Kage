@@ -1,9 +1,12 @@
 package com.absinthe.kage.server;
 
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 
 import com.absinthe.kage.protocol.Config;
 import com.absinthe.kage.protocol.DataProtocol;
+import com.absinthe.kage.utils.ToastUtil;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -38,9 +41,10 @@ public class ConnectionServer {
                             }
 
                             @Override
-                            public void targetIsOnline(String clientIp) {
+                            public void targetIsOnline(final String clientIp) {
                                 Log.d(TAG, clientIp + " is online");
                                 Log.d(TAG, "-----------------------------------------");
+                                new Handler(Looper.getMainLooper()).post(() -> ToastUtil.makeText(clientIp + " is online"));
                             }
                         });
 

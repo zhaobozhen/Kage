@@ -1,15 +1,19 @@
 package com.absinthe.kage.client;
 
+import androidx.lifecycle.Lifecycle;
+import androidx.lifecycle.LifecycleObserver;
+import androidx.lifecycle.OnLifecycleEvent;
+
 import com.absinthe.kage.protocol.DataProtocol;
 
-public class ConnectionClient {
+public class ConnectionClient implements LifecycleObserver {
 
     private boolean isClosed;
 
     private ClientRequestTask mClientRequestTask;
 
-    public ConnectionClient(IRequestCallBack requestCallBack) {
-        mClientRequestTask = new ClientRequestTask(requestCallBack);
+    public ConnectionClient(String address, IRequestCallBack requestCallBack) {
+        mClientRequestTask = new ClientRequestTask(address, requestCallBack);
         new Thread(mClientRequestTask).start();
     }
 
@@ -18,6 +22,7 @@ public class ConnectionClient {
             mClientRequestTask.addRequest(data);
     }
 
+    @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
     public void closeConnect() {
         isClosed = true;
         mClientRequestTask.stop();

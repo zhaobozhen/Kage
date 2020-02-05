@@ -6,24 +6,34 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-
     <Button
-        android:id="@+id/btn_sender"
+        android:id="@+id/btn_connect"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Sender"
+        android:layout_marginTop="40dp"
+        android:text="Connect"
+        app:layout_constraintBottom_toTopOf="@id/btn_send"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <Button
+        android:id="@+id/btn_send"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="40dp"
+        android:text="Send"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <Button
-        android:id="@+id/btn_receiver"
-        android:layout_width="wrap_content"
+    <EditText
+        android:id="@+id/et_ip_address"
+        android:layout_width="200dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="40dp"
-        android:text="Receiver"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btn_sender" />
+        app:layout_constraintTop_toBottomOf="@+id/btn_send" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>
