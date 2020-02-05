@@ -34,5 +34,9 @@ public class ReceiverActivity extends AppCompatActivity {
                 startService(intent);
             }
         });
+        binding.btnStopService.setOnClickListener(v -> {
+            Intent intent = new Intent(ReceiverActivity.this, TCPService.class);
+            stopService(intent);
+        });
     }
 }

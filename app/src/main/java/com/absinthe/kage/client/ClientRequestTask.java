@@ -149,7 +149,7 @@ public class ClientRequestTask implements Runnable {
      */
     private void closeHeartBeatTask() {
         if (mHeartBeatTask != null) {
-            mHeartBeatTask.isCancle = true;
+            mHeartBeatTask.isCancel = true;
             if (mHeartBeatTask.outputStream != null) {
                 SocketUtil.closeOutputStream(mHeartBeatTask.outputStream);
                 mHeartBeatTask.outputStream = null;
@@ -318,19 +318,18 @@ public class ClientRequestTask implements Runnable {
 
     /**
      * 心跳实现，频率5秒
-     * Created by meishan on 16/12/1.
      */
     public class HeartBeatTask extends Thread {
 
-        private static final int REPEATTIME = 5000;
-        private boolean isCancle = false;
+        private static final int REPEAT_TIME = 5000;
+        private boolean isCancel = false;
         private OutputStream outputStream;
         private int pingId;
 
         @Override
         public void run() {
             pingId = 1;
-            while (!isCancle) {
+            while (!isCancel) {
                 if (!isConnected()) {
                     break;
                 }
@@ -352,7 +351,7 @@ public class ClientRequestTask implements Runnable {
                 }
 
                 try {
-                    Thread.sleep(REPEATTIME);
+                    Thread.sleep(REPEAT_TIME);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }

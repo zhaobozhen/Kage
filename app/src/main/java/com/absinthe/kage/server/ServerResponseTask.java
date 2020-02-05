@@ -1,5 +1,7 @@
 package com.absinthe.kage.server;
 
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 
 import com.absinthe.kage.protocol.BaseProtocol;
@@ -8,6 +10,7 @@ import com.absinthe.kage.protocol.DataProtocol;
 import com.absinthe.kage.protocol.PingAckProtocol;
 import com.absinthe.kage.protocol.PingProtocol;
 import com.absinthe.kage.utils.SocketUtil;
+import com.absinthe.kage.utils.ToastUtil;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -155,6 +158,8 @@ public class ServerResponseTask implements Runnable {
                         toNotifyAll(dataQueue); //唤醒发送线程
 
                         tBack.targetIsOnline(userIP);
+                        new Handler(Looper.getMainLooper()).post(() ->
+                                ToastUtil.makeText("收到消息：" + ((DataProtocol) clientData).getData()));
                     } else if (clientData.getProtocolType() == PingProtocol.PROTOCOL_TYPE) {
                         Log.d(TAG, "pingId: " + ((PingProtocol) clientData).getPingId());
 
