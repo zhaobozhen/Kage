@@ -6,6 +6,7 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.BLUETOOTH" />
 
     <application
         android:name=".KageApplication"
@@ -33,6 +34,7 @@
         </activity>
         <activity android:name=".ui.receiver.ReceiverActivity"/>
         <activity android:name=".ui.sender.SenderActivity" />
+        <uses-library android:name="org.apache.http.legacy" android:required="false" />
     </application>
 
 </manifest>

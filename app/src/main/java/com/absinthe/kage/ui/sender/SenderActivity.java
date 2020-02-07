@@ -8,6 +8,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.absinthe.kage.client.ConnectionClient;
 import com.absinthe.kage.client.IRequestCallBack;
 import com.absinthe.kage.databinding.ActivitySenderBinding;
+import com.absinthe.kage.device.DeviceManager;
 import com.absinthe.kage.protocol.BaseProtocol;
 import com.absinthe.kage.protocol.DataProtocol;
 
@@ -16,6 +17,7 @@ public class SenderActivity extends AppCompatActivity {
     private ActivitySenderBinding binding;
     private ConnectionClient mClient;
     private int count = 0;
+    private DeviceManager mDeviceManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -24,6 +26,9 @@ public class SenderActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
 
         initView();
+        mDeviceManager = DeviceManager.Singleton.INSTANCE.getInstance();
+        mDeviceManager.init();
+        mDeviceManager.startMonitorDevice();
     }
 
     private void initView() {
