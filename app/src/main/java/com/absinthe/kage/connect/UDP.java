@@ -104,8 +104,8 @@ public class UDP {
             return isStop;
         }
 
-        ReceivePacketThread(DatagramSocket dataGramSocket, String localIpAddress) {
-            this.mDataGramSocket = dataGramSocket;
+        ReceivePacketThread(DatagramSocket datagramSocket, String localIpAddress) {
+            this.mDataGramSocket = datagramSocket;
             this.mLocalIpAddress = localIpAddress;
         }
 

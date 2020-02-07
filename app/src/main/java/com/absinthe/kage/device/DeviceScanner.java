@@ -67,10 +67,10 @@ public class DeviceScanner {
                         return;
                     }
 
-            int cmd = 0x000000FF & ipMessage.getCmd();
-            Log.d("sasa", "MSG:"+ data);
+                    int cmd = 0x000000FF & ipMessage.getCmd();
+                    Log.d("sasa", "MSG:" + data);
 
-            Device dev = mDevices.get(ip);
+                    Device dev = mDevices.get(ip);
                     switch (cmd) {
                         case IpMessageConst.IP_MSG_BR_EXIT:
                             if (dev != null && !dev.isConnected()) {
@@ -83,10 +83,10 @@ public class DeviceScanner {
                         case IpMessageConst.IP_MSG_BR_ENTRY:
                             new Handler(Looper.getMainLooper()).post(() -> ToastUtil.makeText("IP_MSG_BR_ENTRY"));
                             IpMessageProtocol ipMsgSend = new IpMessageProtocol();
-                            ipMessage.setVersion(String.valueOf(IpMessageConst.VERSION));
-                            ipMessage.setSenderName(mConfig.name);
-                            ipMessage.setCmd(IpMessageConst.IP_MSG_ANS_ENTRY); // 回送报文命令
-                            ipMessage.setAdditionalSection(mConfig.name + IpMessageProtocol.DELIMITER
+                            ipMsgSend.setVersion(String.valueOf(IpMessageConst.VERSION));
+                            ipMsgSend.setSenderName(mConfig.name);
+                            ipMsgSend.setCmd(IpMessageConst.IP_MSG_ANS_ENTRY); // 回送报文命令
+                            ipMsgSend.setAdditionalSection(mConfig.name + IpMessageProtocol.DELIMITER
                                     + mConfig.uuid + IpMessageProtocol.DELIMITER
                                     + "0" + IpMessageProtocol.DELIMITER
                                     + "0" + "\0"); // 附加信息里加入用户名和分组信息/
@@ -110,6 +110,7 @@ public class DeviceScanner {
                                     dev.setFunctionCode(userInfo[1]);
                                 }
                                 mDevices.put(ip, dev);
+
                                 if (mScanCallback != null) {
                                     mScanCallback.onDeviceOnline(dev);
                                 }

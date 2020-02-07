@@ -3,18 +3,13 @@ package com.absinthe.kage.ui.receiver;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
-import android.util.Log;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.absinthe.kage.databinding.ActivityReceiverBinding;
-import com.absinthe.kage.device.DeviceManager;
-import com.absinthe.kage.device.model.DeviceInfo;
 import com.absinthe.kage.service.TCPService;
 import com.absinthe.kage.utils.NotificationUtils;
 import com.absinthe.kage.utils.ScanDeviceTool;
-
-import java.util.List;
 
 public class ReceiverActivity extends AppCompatActivity {
 
@@ -43,10 +38,6 @@ public class ReceiverActivity extends AppCompatActivity {
                 startForegroundService(intent);
             } else {
                 startService(intent);
-            }
-            List<DeviceInfo> list = DeviceManager.Singleton.INSTANCE.getInstance().getDeviceInfoList();
-            for (DeviceInfo info : list) {
-                Log.d("sasa", info.getName());
             }
         });
         binding.btnStopService.setOnClickListener(v -> {
