@@ -22,7 +22,6 @@ public class KageSocket {
     private ISocketCallback mSocketCallback;
     private DataInputStream mIn;
     private DataOutputStream mOut;
-    private ConnectThread mConnectThread;
     private final byte[] LOCK = new byte[0];
     private IPacketWriter mPacketWriter;
     private IPacketReader mPacketReader;
@@ -30,8 +29,7 @@ public class KageSocket {
     public void connect(final String ip, final int port, int timeout) {
         synchronized (LOCK) {
             if (mSocket == null) {
-                mConnectThread = new ConnectThread(ip, port, timeout);
-                mConnectThread.start();
+                new ConnectThread(ip, port, timeout).start();
             } else {
                 Log.e(TAG, "socket already exist");
             }
@@ -63,42 +61,30 @@ public class KageSocket {
                         mOut = new DataOutputStream(mSocket.getOutputStream());
                         mPacketWriter = new PacketWriter(mOut, mSocketCallback);
                         mPacketReader = new PacketReader(mIn, mSocketCallback);
-                        ISocketCallback.TCastSocketCallbackThreadHandler.getInstance().post(new Runnable() {
-                            @Override
-                            public void run() {
-                                if (mSocketCallback != null) {
-                                    mSocketCallback.onConnected();
-                                }
+                        ISocketCallback.TCastSocketCallbackThreadHandler.getInstance().post(() -> {
+                            if (mSocketCallback != null) {
+                                mSocketCallback.onConnected();
                             }
                         });
                     } catch (final Exception e) {
                         Log.i(TAG, "socket connect IOException=" + e);
                         mSocket = null;
                         if (e instanceof SocketTimeoutException) {
-                            ISocketCallback.TCastSocketCallbackThreadHandler.getInstance().post(new Runnable() {
-                                @Override
-                                public void run() {
-                                    if (mSocketCallback != null) {
-                                        mSocketCallback.onConnectError(ISocketCallback.CONNECT_ERROR_CODE_CONNECT_TIMEOUT, e);
-                                    }
+                            ISocketCallback.TCastSocketCallbackThreadHandler.getInstance().post(() -> {
+                                if (mSocketCallback != null) {
+                                    mSocketCallback.onConnectError(ISocketCallback.CONNECT_ERROR_CODE_CONNECT_TIMEOUT, e);
                                 }
                             });
                         } else if (e instanceof ConnectException) {
-                            ISocketCallback.TCastSocketCallbackThreadHandler.getInstance().post(new Runnable() {
-                                @Override
-                                public void run() {
-                                    if (mSocketCallback != null) {
-                                        mSocketCallback.onConnectError(ISocketCallback.CONNECT_ERROR_CODE_CONNECT_IP_OR_PORT_UNREACHABLE, e);
-                                    }
+                            ISocketCallback.TCastSocketCallbackThreadHandler.getInstance().post(() -> {
+                                if (mSocketCallback != null) {
+                                    mSocketCallback.onConnectError(ISocketCallback.CONNECT_ERROR_CODE_CONNECT_IP_OR_PORT_UNREACHABLE, e);
                                 }
                             });
                         } else {
-                            ISocketCallback.TCastSocketCallbackThreadHandler.getInstance().post(new Runnable() {
-                                @Override
-                                public void run() {
-                                    if (mSocketCallback != null) {
-                                        mSocketCallback.onConnectError(ISocketCallback.CONNECT_ERROR_CODE_CONNECT_UNKNOWN, e);
-                                    }
+                            ISocketCallback.TCastSocketCallbackThreadHandler.getInstance().post(() -> {
+                                if (mSocketCallback != null) {
+                                    mSocketCallback.onConnectError(ISocketCallback.CONNECT_ERROR_CODE_CONNECT_UNKNOWN, e);
                                 }
                             });
                         }
@@ -126,17 +112,14 @@ public class KageSocket {
                         mPacketReader.shutdown();
                         mPacketReader = null;
                     }
-                    ISocketCallback.TCastSocketCallbackThreadHandler.getInstance().post(new Runnable() {
-                        @Override
-                        public void run() {
-                            if (mSocketCallback != null) {
-                                mSocketCallback.onDisConnected();
-                            }
+                    ISocketCallback.TCastSocketCallbackThreadHandler.getInstance().post(() -> {
+                        if (mSocketCallback != null) {
+                            mSocketCallback.onDisConnected();
                         }
                     });
                     return true;
                 } catch (IOException e) {
-                    Log.e(TAG, e.getMessage());
+                    Log.e(TAG, e.toString());
                     return false;
                 }
             }

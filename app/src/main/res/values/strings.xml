@@ -1,5 +1,9 @@
 <resources>
     <string name="app_name">Kage</string>
+    <string name="connect_label">Connect</string>
+    <string name="sender_label">Sender</string>
+    <string name="receiver_label">Receiver</string>
 
-    <string name="notification_channel_tcp">TCP Service</string>
+    <string name="notification_channel_tcp">Kage Service is running</string>
+    <string name="kage_service_notification_content">Tap to back home page</string>
 </resources>

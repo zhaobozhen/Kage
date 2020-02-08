@@ -77,9 +77,8 @@ public class Device {
                 Log.d(TAG, e.toString());
             }
         }
-        if (protocolVersion == 6) {
-            mProtocolHandler = new ProtocolHandler(this, this.mConfig, mProtocolHandlerCallback);
-        }
+
+        mProtocolHandler = new ProtocolHandler(this, this.mConfig, mProtocolHandlerCallback);
         this.mSocket = new KageSocket();
         this.mSocket.setSocketCallback(new KageSocket.ISocketCallback() {
             @Override
@@ -165,8 +164,9 @@ public class Device {
 
     public boolean connect(int timeout) {
         boolean isConnect = mDeviceInfo.isConnected();
-        boolean isInited = mConfig != null && mProtocolHandler != null;
-        boolean b = !isConnect && isInited;
+        boolean isInit = mConfig != null && mProtocolHandler != null;
+        boolean b = !isConnect && isInit;
+
         if (b) {
             mHeartbeatSender.init();
             mDeviceInfo.setStateConnecting();

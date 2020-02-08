@@ -7,9 +7,9 @@ import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.absinthe.kage.databinding.ActivityReceiverBinding;
+import com.absinthe.kage.server.ConnectionServer;
 import com.absinthe.kage.service.TCPService;
 import com.absinthe.kage.utils.NotificationUtils;
-import com.absinthe.kage.utils.ScanDeviceTool;
 
 public class ReceiverActivity extends AppCompatActivity {
 
@@ -22,23 +22,12 @@ public class ReceiverActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
 
         initView();
-
-        new Thread(() -> {
-            ScanDeviceTool tool = new ScanDeviceTool();
-            tool.scan();
-        }).start();
     }
 
     private void initView() {
         binding.btnStartService.setOnClickListener(v -> {
-            Intent intent = new Intent(ReceiverActivity.this, TCPService.class);
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                NotificationUtils.createTCPChannel(ReceiverActivity.this);
-                startForegroundService(intent);
-            } else {
-                startService(intent);
-            }
+            ConnectionServer server = new ConnectionServer();
+            server.start();
         });
         binding.btnStopService.setOnClickListener(v -> {
             Intent intent = new Intent(ReceiverActivity.this, TCPService.class);

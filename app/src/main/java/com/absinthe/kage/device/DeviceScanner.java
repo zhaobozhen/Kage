@@ -1,7 +1,5 @@
 package com.absinthe.kage.device;
 
-import android.os.Handler;
-import android.os.Looper;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -10,7 +8,6 @@ import com.absinthe.kage.device.model.DeviceConfig;
 import com.absinthe.kage.device.model.DeviceInfo;
 import com.absinthe.kage.protocol.IpMessageConst;
 import com.absinthe.kage.protocol.IpMessageProtocol;
-import com.absinthe.kage.utils.ToastUtil;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -68,7 +65,6 @@ public class DeviceScanner {
                     }
 
                     int cmd = 0x000000FF & ipMessage.getCmd();
-                    Log.d("sasa", "MSG:" + data);
 
                     Device dev = mDevices.get(ip);
                     switch (cmd) {
@@ -81,7 +77,7 @@ public class DeviceScanner {
                             }
                             break;
                         case IpMessageConst.IP_MSG_BR_ENTRY:
-                            new Handler(Looper.getMainLooper()).post(() -> ToastUtil.makeText("IP_MSG_BR_ENTRY"));
+                            Log.d(TAG, "IP_MSG_BR_ENTRY");
                             IpMessageProtocol ipMsgSend = new IpMessageProtocol();
                             ipMsgSend.setVersion(String.valueOf(IpMessageConst.VERSION));
                             ipMsgSend.setSenderName(mConfig.name);
@@ -95,7 +91,7 @@ public class DeviceScanner {
                             }
                             break;
                         case IpMessageConst.IP_MSG_ANS_ENTRY:
-                            new Handler(Looper.getMainLooper()).post(() -> ToastUtil.makeText("IP_MSG_ANS_ENTRY"));
+                            Log.d(TAG, "IP_MSG_ANS_ENTRY");
                             if (dev == null) {
                                 String protocolVersion = ipMessage.getVersion();
                                 dev = new Device(mConfig, protocolVersion);

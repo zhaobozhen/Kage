@@ -4,8 +4,12 @@ import android.bluetooth.BluetoothAdapter;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.TextUtils;
+import android.util.Log;
 
 import androidx.annotation.Nullable;
+import androidx.lifecycle.Lifecycle;
+import androidx.lifecycle.LifecycleObserver;
+import androidx.lifecycle.OnLifecycleEvent;
 
 import com.absinthe.kage.connect.Const;
 import com.absinthe.kage.connect.tcp.KageSocket;
@@ -20,7 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-public class DeviceManager extends KageObservable {
+public class DeviceManager extends KageObservable implements LifecycleObserver {
     private static final String TAG = DeviceManager.class.getSimpleName();
     private static final int DEFAULT_CONNECT_TIMEOUT = 10 * 1000;
     private final byte[] LOCK = new byte[0];
@@ -106,6 +110,7 @@ public class DeviceManager extends KageObservable {
         return true;
     }
 
+    @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
     public void release() {
         if (isConnected()) {
             disConnectDevice();
@@ -318,8 +323,8 @@ public class DeviceManager extends KageObservable {
      */
     public void connectDevice(DeviceInfo deviceInfo) {
         synchronized (LOCK) {
-            if (!checkConfiguration()) {
-                return;
+            if (checkConfiguration()) {
+                mConnectState.connect(deviceInfo);
             }
         }
     }
@@ -329,8 +334,8 @@ public class DeviceManager extends KageObservable {
      * @param timeout    连接超时时间，单位为毫秒
      */
     public synchronized void connectDevice(DeviceInfo deviceInfo, int timeout) {
-        if (!checkConfiguration()) {
-            return;
+        if (checkConfiguration()) {
+            mConnectState.connect(deviceInfo, timeout);
         }
     }
 
@@ -401,6 +406,7 @@ public class DeviceManager extends KageObservable {
 
         @Override
         public void connect(DeviceInfo deviceInfo, int timeout) {
+            Log.d(TAG, "StateIdle connect");
             if (deviceInfo == null) {
                 return;
             }
@@ -419,6 +425,7 @@ public class DeviceManager extends KageObservable {
             device.setConnectCallback(new Device.IConnectCallback() {
                 @Override
                 public void onConnectedFailed(final int code, Exception e) {
+                    Log.d(TAG, "onConnectedFailed");
                     synchronized (LOCK) {
                         mCurrentDeviceKey = null;
                         setConnectState(new StateIdle());
@@ -444,6 +451,7 @@ public class DeviceManager extends KageObservable {
 
                 @Override
                 public void onConnected() {
+                    Log.d(TAG, "onConnectedSuccess");
                     synchronized (LOCK) {
                         PromptPhoneConnectedCommand promptPhoneConnectedCommand = new PromptPhoneConnectedCommand();
                         promptPhoneConnectedCommand.uuid = mConfig.uuid;
