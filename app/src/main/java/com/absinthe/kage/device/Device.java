@@ -36,6 +36,7 @@ public class Device {
         IProtocolHandler.IProtocolHandleCallback mProtocolHandlerCallback = new IProtocolHandler.IProtocolHandleCallback() {
             @Override
             public void onProtocolConnected() {
+                Log.d("sasa", "onProtocolConnected");
                 if (null != mDeviceInfo) {
                     mDeviceInfo.setConnected(true);
                 }
@@ -98,6 +99,7 @@ public class Device {
             @Override
             public void onReceiveMsg(String msg) {
                 if (msg != null) {
+                    Log.d("sasa","onReceiveMsg");
                     if (mProtocolHandler != null) {
                         mProtocolHandler.handleSocketMassage(msg);
                     }

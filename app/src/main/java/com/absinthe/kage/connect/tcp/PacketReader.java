@@ -20,7 +20,7 @@ import java.util.concurrent.TimeUnit;
 public class PacketReader implements IPacketReader {
     private static final String TAG = PacketReader.class.getSimpleName();
     private static final long DEFAULT_TIMEOUT = 5 * 1000;
-    private static final long MAX_READ_LENGTH = 223 * 10000;//一次性最大读取指令的长度，超出将可能OOM，目前最长指令为TV安装的应用列表，223为计算出来的平均单应用信息长度，10000为假设最多安装了1万个应用
+    private static final long MAX_READ_LENGTH = 223 * 10000;//一次性最大读取指令的长度，超出将可能OOM
     private Map<String, Request> mRequests = new TreeMap<>();
     private DataInputStream mIn;
     private KageSocket.ISocketCallback mSocketCallback;
@@ -29,13 +29,12 @@ public class PacketReader implements IPacketReader {
     private long timeout = DEFAULT_TIMEOUT;
     private ExecutorService mExecutorService = Executors.newSingleThreadExecutor();
     private final byte[] LOCK = new byte[0];
-    private final ReceiveDataThread mReceiveDataThread;
 
     public PacketReader(DataInputStream mIn, final KageSocket.ISocketCallback socketCallback) {
         this.mIn = mIn;
         this.mSocketCallback = socketCallback;
-        mReceiveDataThread = new ReceiveDataThread();
-        mReceiveDataThread.start();
+        new ReceiveDataThread().start();
+
         new Thread(() -> {
             try {
                 while (!shutdown) {
@@ -45,12 +44,9 @@ public class PacketReader implements IPacketReader {
                             break;
                         }
                         if (null == packet) {
-                            KageSocket.ISocketCallback.TCastSocketCallbackThreadHandler.getInstance().post(new Runnable() {
-                                @Override
-                                public void run() {
-                                    if (null != mSocketCallback) {
-                                        mSocketCallback.onReaderIdle();
-                                    }
+                            KageSocket.ISocketCallback.TCastSocketCallbackThreadHandler.getInstance().post(() -> {
+                                if (null != mSocketCallback) {
+                                    mSocketCallback.onReaderIdle();
                                 }
                             });
                         }
@@ -90,6 +86,7 @@ public class PacketReader implements IPacketReader {
                         data = readMyUTF(mIn);
                     } catch (IllegalArgumentException e) {
                         e.printStackTrace();
+                        Log.d(TAG, "PacketReader error");
                         if (mSocketCallback != null) {
                             mSocketCallback.onReadAndWriteError(KageSocket.ISocketCallback.READ_ERROR_CODE_RECEIVE_LENGTH_TOO_BIG);
                         }
@@ -101,42 +98,32 @@ public class PacketReader implements IPacketReader {
                         }
                         if (data == null) {
                             Log.e(TAG, "ReceiveDataThread receive data == null" + ", thread :" + Thread.currentThread().getName());
-                            KageSocket.ISocketCallback.TCastSocketCallbackThreadHandler.getInstance().post(new Runnable() {
-                                @Override
-                                public void run() {
-                                    if (mSocketCallback != null) {
-                                        mSocketCallback.onReadAndWriteError(KageSocket.ISocketCallback.READ_ERROR_CODE_CONNECT_UNKNOWN);
-                                    }
+                            KageSocket.ISocketCallback.TCastSocketCallbackThreadHandler.getInstance().post(() -> {
+                                if (mSocketCallback != null) {
+                                    mSocketCallback.onReadAndWriteError(KageSocket.ISocketCallback.READ_ERROR_CODE_CONNECT_UNKNOWN);
                                 }
                             });
                             break;
                         }
-                        if ("".equals(data)) {
+                        if (data.isEmpty()) {
                             continue;
                         }
                         Log.d(TAG, "receive Data: " + data);
-                        mExecutorService.submit(new Runnable() {
-                            @Override
-                            public void run() {
-                                Packet packet = new Packet();
-                                packet.setData(data);
-                                try {
-                                    mPackets.put(packet);
-                                } catch (InterruptedException e) {
-                                    e.printStackTrace();
-                                }
+                        mExecutorService.submit(() -> {
+                            Packet packet = new Packet();
+                            packet.setData(data);
+                            try {
+                                mPackets.put(packet);
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
                             }
                         });
                         responseAllHeartBeat();//收到任何数据都消费掉所有的心跳超时
-                        if (isHeartBeat(data)) {
-
-                        } else {
-                            KageSocket.ISocketCallback.TCastSocketCallbackThreadHandler.getInstance().post(new Runnable() {
-                                @Override
-                                public void run() {
-                                    if (mSocketCallback != null) {
-                                        mSocketCallback.onReceiveMsg(data);
-                                    }
+                        Log.d("sasa","isHeartBeat(data)=="+isHeartBeat(data));
+                        if (!isHeartBeat(data)) {
+                            KageSocket.ISocketCallback.TCastSocketCallbackThreadHandler.getInstance().post(() -> {
+                                if (mSocketCallback != null) {
+                                    mSocketCallback.onReceiveMsg(data);
                                 }
                             });
                         }
@@ -186,6 +173,7 @@ public class PacketReader implements IPacketReader {
             receiveLength = dis.readInt();
         } catch (IOException e) {
             e.printStackTrace();
+            Log.d(TAG, "readNextPacket IO : " + e.getMessage());
             return null;
         }
         Log.d(TAG, "receiveLength = " + receiveLength);

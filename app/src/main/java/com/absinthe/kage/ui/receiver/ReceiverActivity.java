@@ -26,8 +26,13 @@ public class ReceiverActivity extends AppCompatActivity {
 
     private void initView() {
         binding.btnStartService.setOnClickListener(v -> {
-            ConnectionServer server = new ConnectionServer();
-            server.start();
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    ConnectionServer server = new ConnectionServer();
+                    server.start();
+                }
+            });
         });
         binding.btnStopService.setOnClickListener(v -> {
             Intent intent = new Intent(ReceiverActivity.this, TCPService.class);

@@ -21,6 +21,7 @@ public class ConnectionServer {
     }
 
     public void start() {
+        isStart = true;
         ServerSocket serverSocket = null;
         ExecutorService executorService = Executors.newCachedThreadPool();
         try {
@@ -53,16 +54,6 @@ public class ConnectionServer {
 
         } catch (IOException e) {
             e.printStackTrace();
-        } finally {
-            if (serverSocket != null) {
-                try {
-                    isStart = false;
-                    serverSocket.close();
-                    serverResponseTask.stop();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
         }
     }
 

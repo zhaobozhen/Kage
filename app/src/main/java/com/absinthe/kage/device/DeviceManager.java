@@ -256,8 +256,9 @@ public class DeviceManager extends KageObservable implements LifecycleObserver {
             localObservers = observers.toArray(new IDeviceObserver[0]);
         }
         for (IDeviceObserver observer : localObservers) {
-            DeviceInfo DeviceInfo = device.getDeviceInfo();
-            observer.onDeviceConnected(DeviceInfo);
+            DeviceInfo deviceInfo = device.getDeviceInfo();
+            deviceInfo.setState(DeviceInfo.STATE_CONNECTED);
+            observer.onDeviceConnected(deviceInfo);
         }
     }
 
@@ -425,7 +426,7 @@ public class DeviceManager extends KageObservable implements LifecycleObserver {
             device.setConnectCallback(new Device.IConnectCallback() {
                 @Override
                 public void onConnectedFailed(final int code, Exception e) {
-                    Log.d(TAG, "onConnectedFailed");
+                    Log.d(TAG, "onConnectedFailed:");
                     synchronized (LOCK) {
                         mCurrentDeviceKey = null;
                         setConnectState(new StateIdle());

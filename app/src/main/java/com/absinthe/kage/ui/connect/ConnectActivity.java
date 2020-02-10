@@ -18,6 +18,7 @@ import java.util.List;
 
 public class ConnectActivity extends AppCompatActivity {
 
+    private static final String TAG = ConnectActivity.class.getSimpleName();
     private ActivityConnectBinding binding;
     private DeviceAdapter mAdapter;
     private DeviceManager mDeviceManager;
@@ -57,12 +58,19 @@ public class ConnectActivity extends AppCompatActivity {
 
             @Override
             public void onDeviceConnected(DeviceInfo deviceInfo) {
-                Log.d("sasa", "connect");
+                Log.d(TAG, "onDeviceConnected");
+                mAdapter.notifyDataSetChanged();
             }
 
             @Override
             public void onDeviceConnecting(DeviceInfo deviceInfo) {
-                Log.d("sasa", "connecting");
+                Log.d(TAG, "onDeviceConnecting");
+                mAdapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public void onDeviceConnectFailed(DeviceInfo deviceInfo, int errorCode, String errorMessage) {
+                Log.d(TAG, "onDeviceConnectFailed");
             }
         };
         mDeviceManager.register(observer);

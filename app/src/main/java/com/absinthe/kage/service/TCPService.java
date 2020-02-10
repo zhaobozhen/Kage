@@ -13,13 +13,21 @@ import androidx.core.app.NotificationCompat;
 import androidx.core.content.ContextCompat;
 
 import com.absinthe.kage.R;
+import com.absinthe.kage.client.Client;
 import com.absinthe.kage.device.DeviceManager;
-import com.absinthe.kage.server.ConnectionServer;
+import com.absinthe.kage.protocol.Config;
 import com.absinthe.kage.ui.main.MainActivity;
 import com.absinthe.kage.utils.NotificationUtils;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.net.ServerSocket;
+import java.net.Socket;
+
 public class TCPService extends Service {
     private DeviceManager mDeviceManager;
+    private ServerSocket serverSocket;
 
     @Override
     public void onCreate() {
@@ -30,13 +38,20 @@ public class TCPService extends Service {
         mDeviceManager.init();
         mDeviceManager.startMonitorDevice(2000);
 
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                ConnectionServer connectionServer = new ConnectionServer();
-                connectionServer.start();
+        new Thread(() -> {
+            try {
+                serverSocket = new ServerSocket(Config.PORT);
+                while (true) {
+                    Socket socket = serverSocket.accept();
+                    DataInputStream dis = new DataInputStream(socket.getInputStream());
+                    DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
+                    new Client(socket, dis, dos).start();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
             }
-        });
+        }).start();
+
     }
 
     @Override

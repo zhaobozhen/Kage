@@ -1,13 +1,18 @@
 package com.absinthe.kage.ui.sender;
 
 import android.os.Bundle;
+import android.util.Log;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.absinthe.kage.client.ConnectionClient;
+import com.absinthe.kage.client.IRequestCallBack;
 import com.absinthe.kage.databinding.ActivitySenderBinding;
 import com.absinthe.kage.device.DeviceManager;
 import com.absinthe.kage.device.IDeviceObserver;
 import com.absinthe.kage.device.model.DeviceInfo;
+import com.absinthe.kage.protocol.BaseProtocol;
+import com.absinthe.kage.utils.ToastUtil;
 
 public class SenderActivity extends AppCompatActivity {
 
@@ -19,56 +24,16 @@ public class SenderActivity extends AppCompatActivity {
         binding = ActivitySenderBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        initView();
-        initObserver();
-    }
-
-    private void initView() {
-
-    }
-
-    private void initObserver() {
-        IDeviceObserver observer = new IDeviceObserver() {
+        ConnectionClient connectionClient = new ConnectionClient("192.168.1.113", new IRequestCallBack() {
             @Override
-            public void onFindDevice(DeviceInfo deviceInfo) {
-                binding.etIpAddress.setText(deviceInfo.getIp());
+            public void onSuccess(BaseProtocol msg) {
+                Log.d("sasa", "onSuccess");
             }
 
             @Override
-            public void onLostDevice(DeviceInfo deviceInfo) {
+            public void onFailed(int errorCode, String msg) {
 
             }
-
-            @Override
-            public void onDeviceConnected(DeviceInfo deviceInfo) {
-
-            }
-
-            @Override
-            public void onDeviceDisConnect(DeviceInfo deviceInfo) {
-
-            }
-
-            @Override
-            public void onDeviceConnectFailed(DeviceInfo deviceInfo, int errorCode, String errorMessage) {
-
-            }
-
-            @Override
-            public void onDeviceInfoChanged(DeviceInfo deviceInfo) {
-
-            }
-
-            @Override
-            public void onDeviceNotice(DeviceInfo deviceInfo) {
-
-            }
-
-            @Override
-            public void onDeviceConnecting(DeviceInfo deviceInfo) {
-
-            }
-        };
-        DeviceManager.Singleton.INSTANCE.getInstance().register(observer);
+        });
     }
 }

@@ -31,8 +31,11 @@ public class ProtocolHandler implements IProtocolHandler {
     public void handleSocketMassage(String msg) {
         if (msg != null) {
             String[] split = msg.split(IpMessageProtocol.DELIMITER);
+            Log.d("sasa", "split[0]="+split[0]);
             try {
                 int cmd = Integer.parseInt(split[0]);
+                Log.d("sasa", "cmd="+cmd);
+
                 switch (cmd) {
                     case IpMessageConst.GET_CLIENTTYPE:
                         String clientType = split[1];
@@ -52,7 +55,7 @@ public class ProtocolHandler implements IProtocolHandler {
                         String countryCode = "";
                         if (split.length > 2) {
                             String appVersion = split[2];
-                            String[] appVersions = appVersion.split(":");
+                            String[] appVersions = appVersion.split(IpMessageProtocol.DELIMITER);
                             if (appVersions.length == 2) {
                                 appVersionCode = appVersions[0];
                                 appVersionName = appVersions[1];
