@@ -9,7 +9,7 @@ public class InquiryDeviceInfoCommand extends Device.Command {
     public String phoneName;
 
     public InquiryDeviceInfoCommand() {
-        cmd = IpMessageConst.GET_CLIENTTYPE;
+        cmd = IpMessageConst.GET_DEVICE_INFO;
     }
 
     @Override

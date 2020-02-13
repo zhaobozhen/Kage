@@ -73,6 +73,12 @@ public class ConnectActivity extends AppCompatActivity {
             }
 
             @Override
+            public void onDeviceDisConnect(DeviceInfo deviceInfo) {
+                Log.d(TAG, "onDeviceDisConnect");
+                mAdapter.notifyDataSetChanged();
+            }
+
+            @Override
             public void onDeviceConnectFailed(DeviceInfo deviceInfo, int errorCode, String errorMessage) {
                 Log.d(TAG, "onDeviceConnectFailed");
             }
@@ -82,9 +88,13 @@ public class ConnectActivity extends AppCompatActivity {
         mAdapter.setOnItemChildClickListener((adapter, view, position) -> {
             if (view.getId() == R.id.btn_connect) {
                 DeviceInfo deviceInfo = mAdapter.getItem(position);
-                if (deviceInfo != null && !deviceInfo.isConnected()) {
-                    mDeviceManager.onlineDevice(deviceInfo);
-                    mDeviceManager.connectDevice(deviceInfo);
+                if (deviceInfo != null) {
+                    if (!deviceInfo.isConnected()) {
+                        mDeviceManager.onlineDevice(deviceInfo);
+                        mDeviceManager.connectDevice(deviceInfo);
+                    } else {
+                        mDeviceManager.disConnectDevice();
+                    }
                 }
             }
         });

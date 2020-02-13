@@ -7,33 +7,33 @@
     android:layout_height="match_parent">
 
     <Button
-        android:id="@+id/btn_connect"
+        android:id="@+id/btn_cast_image"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="40dp"
-        android:text="Connect"
-        app:layout_constraintBottom_toTopOf="@id/btn_send"
+        android:layout_marginBottom="20dp"
+        android:text="Cast Image"
+        app:layout_constraintBottom_toTopOf="@id/btn_cast_video"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
     <Button
-        android:id="@+id/btn_send"
+        android:id="@+id/btn_cast_video"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="40dp"
-        android:text="Send"
+        android:text="Cast Video"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <EditText
-        android:id="@+id/et_ip_address"
-        android:layout_width="200dp"
+    <Button
+        android:id="@+id/btn_cast_music"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="40dp"
+        android:layout_marginTop="20dp"
+        android:text="Cast Music"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btn_send" />
+        app:layout_constraintTop_toBottomOf="@id/btn_cast_video" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

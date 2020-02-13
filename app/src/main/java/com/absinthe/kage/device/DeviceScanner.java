@@ -23,7 +23,7 @@ public class DeviceScanner {
     private NoticeOnlineThread mNoticeOnlineThread;
     private Map<String, Device> mDevices = new ConcurrentHashMap<>();
     private DeviceConfig mConfig;
-    private final static int TIMEOUT = 5000;   //5秒间隔询问无回复则判定为无响应
+    private final static int TIMEOUT = 10000;   //10 秒间隔询问无回复则判定为无响应
 
     public void setConfig(DeviceConfig config) {
         synchronized (LOCK) {
@@ -51,13 +51,11 @@ public class DeviceScanner {
             mUDP = new UDP(mConfig.localHost, mConfig.broadcastMonitorPort);
         }
         mUDP.startReceive((ip, port, data) -> {
-                    IpMessageProtocol ipMessage = null;
+                    IpMessageProtocol ipMessage;
                     try {
                         ipMessage = new IpMessageProtocol(data);
                     } catch (Exception e) {
                         Log.e(TAG, "parse UDP data error:" + e.toString());
-                    }
-                    if (ipMessage == null) {
                         return;
                     }
 

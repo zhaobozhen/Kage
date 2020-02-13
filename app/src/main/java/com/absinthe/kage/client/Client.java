@@ -2,6 +2,7 @@ package com.absinthe.kage.client;
 
 import android.util.Log;
 
+import com.absinthe.kage.device.heartbeat.HeartbeatRequest;
 import com.absinthe.kage.protocol.IpMessageConst;
 import com.absinthe.kage.protocol.IpMessageProtocol;
 
@@ -13,7 +14,6 @@ import java.nio.charset.StandardCharsets;
 
 public class Client extends Thread implements Runnable {
     private static final String TAG = Client.class.getSimpleName();
-    private final byte[] LOCK = new byte[0];
 
     private Socket socket;
     private DataInputStream dis;
@@ -51,7 +51,7 @@ public class Client extends Thread implements Runnable {
             switch (commandNum) {
                 case IpMessageConst.IS_ONLINE:
                     try {
-                        writeToStream(dos, IpMessageConst.IS_ONLINE + IpMessageProtocol.DELIMITER + "YES");
+                        writeToStream(dos, new HeartbeatRequest().getData());
                     } catch (IOException e1) {
                         e1.printStackTrace();
                         offline(socket, dis, dos);
@@ -59,9 +59,9 @@ public class Client extends Thread implements Runnable {
                         e1.printStackTrace();
                     }
                     break;
-                case IpMessageConst.GET_CLIENTTYPE:
+                case IpMessageConst.GET_DEVICE_INFO:
                     try {
-                        writeToStream(dos, IpMessageConst.GET_CLIENTTYPE + IpMessageProtocol.DELIMITER + "YES");
+                        writeToStream(dos, IpMessageConst.GET_DEVICE_INFO + IpMessageProtocol.DELIMITER + "YES");
                     } catch (IOException e1) {
                         e1.printStackTrace();
                         offline(socket, dis, dos);
@@ -113,20 +113,9 @@ public class Client extends Thread implements Runnable {
         String enStr;
         try {
             if (client.isFirstCmd) {
-                enStr = new String(bArray, StandardCharsets.UTF_8);
-                String[] str = enStr.split(IpMessageProtocol.DELIMITER);
-                int length = str.length;
-                int n = 0;
-                try {
-                    n = Integer.parseInt(str[0]);
-                } catch (NumberFormatException e) {
-                    e.printStackTrace();
-                }
                 client.isFirstCmd = false;
-                enStr = new String(bArray, StandardCharsets.UTF_8);
-            } else {
-                enStr = new String(bArray, StandardCharsets.UTF_8);
             }
+            enStr = new String(bArray, StandardCharsets.UTF_8);
         } catch (OutOfMemoryError e) {
             e.printStackTrace();
             return "";
@@ -146,7 +135,7 @@ public class Client extends Thread implements Runnable {
 
     private void offline(Socket socket, DataInputStream dis, DataOutputStream dos) {
         Log.i(TAG, "offline " + socket.getInetAddress());
-        synchronized (LOCK) {
+        synchronized (Client.class) {
             try {
                 if (dis != null) {
                     dis.close();

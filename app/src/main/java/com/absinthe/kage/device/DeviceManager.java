@@ -255,8 +255,9 @@ public class DeviceManager extends KageObservable implements LifecycleObserver {
             localObservers = observers.toArray(new IDeviceObserver[0]);
         }
         for (IDeviceObserver observer : localObservers) {
-            DeviceInfo DeviceInfo = device.getDeviceInfo();
-            observer.onDeviceDisConnect(DeviceInfo);
+            DeviceInfo deviceInfo = device.getDeviceInfo();
+            deviceInfo.setState(DeviceInfo.STATE_IDLE);
+            observer.onDeviceDisConnect(deviceInfo);
         }
     }
 

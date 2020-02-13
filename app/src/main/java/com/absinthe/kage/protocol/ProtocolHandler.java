@@ -35,7 +35,7 @@ public class ProtocolHandler implements IProtocolHandler {
                 int cmd = Integer.parseInt(split[0]);
 
                 switch (cmd) {
-                    case IpMessageConst.GET_CLIENTTYPE:
+                    case IpMessageConst.GET_DEVICE_INFO:
                         hasHandShake = true;
                         KageProtocolThreadHandler.getInstance().post(() -> {
                             if (null != mCallback) {

@@ -10,6 +10,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.absinthe.kage.R;
 import com.absinthe.kage.databinding.ActivityMainBinding;
+import com.absinthe.kage.device.DeviceManager;
 import com.absinthe.kage.service.TCPService;
 import com.absinthe.kage.ui.connect.ConnectActivity;
 import com.absinthe.kage.ui.receiver.ReceiverActivity;
@@ -37,8 +38,13 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void initView() {
-        binding.btnSender.setOnClickListener(v ->
-                startActivity(new Intent(MainActivity.this, SenderActivity.class)));
+        binding.btnSender.setOnClickListener(v -> {
+            if (DeviceManager.Singleton.INSTANCE.getInstance().isConnected()) {
+                startActivity(new Intent(MainActivity.this, SenderActivity.class));
+            } else {
+                startActivity(new Intent(MainActivity.this, ConnectActivity.class));
+            }
+        });
         binding.btnReceiver.setOnClickListener(v ->
                 startActivity(new Intent(MainActivity.this, ReceiverActivity.class)));
     }
