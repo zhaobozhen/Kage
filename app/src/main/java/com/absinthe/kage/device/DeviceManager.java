@@ -3,7 +3,6 @@ package com.absinthe.kage.device;
 import android.bluetooth.BluetoothAdapter;
 import android.os.Handler;
 import android.os.Looper;
-import android.text.TextUtils;
 import android.util.Log;
 
 import androidx.annotation.Nullable;
@@ -69,45 +68,31 @@ public class DeviceManager extends KageObservable implements LifecycleObserver {
         setConnectState(new StateIdle());
     }
 
-    public boolean init() {
+    public void init() {
         if (mDeviceScanner == null) {
             mDeviceScanner = new DeviceScanner();
         }
+
         DeviceConfig config = new DeviceConfig();
-        String deviceId = null;
         BluetoothAdapter defaultAdapter = BluetoothAdapter.getDefaultAdapter();
-        if (defaultAdapter != null) {//不支持蓝牙的设备或者权限被禁止
-            deviceId = defaultAdapter.getName();
-        }
-        if (deviceId == null) {
-            config.name = android.os.Build.MODEL;
+
+        if (defaultAdapter != null) {
+            config.name = defaultAdapter.getName();
         } else {
-            config.name = deviceId;
+            config.name = android.os.Build.MODEL;
         }
-        config.name = config.name.replaceAll(":", "&#058");
+
         config.uuid = UUID.randomUUID().toString();
         String localHost;
         localHost = new ScanDeviceTool().getLocAddress();
 
-        if (TextUtils.isEmpty(localHost)) {
-            localHost = "";
-        }
-        String broadCastHostInWifi;
-        String broadCastHostInAP;
-        int broadcastMonitorPort;
-        int broadcastPort;
-        broadCastHostInWifi = Const.BROADCAST_IP_IN_WIFI;
-        broadCastHostInAP = Const.BROADCAST_IP_IN_AP;
-        broadcastMonitorPort = Config.PORT;
-        broadcastPort = Config.PORT;
         config.localHost = localHost;
-        config.broadCastHostInWifi = broadCastHostInWifi;
-        config.broadCastHostInAp = broadCastHostInAP;
-        config.broadcastMonitorPort = broadcastMonitorPort;
-        config.broadcastPort = broadcastPort;
-        this.mConfig = config;
+        config.broadCastHostInWifi = Const.BROADCAST_IP_IN_WIFI;
+        config.broadCastHostInAp = Const.BROADCAST_IP_IN_AP;
+        config.broadcastMonitorPort = Config.PORT;
+        config.broadcastPort = Config.PORT;
+        mConfig = config;
         mDeviceScanner.setConfig(mConfig);
-        return true;
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
@@ -137,7 +122,7 @@ public class DeviceManager extends KageObservable implements LifecycleObserver {
     /**
      * 开始监测设备
      *
-     * @param period
+     * @param period period
      * @return resultCode
      */
     public int startMonitorDevice(int period) {
@@ -175,6 +160,7 @@ public class DeviceManager extends KageObservable implements LifecycleObserver {
     /**
      * 停止监测设备
      */
+    @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
     public void stopMonitorDevice() {
         if (!checkConfiguration()) {
             return;
@@ -331,7 +317,7 @@ public class DeviceManager extends KageObservable implements LifecycleObserver {
     }
 
     /**
-     * @param deviceInfo
+     * @param deviceInfo Device info
      * @param timeout    连接超时时间，单位为毫秒
      */
     public synchronized void connectDevice(DeviceInfo deviceInfo, int timeout) {
@@ -501,8 +487,8 @@ public class DeviceManager extends KageObservable implements LifecycleObserver {
             }
         }
         if (null != tempProxyList) {
-            for (int i = 0; i < tempProxyList.length; i++) {
-                tempProxyList[i].onDeviceConnected(device);
+            for (IProxy iProxy : tempProxyList) {
+                iProxy.onDeviceConnected(device);
             }
         }
     }

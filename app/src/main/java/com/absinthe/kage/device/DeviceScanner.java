@@ -9,7 +9,6 @@ import com.absinthe.kage.device.model.DeviceInfo;
 import com.absinthe.kage.protocol.IpMessageConst;
 import com.absinthe.kage.protocol.IpMessageProtocol;
 
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -23,10 +22,8 @@ public class DeviceScanner {
     private IScanCallback mScanCallback;
     private NoticeOnlineThread mNoticeOnlineThread;
     private Map<String, Device> mDevices = new ConcurrentHashMap<>();
-    private Map<String, Integer> mTimeCounter = new HashMap<>();
     private DeviceConfig mConfig;
-    private int mCountThreshold = 3;    //3次询问无回复则判定为无响应
-    private final static int TIMEOUT = 30000;   //30秒间隔询问无回复则判定为无响应
+    private final static int TIMEOUT = 5000;   //5秒间隔询问无回复则判定为无响应
 
     public void setConfig(DeviceConfig config) {
         synchronized (LOCK) {
@@ -112,9 +109,8 @@ public class DeviceScanner {
                                 }
                             } else if (isDeviceInfoChanged(ipMessage, dev)) {
                                 dev.setName(ipMessage.getSenderName());
-                                String protocolVersion = ipMessage.getVersion();
                                 String additionalSection = ipMessage.getAdditionalSection();
-                                String[] userInfo = additionalSection.split(":");
+                                String[] userInfo = additionalSection.split(IpMessageProtocol.DELIMITER);
                                 if (userInfo.length < 1) {
                                     dev.setName(ipMessage.getSenderName());
                                 }
@@ -191,7 +187,6 @@ public class DeviceScanner {
             String protocolVersion = deviceInfo.getProtocolVersion();
             String functionCode = deviceInfo.getFunctionCode();
 
-            //二维码扫描或者其他方式获得的连接信息中,如果不包含协议版本或者functioncode，则不加入到设备列表中
             if (TextUtils.isEmpty(protocolVersion)
                     || TextUtils.isEmpty(functionCode)) {
                 return null;
@@ -208,7 +203,8 @@ public class DeviceScanner {
             recount(dev);
             return dev.getDeviceInfo();
         } else {
-            return mDevices.get(deviceInfo.getIp()).getDeviceInfo();
+            Device device = mDevices.get(deviceInfo.getIp());
+            return device == null ? null : device.getDeviceInfo();
         }
     }
 
@@ -300,7 +296,7 @@ public class DeviceScanner {
         while (iterator.hasNext()) {
             Device device = iterator.next().getValue();
             spaceTime = System.currentTimeMillis() - device.getOnlineTime();
-            Log.v(TAG, "checkOffline ip=" + device.getIp() + ",state=" + device.getState() + ",spaceTime=" + spaceTime);
+            Log.d(TAG, "checkOffline ip=" + device.getIp() + ",state=" + device.getState() + ",spaceTime=" + spaceTime);
             if (spaceTime > TIMEOUT && device.getState() == DeviceInfo.STATE_IDLE) {
                 iterator.remove();
                 if (mScanCallback != null) {

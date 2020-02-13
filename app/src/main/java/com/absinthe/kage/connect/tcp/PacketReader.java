@@ -119,7 +119,6 @@ public class PacketReader implements IPacketReader {
                             }
                         });
                         responseAllHeartBeat();//收到任何数据都消费掉所有的心跳超时
-                        Log.d("sasa","isHeartBeat(data)=="+isHeartBeat(data));
                         if (!isHeartBeat(data)) {
                             KageSocket.ISocketCallback.TCastSocketCallbackThreadHandler.getInstance().post(() -> {
                                 if (mSocketCallback != null) {

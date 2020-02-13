@@ -35,6 +35,8 @@ public class ConnectActivity extends AppCompatActivity {
 
     private void initView() {
         mDeviceManager = DeviceManager.Singleton.INSTANCE.getInstance();
+        getLifecycle().addObserver(mDeviceManager);
+
         mAdapter = new DeviceAdapter();
         binding.rvDevices.setAdapter(mAdapter);
         binding.rvDevices.setLayoutManager(new LinearLayoutManager(this));
@@ -48,11 +50,13 @@ public class ConnectActivity extends AppCompatActivity {
         IDeviceObserver observer = new DeviceObserverImpl() {
             @Override
             public void onFindDevice(DeviceInfo deviceInfo) {
+                Log.d(TAG, "onFindDevice");
                 mAdapter.addData(deviceInfo);
             }
 
             @Override
             public void onLostDevice(DeviceInfo deviceInfo) {
+                Log.d(TAG, "onLostDevice");
                 mAdapter.remove(deviceInfo);
             }
 

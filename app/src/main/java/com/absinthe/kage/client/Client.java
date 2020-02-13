@@ -16,9 +16,8 @@ public class Client extends Thread implements Runnable {
     private final byte[] LOCK = new byte[0];
 
     private Socket socket;
-    private DataInputStream dis = null;
-    private DataOutputStream dos = null;
-    private long mStartTime;
+    private DataInputStream dis;
+    private DataOutputStream dos;
     private boolean isFirstCmd;
 
     public Client(Socket s, DataInputStream is, DataOutputStream os) {
@@ -26,13 +25,12 @@ public class Client extends Thread implements Runnable {
         dis = is;
         dos = os;
         isFirstCmd = true;
-        mStartTime = System.currentTimeMillis();
     }
 
     @Override
     public void run() {
         while (true) {
-            String command = readMyUTF(dis, Client.this);
+            String command = readToStream(dis, Client.this);
             Log.i(TAG, TAG + "  received command is " + command);
 
             if (command == null) {
@@ -43,7 +41,6 @@ public class Client extends Thread implements Runnable {
                 continue;
             }
             String[] str = command.split(IpMessageProtocol.DELIMITER);
-            int length = str.length;
             int commandNum = 0;
             try {
                 commandNum = Integer.parseInt(str[0]);
@@ -54,7 +51,7 @@ public class Client extends Thread implements Runnable {
             switch (commandNum) {
                 case IpMessageConst.IS_ONLINE:
                     try {
-                        writeMyUTF(dos, IpMessageConst.IS_ONLINE + IpMessageProtocol.DELIMITER + "YES");
+                        writeToStream(dos, IpMessageConst.IS_ONLINE + IpMessageProtocol.DELIMITER + "YES");
                     } catch (IOException e1) {
                         e1.printStackTrace();
                         offline(socket, dis, dos);
@@ -64,7 +61,7 @@ public class Client extends Thread implements Runnable {
                     break;
                 case IpMessageConst.GET_CLIENTTYPE:
                     try {
-                        writeMyUTF(dos, IpMessageConst.GET_CLIENTTYPE + IpMessageProtocol.DELIMITER + "YES");
+                        writeToStream(dos, IpMessageConst.GET_CLIENTTYPE + IpMessageProtocol.DELIMITER + "YES");
                     } catch (IOException e1) {
                         e1.printStackTrace();
                         offline(socket, dis, dos);
@@ -77,80 +74,71 @@ public class Client extends Thread implements Runnable {
         }
     }
 
-    private String readMyUTF(DataInputStream dis, Client client) {
-        Log.i(TAG, "readMyUTF:isFirstCmd:" + client.isFirstCmd);
-        while (true) {
-            int receiveLen = 0;
-            try {
-                receiveLen = dis.readInt();
-            } catch (IOException e) {
-                // TODO Auto-generated catch block
-                Log.i(TAG, "read Int erro  IOException==" + e);
-                e.printStackTrace();
-                return null;
-            } catch (Exception e) {
-                // TODO Auto-generated catch block
-                Log.i(TAG, "read Int erro  Exception==" + e);
-                e.printStackTrace();
-                return null;
-            }
-            Log.i(TAG, "read Int recvLen==" + receiveLen);
-            if (receiveLen <= 0) {
-                return "";
-            }
-            byte[] bArray;
-            try {
-                bArray = new byte[receiveLen];
-            } catch (OutOfMemoryError e) {
-                e.printStackTrace();
-                Log.i(TAG, "read Int erro  OutOfMemoryError=" + e);
-                return "";
-            }
-            int bytesRead = 0;
-            while (bytesRead < receiveLen) {
-                try {
-                    int result = dis.read(bArray, bytesRead, receiveLen - bytesRead);
-                    if (result == -1)
-                        break;
-                    bytesRead += result;
-                } catch (IOException e) {
-                    Log.i(TAG, "read Int erro----  IOException=" + e);
-                    return null;
-                }
-            }
-            String enStr;
-            try {
-                if (client.isFirstCmd) {
-                    enStr = new String(bArray, StandardCharsets.UTF_8);
-                    String[] str = enStr.split(IpMessageProtocol.DELIMITER);
-                    int length = str.length;
-                    int n = 0;
-                    try {
-                        n = Integer.parseInt(str[0]);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                        Log.i(TAG, "read parseInt Exception = " + e);
-                    }
-                    client.isFirstCmd = false;
-                    enStr = new String(bArray, StandardCharsets.UTF_8);
-                } else {
-                    enStr = new String(bArray, StandardCharsets.UTF_8);
-                }
-            } catch (OutOfMemoryError e) {
-                e.printStackTrace();
-                Log.i(TAG, "read  new String  OutOfMemoryError=" + e);
-                return "";
-            }
-            return enStr;
+    private String readToStream(DataInputStream dis, Client client) {
+        Log.i(TAG, "readToStream: isFirstCmd:" + client.isFirstCmd);
+        int receivedLen;
+        try {
+            receivedLen = dis.readInt();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
         }
+
+        Log.i(TAG, "readToStream received str length == " + receivedLen);
+        if (receivedLen <= 0) {
+            return "";
+        }
+
+        byte[] bArray;
+        try {
+            bArray = new byte[receivedLen];
+        } catch (OutOfMemoryError e) {
+            e.printStackTrace();
+            return "";
+        }
+
+        int bytesRead = 0;
+        while (bytesRead < receivedLen) {
+            try {
+                int result = dis.read(bArray, bytesRead, receivedLen - bytesRead);
+                if (result == -1)
+                    break;
+                bytesRead += result;
+            } catch (IOException e) {
+                e.printStackTrace();
+                return null;
+            }
+        }
+
+        String enStr;
+        try {
+            if (client.isFirstCmd) {
+                enStr = new String(bArray, StandardCharsets.UTF_8);
+                String[] str = enStr.split(IpMessageProtocol.DELIMITER);
+                int length = str.length;
+                int n = 0;
+                try {
+                    n = Integer.parseInt(str[0]);
+                } catch (NumberFormatException e) {
+                    e.printStackTrace();
+                }
+                client.isFirstCmd = false;
+                enStr = new String(bArray, StandardCharsets.UTF_8);
+            } else {
+                enStr = new String(bArray, StandardCharsets.UTF_8);
+            }
+        } catch (OutOfMemoryError e) {
+            e.printStackTrace();
+            return "";
+        }
+        return enStr;
     }
 
-    private synchronized void writeMyUTF(DataOutputStream dos, String str) throws Exception {
-        // String deStr = URLEncoder.encode(str, "utf-8");
-        Log.i(TAG, "writeMyUTF sendStr is " + str);
+    private synchronized void writeToStream(DataOutputStream dos, String str) throws Exception {
+        Log.i(TAG, "writeToStream sendStr is " + str);
         byte[] bArray = str.getBytes(StandardCharsets.UTF_8);
         int sendLen = bArray.length;
-        Log.i(TAG, "writeMyUTF sendLen is " + sendLen);
+        Log.i(TAG, "writeToStream sendStr length is " + sendLen);
         dos.writeInt(sendLen);
         dos.flush();
         dos.write(bArray, 0, sendLen);

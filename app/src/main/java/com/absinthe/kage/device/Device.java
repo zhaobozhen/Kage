@@ -36,7 +36,7 @@ public class Device {
         IProtocolHandler.IProtocolHandleCallback mProtocolHandlerCallback = new IProtocolHandler.IProtocolHandleCallback() {
             @Override
             public void onProtocolConnected() {
-                Log.d("sasa", "onProtocolConnected");
+                Log.d(TAG, "onProtocolConnected");
                 if (null != mDeviceInfo) {
                     mDeviceInfo.setConnected(true);
                 }
@@ -99,7 +99,7 @@ public class Device {
             @Override
             public void onReceiveMsg(String msg) {
                 if (msg != null) {
-                    Log.d("sasa","onReceiveMsg");
+                    Log.d(TAG,"onReceiveMsg");
                     if (mProtocolHandler != null) {
                         mProtocolHandler.handleSocketMassage(msg);
                     }
@@ -148,18 +148,18 @@ public class Device {
         mHeartbeatSender.beat(heartbeatId, HEARTBEAT_DEFAULT_TIMEOUT, new HeartbeatSender.IHeartbeatCallback() {
             @Override
             public void onBeatSuccess(String heartbeatId) {
-                Log.e(TAG, "onBeatSuccess,heartbeatId = " + heartbeatId);
+                Log.d(TAG, "onBeatSuccess,heartbeatId = " + heartbeatId);
             }
 
             @Override
             public void onBeatTimeout(String heartbeatId) {
-                Log.e(TAG, "onBeatTimeout,heartbeatId = " + heartbeatId);
+                Log.d(TAG, "onBeatTimeout,heartbeatId = " + heartbeatId);
                 disConnect();
             }
 
             @Override
             public void onBeatCancel(String heartbeatId) {
-                Log.e(TAG, "onBeatCancel,heartbeatId = " + heartbeatId);
+                Log.d(TAG, "onBeatCancel,heartbeatId = " + heartbeatId);
             }
         });
     }

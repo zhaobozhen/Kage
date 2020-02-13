@@ -7,11 +7,11 @@ public class DeviceInfo {
     private String protocolVersion;
     private String functionCode;
     private boolean isConnected;
-    private int state = STATE_IDLE; //0未连接，1连接中，2连接
+    private int state = STATE_IDLE;
 
-    public static final int STATE_IDLE = 0;
-    public static final int STATE_CONNECTING = 1;
-    public static final int STATE_CONNECTED = 2;
+    public static final int STATE_IDLE = 0;//未连接
+    public static final int STATE_CONNECTING = 1;//连接中
+    public static final int STATE_CONNECTED = 2;//已连接
 
     public int getState() {
         return state;

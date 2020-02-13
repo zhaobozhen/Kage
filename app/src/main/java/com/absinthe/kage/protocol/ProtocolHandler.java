@@ -31,72 +31,11 @@ public class ProtocolHandler implements IProtocolHandler {
     public void handleSocketMassage(String msg) {
         if (msg != null) {
             String[] split = msg.split(IpMessageProtocol.DELIMITER);
-            Log.d("sasa", "split[0]="+split[0]);
             try {
                 int cmd = Integer.parseInt(split[0]);
-                Log.d("sasa", "cmd="+cmd);
 
                 switch (cmd) {
                     case IpMessageConst.GET_CLIENTTYPE:
-                        String clientType = split[1];
-                        String appVersionName = "";
-                        String appVersionCode = "";
-                        String softwareVersion = "";
-                        String tvDeviceNum = "";
-                        String macAddress = "";
-                        String secret = "";
-                        String bluetoothMac = "";
-                        String TVType = "";
-                        String TVStore = "";
-                        String functionCode = "";
-                        String tvLanguage = "";
-                        String snCode = "";
-                        String clientCode = "";
-                        String countryCode = "";
-                        if (split.length > 2) {
-                            String appVersion = split[2];
-                            String[] appVersions = appVersion.split(IpMessageProtocol.DELIMITER);
-                            if (appVersions.length == 2) {
-                                appVersionCode = appVersions[0];
-                                appVersionName = appVersions[1];
-                            }
-                            if (split.length > 3) {
-                                softwareVersion = split[3];
-                            }
-                            if (split.length > 4) {
-                                tvDeviceNum = split[4];
-                            }
-                            if (split.length > 5) {
-                                macAddress = split[5];
-                            }
-                            if (split.length > 6) {
-                                secret = split[6];
-                            }
-                            if (split.length > 7) {
-                                bluetoothMac = split[7].toUpperCase();
-                            }
-                            if (split.length > 8) {
-                                TVType = split[8].toUpperCase();
-                            }
-                            if (split.length > 9) {
-                                TVStore = split[9].toUpperCase();
-                            }
-                            if (split.length > 10) {
-                                functionCode = split[10].toUpperCase();
-                            }
-                            if (split.length > 11) {
-                                tvLanguage = split[11];
-                            }
-                            if (split.length > 12) {
-                                snCode = split[12];
-                            }
-                            if (split.length > 13) {
-                                clientCode = split[13];
-                            }
-                            if (split.length > 14) {
-                                countryCode = split[14];
-                            }
-                        }
                         hasHandShake = true;
                         KageProtocolThreadHandler.getInstance().post(() -> {
                             if (null != mCallback) {
