@@ -4,6 +4,8 @@
     <string name="sender_label">Sender</string>
     <string name="receiver_label">Receiver</string>
 
+    <string name="about_info">Kage - An app which can cast multi-media files to other Android devices.</string>
+
     <string name="notification_channel_tcp">Kage Service is running</string>
     <string name="kage_service_notification_content">Tap to back home page</string>
 </resources>

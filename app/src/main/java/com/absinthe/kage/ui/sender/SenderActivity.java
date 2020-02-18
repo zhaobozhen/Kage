@@ -1,8 +1,12 @@
 package com.absinthe.kage.ui.sender;
 
 import android.Manifest;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.absinthe.kage.databinding.ActivitySenderBinding;
@@ -12,11 +16,14 @@ import com.zhihu.matisse.Matisse;
 import com.zhihu.matisse.MimeType;
 import com.zhihu.matisse.engine.impl.GlideEngine;
 
+import java.util.List;
+
 public class SenderActivity extends AppCompatActivity {
 
+    private static final String TAG = SenderActivity.class.getSimpleName();
     private static final int REQUEST_CODE_CHOOSE = 1001;
     private ActivitySenderBinding binding;
-    private final RxPermissions rxPermissions = new RxPermissions(this);
+    private List<Uri> mSelected;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,7 +36,7 @@ public class SenderActivity extends AppCompatActivity {
 
     private void initView() {
         binding.btnCastImage.setOnClickListener(v ->
-                rxPermissions.request(Manifest.permission.READ_EXTERNAL_STORAGE)
+                new RxPermissions(this).request(Manifest.permission.READ_EXTERNAL_STORAGE)
                         .subscribe(grant -> {
                             if (grant) {
                                 Matisse.from(SenderActivity.this)
@@ -42,5 +49,14 @@ public class SenderActivity extends AppCompatActivity {
                                 ToastUtil.makeText("Please grant permissions");
                             }
                         }).dispose());
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == REQUEST_CODE_CHOOSE && resultCode == RESULT_OK && data != null) {
+            mSelected = Matisse.obtainResult(data);
+            Log.d(TAG, "mSelected: " + mSelected);
+        }
     }
 }

@@ -12,8 +12,8 @@ import com.absinthe.kage.R;
 import com.absinthe.kage.databinding.ActivityMainBinding;
 import com.absinthe.kage.device.DeviceManager;
 import com.absinthe.kage.service.TCPService;
+import com.absinthe.kage.ui.about.AboutActivity;
 import com.absinthe.kage.ui.connect.ConnectActivity;
-import com.absinthe.kage.ui.receiver.ReceiverActivity;
 import com.absinthe.kage.ui.sender.SenderActivity;
 
 public class MainActivity extends AppCompatActivity {
@@ -38,15 +38,15 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void initView() {
-        binding.btnSender.setOnClickListener(v -> {
+        binding.btnSend.setOnClickListener(v -> {
             if (DeviceManager.Singleton.INSTANCE.getInstance().isConnected()) {
                 startActivity(new Intent(MainActivity.this, SenderActivity.class));
             } else {
                 startActivity(new Intent(MainActivity.this, ConnectActivity.class));
             }
         });
-        binding.btnReceiver.setOnClickListener(v ->
-                startActivity(new Intent(MainActivity.this, ReceiverActivity.class)));
+        binding.btnConnect.setOnClickListener(v ->
+                startActivity(new Intent(MainActivity.this, ConnectActivity.class)));
     }
 
     @Override
@@ -57,8 +57,8 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        if (item.getItemId() == R.id.toolbar_connect) {
-            startActivity(new Intent(this, ConnectActivity.class));
+        if (item.getItemId() == R.id.toolbar_about) {
+            startActivity(new Intent(this, AboutActivity.class));
         }
         return super.onOptionsItemSelected(item);
     }

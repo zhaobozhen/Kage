@@ -40,8 +40,8 @@
         <activity
             android:name=".ui.connect.ConnectActivity"
             android:label="@string/connect_label"
-            android:parentActivityName=".ui.main.MainActivity"
-            android:launchMode="singleTask" />
+            android:launchMode="singleTask"
+            android:parentActivityName=".ui.main.MainActivity" />
         <activity
             android:name=".ui.receiver.ReceiverActivity"
             android:label="@string/receiver_label"
@@ -50,6 +50,10 @@
             android:name=".ui.sender.SenderActivity"
             android:label="@string/sender_label"
             android:parentActivityName=".ui.main.MainActivity" />
+        <activity
+            android:name=".ui.about.AboutActivity"
+            android:parentActivityName=".ui.main.MainActivity"
+            android:theme="@style/AppTheme.About" />
 
         <uses-library
             android:name="org.apache.http.legacy"
