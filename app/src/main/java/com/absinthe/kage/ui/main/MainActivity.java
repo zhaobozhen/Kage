@@ -39,11 +39,13 @@ public class MainActivity extends AppCompatActivity {
 
     private void initView() {
         binding.btnSender.setOnClickListener(v -> {
-            if (DeviceManager.Singleton.INSTANCE.getInstance().isConnected()) {
-                startActivity(new Intent(MainActivity.this, SenderActivity.class));
-            } else {
-                startActivity(new Intent(MainActivity.this, ConnectActivity.class));
-            }
+//            if (DeviceManager.Singleton.INSTANCE.getInstance().isConnected()) {
+//                startActivity(new Intent(MainActivity.this, SenderActivity.class));
+//            } else {
+//                startActivity(new Intent(MainActivity.this, ConnectActivity.class));
+//            }
+            startActivity(new Intent(MainActivity.this, SenderActivity.class));
+
         });
         binding.btnReceiver.setOnClickListener(v ->
                 startActivity(new Intent(MainActivity.this, ReceiverActivity.class)));
