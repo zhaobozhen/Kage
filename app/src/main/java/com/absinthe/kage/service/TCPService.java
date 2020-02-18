@@ -2,15 +2,16 @@ package com.absinthe.kage.service;
 
 import android.app.Notification;
 import android.app.PendingIntent;
-import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.BitmapFactory;
 import android.os.Build;
-import android.os.IBinder;
 
 import androidx.core.app.NotificationCompat;
 import androidx.core.content.ContextCompat;
+import androidx.lifecycle.Lifecycle;
+import androidx.lifecycle.LifecycleService;
+import androidx.lifecycle.OnLifecycleEvent;
 
 import com.absinthe.kage.R;
 import com.absinthe.kage.client.Client;
@@ -26,19 +27,18 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-public class TCPService extends Service {
-    private DeviceManager mDeviceManager;
+public class TCPService extends LifecycleService {
     private ServerSocket mServerSocket;
-    private KageServer mKageServer;
 
     @Override
     public void onCreate() {
         super.onCreate();
         startForeground(1, getNotificationInstance());
 
-        mDeviceManager = DeviceManager.Singleton.INSTANCE.getInstance();
-        mDeviceManager.init();
-        mDeviceManager.startMonitorDevice(2000);
+        DeviceManager deviceManager = DeviceManager.Singleton.INSTANCE.getInstance();
+        deviceManager.init();
+        deviceManager.startMonitorDevice(2000);
+        getLifecycle().addObserver(deviceManager);
 
         new Thread(() -> {
             try {
@@ -54,25 +54,15 @@ public class TCPService extends Service {
             }
         }).start();
 
-        mKageServer = new KageServer();
+        KageServer kageServer = new KageServer();
         try {
-            mKageServer.start();
+            kageServer.start();
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    @Override
-    public void onDestroy() {
-        mDeviceManager.release();
-        super.onDestroy();
-    }
-
-    @Override
-    public IBinder onBind(Intent intent) {
-        return null;
-    }
-
+    @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
     public static void start(Context context) {
         Intent intent = new Intent(context, TCPService.class);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -83,6 +73,7 @@ public class TCPService extends Service {
         }
     }
 
+    @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
     public static void stop(Context context) {
         Intent intent = new Intent(context, TCPService.class);
         context.stopService(intent);

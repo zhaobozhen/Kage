@@ -28,19 +28,19 @@ public class SenderActivity extends AppCompatActivity {
     }
 
     private void initView() {
-        binding.btnCastImage.setOnClickListener(v -> rxPermissions
-                .request(Manifest.permission.READ_EXTERNAL_STORAGE)
-                .subscribe(grant -> {
-                    if (grant) {
-                        Matisse.from(SenderActivity.this)
-                                .choose(MimeType.ofImage())
-                                .countable(false)
-                                .maxSelectable(1)
-                                .imageEngine(new GlideEngine())
-                                .forResult(REQUEST_CODE_CHOOSE);
-                    } else {
-                        ToastUtil.makeText("Please grant permissions");
-                    }
-                }).dispose());
+        binding.btnCastImage.setOnClickListener(v ->
+                rxPermissions.request(Manifest.permission.READ_EXTERNAL_STORAGE)
+                        .subscribe(grant -> {
+                            if (grant) {
+                                Matisse.from(SenderActivity.this)
+                                        .choose(MimeType.ofImage())
+                                        .countable(false)
+                                        .maxSelectable(1)
+                                        .imageEngine(new GlideEngine())
+                                        .forResult(REQUEST_CODE_CHOOSE);
+                            } else {
+                                ToastUtil.makeText("Please grant permissions");
+                            }
+                        }).dispose());
     }
 }

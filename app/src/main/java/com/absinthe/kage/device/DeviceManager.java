@@ -170,6 +170,7 @@ public class DeviceManager extends KageObservable implements LifecycleObserver {
 
     public List<DeviceInfo> getDeviceInfoList() {
         if (!checkConfiguration()) {
+            Log.d(TAG, "!checkConfiguration()");
             return new ArrayList<>();
         }
         List<DeviceInfo> deviceInfoList = new ArrayList<>();

@@ -35,7 +35,6 @@ public class ConnectActivity extends AppCompatActivity {
 
     private void initView() {
         mDeviceManager = DeviceManager.Singleton.INSTANCE.getInstance();
-        getLifecycle().addObserver(mDeviceManager);
 
         mAdapter = new DeviceAdapter();
         binding.rvDevices.setAdapter(mAdapter);

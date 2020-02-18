@@ -23,7 +23,7 @@ public class DeviceScanner {
     private NoticeOnlineThread mNoticeOnlineThread;
     private Map<String, Device> mDevices = new ConcurrentHashMap<>();
     private DeviceConfig mConfig;
-    private final static int TIMEOUT = 30000;   //10 秒间隔询问无回复则判定为无响应
+    private final static int TIMEOUT = 5000;   //5 秒间隔询问无回复则判定为无响应
 
     public void setConfig(DeviceConfig config) {
         synchronized (LOCK) {
