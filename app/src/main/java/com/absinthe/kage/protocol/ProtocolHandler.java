@@ -57,7 +57,7 @@ public class ProtocolHandler implements IProtocolHandler {
         if (!hasHandShake) {// 握手期间断开了连接判定为连接失败
             KageProtocolThreadHandler.getInstance().post(() -> {
                 if (null != mCallback) {
-                    mCallback.onProtocolConnectedFailed(KageSocket.ISocketCallback.CONNECT_ERROR_CODE_HAND_SHAKE_UNCOMPLETE, null);
+                    mCallback.onProtocolConnectedFailed(KageSocket.ISocketCallback.CONNECT_ERROR_CODE_HAND_SHAKE_NOT_COMPLETE, null);
                 }
             });
             return;

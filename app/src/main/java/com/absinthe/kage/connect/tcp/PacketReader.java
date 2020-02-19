@@ -44,7 +44,7 @@ public class PacketReader implements IPacketReader {
                             break;
                         }
                         if (null == packet) {
-                            KageSocket.ISocketCallback.TCastSocketCallbackThreadHandler.getInstance().post(() -> {
+                            KageSocket.ISocketCallback.KageSocketCallbackThreadHandler.getInstance().post(() -> {
                                 if (null != mSocketCallback) {
                                     mSocketCallback.onReaderIdle();
                                 }
@@ -98,7 +98,7 @@ public class PacketReader implements IPacketReader {
                         }
                         if (data == null) {
                             Log.e(TAG, "ReceiveDataThread receive data == null" + ", thread :" + Thread.currentThread().getName());
-                            KageSocket.ISocketCallback.TCastSocketCallbackThreadHandler.getInstance().post(() -> {
+                            KageSocket.ISocketCallback.KageSocketCallbackThreadHandler.getInstance().post(() -> {
                                 if (mSocketCallback != null) {
                                     mSocketCallback.onReadAndWriteError(KageSocket.ISocketCallback.READ_ERROR_CODE_CONNECT_UNKNOWN);
                                 }
@@ -120,7 +120,7 @@ public class PacketReader implements IPacketReader {
                         });
                         responseAllHeartBeat();//收到任何数据都消费掉所有的心跳超时
                         if (!isHeartBeat(data)) {
-                            KageSocket.ISocketCallback.TCastSocketCallbackThreadHandler.getInstance().post(() -> {
+                            KageSocket.ISocketCallback.KageSocketCallbackThreadHandler.getInstance().post(() -> {
                                 if (mSocketCallback != null) {
                                     mSocketCallback.onReceiveMsg(data);
                                 }
