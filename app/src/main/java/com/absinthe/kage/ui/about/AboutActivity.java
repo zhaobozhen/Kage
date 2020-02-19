@@ -19,7 +19,7 @@ public class AboutActivity extends AbsAboutActivity {
 
     @Override
     protected void onCreateHeader(@NonNull ImageView icon, @NonNull TextView slogan, @NonNull TextView version) {
-        icon.setImageResource(R.mipmap.ic_launcher);
+        icon.setImageResource(R.drawable.pic_splash);
         slogan.setText(R.string.app_name);
         version.setText(String.format("Version: %s", BuildConfig.VERSION_NAME));
     }

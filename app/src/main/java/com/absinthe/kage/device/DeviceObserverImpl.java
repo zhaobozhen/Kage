@@ -5,42 +5,26 @@ import com.absinthe.kage.device.model.DeviceInfo;
 public class DeviceObserverImpl implements IDeviceObserver {
 
     @Override
-    public void onFindDevice(DeviceInfo deviceInfo) {
-
-    }
+    public void onFindDevice(DeviceInfo deviceInfo) { }
 
     @Override
-    public void onLostDevice(DeviceInfo deviceInfo) {
-
-    }
+    public void onLostDevice(DeviceInfo deviceInfo) { }
 
     @Override
-    public void onDeviceConnected(DeviceInfo deviceInfo) {
-
-    }
+    public void onDeviceConnected(DeviceInfo deviceInfo) { }
 
     @Override
-    public void onDeviceDisConnect(DeviceInfo deviceInfo) {
-
-    }
+    public void onDeviceDisConnect(DeviceInfo deviceInfo) { }
 
     @Override
-    public void onDeviceConnectFailed(DeviceInfo deviceInfo, int errorCode, String errorMessage) {
-
-    }
+    public void onDeviceConnectFailed(DeviceInfo deviceInfo, int errorCode, String errorMessage) { }
 
     @Override
-    public void onDeviceInfoChanged(DeviceInfo deviceInfo) {
-
-    }
+    public void onDeviceInfoChanged(DeviceInfo deviceInfo) { }
 
     @Override
-    public void onDeviceNotice(DeviceInfo deviceInfo) {
-
-    }
+    public void onDeviceNotice(DeviceInfo deviceInfo) { }
 
     @Override
-    public void onDeviceConnecting(DeviceInfo deviceInfo) {
-
-    }
+    public void onDeviceConnecting(DeviceInfo deviceInfo) { }
 }

@@ -26,7 +26,7 @@ public interface IProtocolHandler {
 
         void onProtocolConnectedFailed(int errorCode, Exception e);
 
-        void onProtocolSendOrReceiveError();//todo 该状态要封装在TCLSocket里
+        void onProtocolSendOrReceiveError();
     }
 
     class KageProtocolThreadHandler extends Handler {
@@ -42,7 +42,7 @@ public interface IProtocolHandler {
                 synchronized (KageProtocolThreadHandler.class) {
                     if (null == mHandler) {
                         if (null == mHandlerThread) {
-                            mHandlerThread = new HandlerThread("KageProtocolThreadHandler");
+                            mHandlerThread = new HandlerThread(KageProtocolThreadHandler.class.getSimpleName());
                             mHandlerThread.start();
                         }
                         mHandler = new KageProtocolThreadHandler(mHandlerThread.getLooper());

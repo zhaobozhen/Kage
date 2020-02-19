@@ -9,4 +9,6 @@
     <color name="gray">#FF888888</color>
     <color name="blue">#FF03A9F4</color>
     <color name="ripple">#FFBBBBBB</color>
+
+    <color name="aboutHeader">#FFFFC107</color>
 </resources>

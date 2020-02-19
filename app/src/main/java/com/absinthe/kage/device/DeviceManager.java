@@ -87,8 +87,8 @@ public class DeviceManager extends KageObservable implements LifecycleObserver {
         localHost = new ScanDeviceTool().getLocAddress();
 
         config.localHost = localHost;
-        config.broadCastHostInWifi = Const.BROADCAST_IP_IN_WIFI;
-        config.broadCastHostInAp = Const.BROADCAST_IP_IN_AP;
+        config.broadcastHostInWifi = Const.BROADCAST_IP_IN_WIFI;
+        config.broadcastHostInAp = Const.BROADCAST_IP_IN_AP;
         config.broadcastMonitorPort = Config.PORT;
         config.broadcastPort = Config.PORT;
         mConfig = config;
@@ -118,6 +118,9 @@ public class DeviceManager extends KageObservable implements LifecycleObserver {
         return mDeviceScanner.getScanPeriod();
     }
 
+    public DeviceConfig getConfig() {
+        return mConfig;
+    }
 
     /**
      * 开始监测设备
@@ -205,7 +208,7 @@ public class DeviceManager extends KageObservable implements LifecycleObserver {
     }
 
     @Override
-    public synchronized void unRegister(IDeviceObserver observer) {
+    public synchronized void unregister(IDeviceObserver observer) {
         if (observer == null) {
             return;
         }
@@ -427,7 +430,7 @@ public class DeviceManager extends KageObservable implements LifecycleObserver {
                             errorCode = ConnectFailedReason.CONNECT_ERROR_CODE_CONNECT_IP_OR_PORT_UNREACHABLE.ordinal();
                         } else if (KageSocket.ISocketCallback.CONNECT_ERROR_CODE_CONNECT_TIMEOUT == code) {
                             errorCode = ConnectFailedReason.CONNECT_ERROR_CODE_CONNECT_TIMEOUT.ordinal();
-                        } else if (KageSocket.ISocketCallback.CONNECT_ERROR_CODE_HAND_SHAKE_UNCOMPLETE == code) {
+                        } else if (KageSocket.ISocketCallback.CONNECT_ERROR_CODE_HAND_SHAKE_NOT_COMPLETE == code) {
                             errorCode = ConnectFailedReason.CONNECT_ERROR_CODE_HAND_SHAKE_UNDONE.ordinal();
                         } else if (KageSocket.ISocketCallback.CONNECT_ERROR_CODE_CONNECT_UNKNOWN == code) {
                             errorCode = ConnectFailedReason.CONNECT_ERROR_CODE_CONNECT_UNKNOWN.ordinal();

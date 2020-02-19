@@ -54,8 +54,8 @@ public class DeviceScanner {
                     IpMessageProtocol ipMessage;
                     try {
                         ipMessage = new IpMessageProtocol(data);
-                    } catch (Exception e) {
-                        Log.e(TAG, "parse UDP data error:" + e.toString());
+                    } catch (NumberFormatException e) {
+                        Log.e(TAG, "Parse UDP data error:" + e.toString());
                         return;
                     }
 
@@ -77,10 +77,7 @@ public class DeviceScanner {
                             ipMsgSend.setVersion(String.valueOf(IpMessageConst.VERSION));
                             ipMsgSend.setSenderName(mConfig.name);
                             ipMsgSend.setCmd(IpMessageConst.IP_MSG_ANS_ENTRY); // 回送报文命令
-                            ipMsgSend.setAdditionalSection(mConfig.name + IpMessageProtocol.DELIMITER
-                                    + mConfig.uuid + IpMessageProtocol.DELIMITER
-                                    + "0" + IpMessageProtocol.DELIMITER
-                                    + "0" + "\0"); // 附加信息里加入用户名和分组信息/
+                            ipMsgSend.setAdditionalSection(mConfig.uuid);
                             if (mUDP != null) {
                                 mUDP.notify(ipMsgSend, ip, port);
                             }
@@ -260,13 +257,10 @@ public class DeviceScanner {
             ipMsgSend.setVersion(String.valueOf(IpMessageConst.VERSION));
             ipMsgSend.setSenderName(mConfig.name);
             ipMsgSend.setCmd(IpMessageConst.IP_MSG_BR_ENTRY); // 上线命令
-            ipMsgSend.setAdditionalSection(mConfig.name + IpMessageProtocol.DELIMITER
-                    + mConfig.uuid + IpMessageProtocol.DELIMITER
-                    + "0" + IpMessageProtocol.DELIMITER
-                    + "0" + "\0"); // 附加信息里加入用户名和分组信息/
-            String broadCastHost = mConfig.broadCastHostInWifi;
+            ipMsgSend.setAdditionalSection(mConfig.uuid);
+            String broadCastHost = mConfig.broadcastHostInWifi;
             int broadcastPort = mConfig.broadcastPort;
-            String broadCastHostInAp = mConfig.broadCastHostInAp;
+            String broadCastHostInAp = mConfig.broadcastHostInAp;
             while (!isInterrupted() && !isStopped()) {
                 checkOffline();
                 if (mUDP == null) {

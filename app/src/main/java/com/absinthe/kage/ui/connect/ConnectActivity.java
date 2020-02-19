@@ -13,6 +13,7 @@ import com.absinthe.kage.device.DeviceManager;
 import com.absinthe.kage.device.DeviceObserverImpl;
 import com.absinthe.kage.device.IDeviceObserver;
 import com.absinthe.kage.device.model.DeviceInfo;
+import com.absinthe.kage.utils.ToastUtil;
 
 import java.util.List;
 
@@ -22,6 +23,7 @@ public class ConnectActivity extends AppCompatActivity {
     private ActivityConnectBinding binding;
     private DeviceAdapter mAdapter;
     private DeviceManager mDeviceManager;
+    private IDeviceObserver mObserver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,6 +33,12 @@ public class ConnectActivity extends AppCompatActivity {
 
         initView();
         initObserver();
+    }
+
+    @Override
+    protected void onDestroy() {
+        mDeviceManager.unregister(mObserver);
+        super.onDestroy();
     }
 
     private void initView() {
@@ -46,7 +54,7 @@ public class ConnectActivity extends AppCompatActivity {
     }
 
     private void initObserver() {
-        IDeviceObserver observer = new DeviceObserverImpl() {
+        mObserver = new DeviceObserverImpl() {
             @Override
             public void onFindDevice(DeviceInfo deviceInfo) {
                 Log.d(TAG, "onFindDevice");
@@ -63,6 +71,8 @@ public class ConnectActivity extends AppCompatActivity {
             public void onDeviceConnected(DeviceInfo deviceInfo) {
                 Log.d(TAG, "onDeviceConnected");
                 mAdapter.notifyDataSetChanged();
+                finish();
+                ToastUtil.makeText("Connected");
             }
 
             @Override
@@ -82,7 +92,7 @@ public class ConnectActivity extends AppCompatActivity {
                 Log.d(TAG, "onDeviceConnectFailed");
             }
         };
-        mDeviceManager.register(observer);
+        mDeviceManager.register(mObserver);
 
         mAdapter.setOnItemChildClickListener((adapter, view, position) -> {
             if (view.getId() == R.id.btn_connect) {

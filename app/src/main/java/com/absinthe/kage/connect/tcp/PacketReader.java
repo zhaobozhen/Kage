@@ -21,14 +21,14 @@ public class PacketReader implements IPacketReader {
     private static final String TAG = PacketReader.class.getSimpleName();
     private static final long DEFAULT_TIMEOUT = 5 * 1000;
     private static final long MAX_READ_LENGTH = 223 * 10000;//一次性最大读取指令的长度，超出将可能OOM
+
     private Map<String, Request> mRequests = new TreeMap<>();
     private DataInputStream mIn;
     private KageSocket.ISocketCallback mSocketCallback;
-    private boolean shutdown;
     private LinkedBlockingQueue<Packet> mPackets = new LinkedBlockingQueue<>();
-    private long timeout = DEFAULT_TIMEOUT;
     private ExecutorService mExecutorService = Executors.newSingleThreadExecutor();
-    private final byte[] LOCK = new byte[0];
+    private long timeout = DEFAULT_TIMEOUT;
+    private boolean shutdown;
 
     public PacketReader(DataInputStream mIn, final KageSocket.ISocketCallback socketCallback) {
         this.mIn = mIn;
@@ -39,7 +39,7 @@ public class PacketReader implements IPacketReader {
             try {
                 while (!shutdown) {
                     Packet packet = mPackets.poll(timeout, TimeUnit.MILLISECONDS);
-                    synchronized (LOCK) {
+                    synchronized (PacketReader.class) {
                         if (shutdown) {
                             break;
                         }
@@ -60,14 +60,14 @@ public class PacketReader implements IPacketReader {
 
     @Override
     public void addRequest(Request request) {
-        synchronized (LOCK) {
+        synchronized (PacketReader.class) {
             mRequests.put(request.getId(), request);
         }
     }
 
     @Override
     public void shutdown() {
-        synchronized (LOCK) {
+        synchronized (PacketReader.class) {
             shutdown = true;
             mExecutorService.shutdownNow();
             mRequests.clear();
@@ -83,7 +83,7 @@ public class PacketReader implements IPacketReader {
                 if (mIn != null) {
                     final String data;
                     try {
-                        data = readMyUTF(mIn);
+                        data = readFromStream(mIn);
                     } catch (IllegalArgumentException e) {
                         e.printStackTrace();
                         Log.d(TAG, "PacketReader error");
@@ -92,7 +92,7 @@ public class PacketReader implements IPacketReader {
                         }
                         return;
                     }
-                    synchronized (LOCK) {
+                    synchronized (PacketReader.class) {
                         if (shutdown) {
                             break;
                         }
@@ -131,7 +131,7 @@ public class PacketReader implements IPacketReader {
             }
         }
 
-        private String readMyUTF(DataInputStream dis) throws IllegalArgumentException {
+        private String readFromStream(DataInputStream dis) throws IllegalArgumentException {
             byte[] bArray = readNextPacket(dis);
             if (null == bArray) {
                 return null;
@@ -146,7 +146,7 @@ public class PacketReader implements IPacketReader {
      */
     private void responseAllHeartBeat() {
         Map<String, Request> tempMap = new TreeMap<>();
-        synchronized (LOCK) {
+        synchronized (PacketReader.class) {
             if (!mRequests.isEmpty()) {
                 tempMap.putAll(mRequests);
                 mRequests.clear();

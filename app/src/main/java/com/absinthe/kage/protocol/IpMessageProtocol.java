@@ -5,11 +5,11 @@ import java.util.Date;
 public class IpMessageProtocol {
     public static final String DELIMITER = "-->";
 
-    private String version;    //版本号
-    private String packetNum;//数据包编号
-    private String senderName;    //发送者昵称
-    private int cmd;    //命令
-    private String additionalSection;    //附加数据
+    private String version; //Version number
+    private String packetNum;   //Packet number
+    private String senderName;  //Sender name
+    private int cmd;    //Command
+    private String additionalSection;   //Additional data
 
     public IpMessageProtocol() {
         this.packetNum = getSeconds();
@@ -21,17 +21,12 @@ public class IpMessageProtocol {
         version = args[0];
         packetNum = args[1];
         senderName = args[2];
-
         cmd = Integer.parseInt(args[3]);
         additionalSection = args.length >= 5 ? args[4] : "";    //是否有附加数据
-
-        senderName = senderName.replaceAll("&#058", ":");   //处理转义字符
         additionalSection = additionalSection.replace("\0", "");
     }
 
-    public IpMessageProtocol(String senderName, int cmd,
-                             String additionalSection) {
-        super();
+    public IpMessageProtocol(String senderName, int cmd, String additionalSection) {
         this.packetNum = getSeconds();
         this.senderName = senderName;
         this.cmd = cmd;

@@ -10,10 +10,10 @@ import java.util.concurrent.Executors;
 
 public class HeartbeatSender {
     private static final String TAG = HeartbeatSender.class.getSimpleName();
+
     private ExecutorService mExecutorService = Executors.newCachedThreadPool();
-    private KageSocket mSocket;
     private List<HeartbeatTask> mHeartbeatTaskList = new ArrayList<>();
-    private final byte[] LOCK = new byte[0];
+    private KageSocket mSocket;
     private boolean isInit = false;
 
     public HeartbeatSender(KageSocket socket) {
@@ -25,7 +25,7 @@ public class HeartbeatSender {
         heartbeatTask.setHeartbeatCallback(new IHeartbeatCallback() {
             @Override
             public void onBeatSuccess(String heartbeatId) {
-                synchronized (LOCK) {
+                synchronized (HeartbeatSender.class) {
                     mHeartbeatTaskList.remove(heartbeatTask);
                 }
                 if (null != callback) {
@@ -35,7 +35,7 @@ public class HeartbeatSender {
 
             @Override
             public void onBeatTimeout(String heartbeatId) {
-                synchronized (LOCK) {
+                synchronized (HeartbeatSender.class) {
                     mHeartbeatTaskList.remove(heartbeatTask);
                 }
                 if (null != callback) {
@@ -45,7 +45,7 @@ public class HeartbeatSender {
 
             @Override
             public void onBeatCancel(String heartbeatId) {
-                synchronized (LOCK) {
+                synchronized (HeartbeatSender.class) {
                     mHeartbeatTaskList.remove(heartbeatTask);
                 }
                 if (null != callback) {
@@ -53,7 +53,7 @@ public class HeartbeatSender {
                 }
             }
         });
-        synchronized (LOCK) {
+        synchronized (HeartbeatSender.class) {
             if (isInit) {
                 mHeartbeatTaskList.add(heartbeatTask);
                 mExecutorService.submit(heartbeatTask);
@@ -67,7 +67,7 @@ public class HeartbeatSender {
 
     public void release() {
         HeartbeatTask[] tempList;
-        synchronized (LOCK) {
+        synchronized (HeartbeatSender.class) {
             int size = mHeartbeatTaskList.size();
             tempList = new HeartbeatTask[size];
             mHeartbeatTaskList.toArray(tempList);
@@ -79,7 +79,7 @@ public class HeartbeatSender {
     }
 
     public void init() {
-        synchronized (LOCK) {
+        synchronized (HeartbeatSender.class) {
             isInit = true;
         }
     }

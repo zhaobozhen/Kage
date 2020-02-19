@@ -1,6 +1,7 @@
 package com.absinthe.kage.connect.tcp;
 
 public class Packet {
+
     private String data;
 
     public String getData() {

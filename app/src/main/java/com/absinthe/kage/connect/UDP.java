@@ -15,8 +15,7 @@ import java.nio.charset.StandardCharsets;
 
 public class UDP {
     private static final String TAG = UDP.class.getSimpleName();
-    private static final byte[] DEFAULT_RECEIVE_BUFFER = new byte[1024];
-    private final byte[] LOCK = new byte[0];
+    private static final byte[] DEFAULT_RECEIVED_BUFFER = new byte[1024];
 
     private DatagramSocket mDatagramSocket;
     private ReceivePacketThread mReceivePacketThread;
@@ -31,7 +30,7 @@ public class UDP {
                 mDatagramSocket = new DatagramSocket(port);
                 break;
             } catch (SocketException e) {
-                Log.e(TAG, "new DatagramSocket error!" + e.toString());
+                Log.e(TAG, "Create DatagramSocket error!" + e.getMessage());
                 if (e instanceof BindException) {
                     if (port - monitorPort <= 20) {
                         port++;
@@ -67,7 +66,7 @@ public class UDP {
     }
 
     public void stopReceive() {
-        synchronized (LOCK) {
+        synchronized (UDP.class) {
             if (mReceivePacketThread != null) {
                 mReceivePacketThread.setStop(true);
                 mReceivePacketThread = null;
@@ -79,7 +78,7 @@ public class UDP {
     }
 
     public void startReceive(IUDPCallback callback) {
-        synchronized (LOCK) {
+        synchronized (UDP.class) {
             if (mReceivePacketThread != null) {
                 mReceivePacketThread.setStop(true);
                 mReceivePacketThread.interrupt();
@@ -92,20 +91,16 @@ public class UDP {
 
     private static class ReceivePacketThread extends Thread {
         private IUDPCallback mCallback;
-        private boolean isStop = false;
-        private DatagramSocket mDataGramSocket;
+        private DatagramSocket mDatagramSocket;
         private String mLocalIpAddress;
+        private boolean isStop = false;
 
         public void setStop(boolean stop) {
             isStop = stop;
         }
 
-        public boolean isStop() {
-            return isStop;
-        }
-
         ReceivePacketThread(DatagramSocket datagramSocket, String localIpAddress) {
-            this.mDataGramSocket = datagramSocket;
+            this.mDatagramSocket = datagramSocket;
             this.mLocalIpAddress = localIpAddress;
         }
 
@@ -115,23 +110,23 @@ public class UDP {
 
         @Override
         public void run() {
-            byte[] buffer = DEFAULT_RECEIVE_BUFFER;
+            byte[] buffer = DEFAULT_RECEIVED_BUFFER;
             int buffLen = buffer.length;
             DatagramPacket packet = new DatagramPacket(buffer, buffLen);
 
-            while (!isStop()) {
+            while (!isStop) {
                 try {
-                    mDataGramSocket.receive(packet);
+                    mDatagramSocket.receive(packet);
                 } catch (IOException e) {
-                    Log.e(TAG, "mDatagramSocket.receive error," + e.getMessage());
+                    Log.e(TAG, "DatagramSocket receive error:" + e.getMessage());
                     break;
                 }
 
-                if (isStop()) {
+                if (isStop) {
                     break;
                 }
                 if (packet.getLength() <= 0) {
-                    Log.w(TAG, "receive packet.getLength() = " + packet.getLength());
+                    Log.w(TAG, "Receive packet.getLength() = " + packet.getLength());
                     break;
                 }
 

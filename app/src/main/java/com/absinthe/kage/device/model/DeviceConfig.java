@@ -6,8 +6,8 @@ public class DeviceConfig {
     public String uuid;
 
     public String localHost;
-    public String broadCastHostInWifi;
-    public String broadCastHostInAp;
+    public String broadcastHostInWifi;
+    public String broadcastHostInAp;
     public int broadcastMonitorPort;
     public int broadcastPort;
 }

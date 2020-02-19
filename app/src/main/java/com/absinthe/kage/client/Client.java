@@ -2,6 +2,8 @@ package com.absinthe.kage.client;
 
 import android.util.Log;
 
+import com.absinthe.kage.device.DeviceManager;
+import com.absinthe.kage.device.cmd.InquiryDeviceInfoCommand;
 import com.absinthe.kage.device.heartbeat.HeartbeatRequest;
 import com.absinthe.kage.protocol.IpMessageConst;
 import com.absinthe.kage.protocol.IpMessageProtocol;
@@ -31,7 +33,7 @@ public class Client extends Thread implements Runnable {
     public void run() {
         while (true) {
             String command = readToStream(dis, Client.this);
-            Log.i(TAG, TAG + "  received command is " + command);
+            Log.i(TAG, TAG + "received command is " + command);
 
             if (command == null) {
                 offline(socket, dis, dos);
@@ -40,33 +42,33 @@ public class Client extends Thread implements Runnable {
             if (command.isEmpty()) {
                 continue;
             }
+
             String[] str = command.split(IpMessageProtocol.DELIMITER);
             int commandNum = 0;
             try {
                 commandNum = Integer.parseInt(str[0]);
-            } catch (Exception e) {
+            } catch (NumberFormatException e) {
                 e.printStackTrace();
                 Log.i(TAG, "parseInt Exception = " + e);
             }
+
             switch (commandNum) {
                 case IpMessageConst.IS_ONLINE:
                     try {
                         writeToStream(dos, new HeartbeatRequest().getData());
-                    } catch (IOException e1) {
-                        e1.printStackTrace();
+                    } catch (IOException e) {
+                        e.printStackTrace();
                         offline(socket, dis, dos);
-                    } catch (Exception e1) {
-                        e1.printStackTrace();
                     }
                     break;
                 case IpMessageConst.GET_DEVICE_INFO:
                     try {
-                        writeToStream(dos, IpMessageConst.GET_DEVICE_INFO + IpMessageProtocol.DELIMITER + "YES");
-                    } catch (IOException e1) {
-                        e1.printStackTrace();
+                        InquiryDeviceInfoCommand deviceInfoCommand = new InquiryDeviceInfoCommand();
+                        deviceInfoCommand.phoneName = DeviceManager.Singleton.INSTANCE.getInstance().getConfig().name;
+                        writeToStream(dos, deviceInfoCommand.pack());
+                    } catch (IOException e) {
+                        e.printStackTrace();
                         offline(socket, dis, dos);
-                    } catch (Exception e1) {
-                        e1.printStackTrace();
                     }
                     break;
                 default:
@@ -77,6 +79,7 @@ public class Client extends Thread implements Runnable {
     private String readToStream(DataInputStream dis, Client client) {
         Log.i(TAG, "readToStream: isFirstCmd:" + client.isFirstCmd);
         int receivedLen;
+
         try {
             receivedLen = dis.readInt();
         } catch (IOException e) {
@@ -84,7 +87,6 @@ public class Client extends Thread implements Runnable {
             return null;
         }
 
-        Log.i(TAG, "readToStream received str length == " + receivedLen);
         if (receivedLen <= 0) {
             return "";
         }
@@ -123,18 +125,17 @@ public class Client extends Thread implements Runnable {
         return enStr;
     }
 
-    private synchronized void writeToStream(DataOutputStream dos, String str) throws Exception {
-        Log.i(TAG, "writeToStream sendStr is " + str);
+    private synchronized void writeToStream(DataOutputStream dos, String str) throws IOException {
+        Log.i(TAG, "writeToStream sendStr: " + str);
         byte[] bArray = str.getBytes(StandardCharsets.UTF_8);
         int sendLen = bArray.length;
-        Log.i(TAG, "writeToStream sendStr length is " + sendLen);
         dos.writeInt(sendLen);
         dos.flush();
         dos.write(bArray, 0, sendLen);
     }
 
     private void offline(Socket socket, DataInputStream dis, DataOutputStream dos) {
-        Log.i(TAG, "offline " + socket.getInetAddress());
+        Log.i(TAG, "Offline: " + socket.getInetAddress());
         synchronized (Client.class) {
             try {
                 if (dis != null) {
@@ -146,7 +147,6 @@ public class Client extends Thread implements Runnable {
                 socket.close();
             } catch (IOException e) {
                 e.printStackTrace();
-                Log.i(TAG, "IOException=" + e);
             }
         }
     }

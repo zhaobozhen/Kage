@@ -7,8 +7,9 @@ import java.util.concurrent.TimeUnit;
 
 public class Request extends Packet {
     private static final String TAG = Request.class.getSimpleName();
+
+    private ArrayBlockingQueue<Response> responses = new ArrayBlockingQueue<>(1);
     private String id;
-    private ArrayBlockingQueue<Response> responses = new ArrayBlockingQueue<Response>(1);
 
     public void setResponse(Response response) {
         try {

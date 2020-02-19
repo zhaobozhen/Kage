@@ -99,7 +99,7 @@ public class Device {
             @Override
             public void onReceiveMsg(String msg) {
                 if (msg != null) {
-                    Log.d(TAG,"onReceiveMsg");
+                    Log.d(TAG,"onReceiveMsg: " + msg);
                     if (mProtocolHandler != null) {
                         mProtocolHandler.handleSocketMassage(msg);
                     }

@@ -22,12 +22,11 @@ public class KageSocket {
     private ISocketCallback mSocketCallback;
     private DataInputStream mIn;
     private DataOutputStream mOut;
-    private final byte[] LOCK = new byte[0];
     private IPacketWriter mPacketWriter;
     private IPacketReader mPacketReader;
 
     public void connect(final String ip, final int port, int timeout) {
-        synchronized (LOCK) {
+        synchronized (KageSocket.class) {
             if (mSocket == null) {
                 new ConnectThread(ip, port, timeout).start();
             } else {
@@ -50,7 +49,7 @@ public class KageSocket {
 
         @Override
         public void run() {
-            synchronized (LOCK) {
+            synchronized (KageSocket.class) {
                 if (mSocket == null) {
                     try {
                         mSocket = new Socket();
@@ -61,28 +60,28 @@ public class KageSocket {
                         mOut = new DataOutputStream(mSocket.getOutputStream());
                         mPacketWriter = new PacketWriter(mOut, mSocketCallback);
                         mPacketReader = new PacketReader(mIn, mSocketCallback);
-                        ISocketCallback.TCastSocketCallbackThreadHandler.getInstance().post(() -> {
+                        ISocketCallback.KageSocketCallbackThreadHandler.getInstance().post(() -> {
                             if (mSocketCallback != null) {
                                 mSocketCallback.onConnected();
                             }
                         });
                     } catch (final Exception e) {
-                        Log.i(TAG, "socket connect IOException=" + e);
+                        Log.i(TAG, "Socket connect Exception: " + e);
                         mSocket = null;
                         if (e instanceof SocketTimeoutException) {
-                            ISocketCallback.TCastSocketCallbackThreadHandler.getInstance().post(() -> {
+                            ISocketCallback.KageSocketCallbackThreadHandler.getInstance().post(() -> {
                                 if (mSocketCallback != null) {
                                     mSocketCallback.onConnectError(ISocketCallback.CONNECT_ERROR_CODE_CONNECT_TIMEOUT, e);
                                 }
                             });
                         } else if (e instanceof ConnectException) {
-                            ISocketCallback.TCastSocketCallbackThreadHandler.getInstance().post(() -> {
+                            ISocketCallback.KageSocketCallbackThreadHandler.getInstance().post(() -> {
                                 if (mSocketCallback != null) {
                                     mSocketCallback.onConnectError(ISocketCallback.CONNECT_ERROR_CODE_CONNECT_IP_OR_PORT_UNREACHABLE, e);
                                 }
                             });
                         } else {
-                            ISocketCallback.TCastSocketCallbackThreadHandler.getInstance().post(() -> {
+                            ISocketCallback.KageSocketCallbackThreadHandler.getInstance().post(() -> {
                                 if (mSocketCallback != null) {
                                     mSocketCallback.onConnectError(ISocketCallback.CONNECT_ERROR_CODE_CONNECT_UNKNOWN, e);
                                 }
@@ -95,7 +94,7 @@ public class KageSocket {
     }
 
     public boolean disConnect() {
-        synchronized (LOCK) {
+        synchronized (KageSocket.class) {
             if (mSocket != null && mSocket.isConnected()) {
                 try {
                     mIn.close();
@@ -112,7 +111,7 @@ public class KageSocket {
                         mPacketReader.shutdown();
                         mPacketReader = null;
                     }
-                    ISocketCallback.TCastSocketCallbackThreadHandler.getInstance().post(() -> {
+                    ISocketCallback.KageSocketCallbackThreadHandler.getInstance().post(() -> {
                         if (mSocketCallback != null) {
                             mSocketCallback.onDisConnected();
                         }
@@ -128,7 +127,7 @@ public class KageSocket {
     }
 
     public void send(final Packet packet) {
-        synchronized (LOCK) {
+        synchronized (KageSocket.class) {
             if (mPacketWriter != null) {
                 if (packet instanceof Request) {
                     Request request = (Request) packet;
@@ -139,7 +138,7 @@ public class KageSocket {
                 }
                 mPacketWriter.writePacket(packet);
             } else {
-                Log.e(TAG, "send error:" + "mPacketWriter == null");
+                Log.e(TAG, "Send error: PacketWriter == null");
             }
         }
     }
@@ -152,7 +151,7 @@ public class KageSocket {
         int CONNECT_ERROR_CODE_CONNECT_UNKNOWN = 1;
         int CONNECT_ERROR_CODE_CONNECT_IP_OR_PORT_UNREACHABLE = 2;
         int CONNECT_ERROR_CODE_CONNECT_TIMEOUT = 3;
-        int CONNECT_ERROR_CODE_HAND_SHAKE_UNCOMPLETE = 4;
+        int CONNECT_ERROR_CODE_HAND_SHAKE_NOT_COMPLETE = 4;
         int READ_ERROR_CODE_CONNECT_UNKNOWN = 101;
         int WRITE_ERROR_CODE_CONNECT_UNKNOWN = 102;
         int READ_ERROR_CODE_RECEIVE_LENGTH_TOO_BIG = 103;
@@ -171,11 +170,11 @@ public class KageSocket {
 
         void onReaderIdle();
 
-        class TCastSocketCallbackThreadHandler extends Handler {
+        class KageSocketCallbackThreadHandler extends Handler {
             private static HandlerThread mHandlerThread;
             private static IProtocolHandler.KageProtocolThreadHandler mHandler;
 
-            public TCastSocketCallbackThreadHandler(Looper looper) {
+            public KageSocketCallbackThreadHandler(Looper looper) {
                 super(looper);
             }
 
@@ -184,7 +183,7 @@ public class KageSocket {
                     synchronized (IProtocolHandler.KageProtocolThreadHandler.class) {
                         if (null == mHandler) {
                             if (null == mHandlerThread) {
-                                mHandlerThread = new HandlerThread("KageSocketCallbackThreadHandler");
+                                mHandlerThread = new HandlerThread(KageSocketCallbackThreadHandler.class.getSimpleName());
                                 mHandlerThread.start();
                             }
                             mHandler = new IProtocolHandler.KageProtocolThreadHandler(mHandlerThread.getLooper());

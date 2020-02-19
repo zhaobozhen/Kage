@@ -13,11 +13,11 @@ public class AbstractPacketWriter implements IPacketWriter {
 
     protected static final long DEFAULT_TIMEOUT = 5 * 1000;
     protected long timeout = DEFAULT_TIMEOUT;
-    protected LinkedBlockingQueue<Packet> mPacketQueue = new LinkedBlockingQueue();
+    protected LinkedBlockingQueue<Packet> mPacketQueue = new LinkedBlockingQueue<>();
     protected boolean shutdown = false;
 
     public AbstractPacketWriter(final DataOutputStream out, final KageSocket.ISocketCallback socketCallback) {
-        Thread thread = new Thread(() -> {
+        new Thread(() -> {
             while (!shutdown) {
                 try {
                     Packet packet = mPacketQueue.poll(timeout, TimeUnit.MILLISECONDS);
@@ -25,9 +25,9 @@ public class AbstractPacketWriter implements IPacketWriter {
                         break;
                     }
                     if (null != packet) {
-                        writeMyUTF(out, packet);
+                        writeToStream(out, packet);
                     } else {
-                        KageSocket.ISocketCallback.TCastSocketCallbackThreadHandler.getInstance().post(() -> {
+                        KageSocket.ISocketCallback.KageSocketCallbackThreadHandler.getInstance().post(() -> {
                             if (null != socketCallback) {
                                 socketCallback.onWriterIdle();
                             }
@@ -36,21 +36,20 @@ public class AbstractPacketWriter implements IPacketWriter {
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 } catch (IOException e) {
-                    Log.e(TAG, "send error:" + e.getMessage());
-                    KageSocket.ISocketCallback.TCastSocketCallbackThreadHandler.getInstance().post(() -> {
+                    Log.e(TAG, "Send error: " + e.getMessage());
+                    KageSocket.ISocketCallback.KageSocketCallbackThreadHandler.getInstance().post(() -> {
                         if (null != socketCallback) {
                             socketCallback.onReadAndWriteError(KageSocket.ISocketCallback.WRITE_ERROR_CODE_CONNECT_UNKNOWN);
                         }
                     });
                 }
             }
-        });
-        thread.start();
+        }).start();
     }
 
-    protected void writeMyUTF(DataOutputStream dos, Packet packet) throws IOException {
+    protected void writeToStream(DataOutputStream dos, Packet packet) throws IOException {
         String data = packet.getData();
-        Log.d(TAG, "send data: " + data);
+        Log.d(TAG, "Send data: " + data);
         byte[] bArray = data.getBytes(StandardCharsets.UTF_8);
         int sendLen = bArray.length;
         dos.writeInt(sendLen);

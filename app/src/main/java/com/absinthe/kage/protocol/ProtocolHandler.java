@@ -9,6 +9,7 @@ import com.absinthe.kage.device.model.DeviceConfig;
 
 public class ProtocolHandler implements IProtocolHandler {
     private static final String TAG = ProtocolHandler.class.getSimpleName();
+
     private Device mDevice;
     private DeviceConfig mConfig;
     private IProtocolHandleCallback mCallback;
