@@ -1,4 +1,4 @@
-package com.absinthe.kage.protocol;
+package com.absinthe.kage.connect.protocol;
 
 import android.os.Handler;
 import android.os.HandlerThread;

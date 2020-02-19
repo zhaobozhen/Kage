@@ -1,9 +1,9 @@
-package com.absinthe.kage.server;
+package com.absinthe.kage.device.server;
 
 import android.os.Environment;
 import android.util.Log;
 
-import com.absinthe.kage.protocol.Config;
+import com.absinthe.kage.connect.protocol.Config;
 
 import java.io.File;
 import java.io.FileInputStream;

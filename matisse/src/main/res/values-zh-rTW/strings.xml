@@ -18,8 +18,10 @@
     <string name="album_name_all">全部</string>
 
     <string name="button_preview">預覽</string>
-    <string name="button_apply_default">投射</string>
-    <string name="button_apply">投射</string>
+    <string name="button_apply_default">使用</string>
+    <string name="button_apply">使用(%d)</string>
+    <string name="button_cast">投射</string>
+    <string name="button_stop_cast">停止投射</string>
     <string name="button_back">返回</string>
     <string name="photo_grid_capture">拍一張</string>
     <string name="empty_text">還沒有圖片或影片</string>

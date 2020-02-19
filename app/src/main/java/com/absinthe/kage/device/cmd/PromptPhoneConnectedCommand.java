@@ -1,13 +1,15 @@
 package com.absinthe.kage.device.cmd;
 
+import com.absinthe.kage.connect.protocol.IpMessageConst;
+import com.absinthe.kage.device.CommandBuilder;
 import com.absinthe.kage.device.Device;
-import com.absinthe.kage.protocol.IpMessageConst;
-import com.absinthe.kage.protocol.IpMessageProtocol;
 
 public class PromptPhoneConnectedCommand extends Device.Command {
 
+    public static final int LENGTH = 3;
+
     public String phoneName;
-    public String uuid;
+    public String localIp;
 
     public PromptPhoneConnectedCommand() {
         cmd = IpMessageConst.PROMPT_PHONE_CONNECT;
@@ -15,8 +17,10 @@ public class PromptPhoneConnectedCommand extends Device.Command {
 
     @Override
     public String pack() {
-        return cmd + IpMessageProtocol.DELIMITER
-                + phoneName + IpMessageProtocol.DELIMITER
-                + uuid;
+        return new CommandBuilder()
+                .with(this)
+                .append(phoneName)
+                .append(localIp)
+                .build();
     }
 }

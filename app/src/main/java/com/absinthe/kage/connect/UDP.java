@@ -2,7 +2,7 @@ package com.absinthe.kage.connect;
 
 import android.util.Log;
 
-import com.absinthe.kage.protocol.IpMessageProtocol;
+import com.absinthe.kage.connect.protocol.IpMessageProtocol;
 
 import java.io.IOException;
 import java.net.BindException;

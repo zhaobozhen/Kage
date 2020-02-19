@@ -45,7 +45,8 @@
         <activity
             android:name=".ui.receiver.ReceiverActivity"
             android:label="@string/receiver_label"
-            android:parentActivityName=".ui.main.MainActivity" />
+            android:parentActivityName=".ui.main.MainActivity"
+            android:launchMode="singleTask" />
         <activity
             android:name=".ui.sender.SenderActivity"
             android:label="@string/sender_label"

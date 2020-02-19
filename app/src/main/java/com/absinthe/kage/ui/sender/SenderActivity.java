@@ -8,6 +8,7 @@ import android.util.Log;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.absinthe.kage.connect.proxy.ImageProxy;
 import com.absinthe.kage.databinding.ActivitySenderBinding;
 import com.absinthe.kage.device.DeviceManager;
 import com.absinthe.kage.ui.connect.ConnectActivity;
@@ -18,14 +19,11 @@ import com.zhihu.matisse.MimeType;
 import com.zhihu.matisse.engine.impl.GlideEngine;
 import com.zhihu.matisse.listener.OnChooseItemListener;
 
-import java.util.List;
-
 public class SenderActivity extends AppCompatActivity {
 
     private static final String TAG = SenderActivity.class.getSimpleName();
     private static final int REQUEST_CODE_CHOOSE = 1001;
     private ActivitySenderBinding binding;
-    private List<String> mSelected;
     private OnChooseItemListener mListener;
 
     @Override
@@ -42,7 +40,17 @@ public class SenderActivity extends AppCompatActivity {
             @Override
             public void onChoose(String itemUri) {
                 if (DeviceManager.Singleton.INSTANCE.getInstance().isConnected()) {
+                    ImageProxy.getInstance().cast(itemUri);
+                } else {
+                    startActivity(new Intent(SenderActivity.this, ConnectActivity.class));
+                    finish();
+                }
+            }
 
+            @Override
+            public void onStop() {
+                if (DeviceManager.Singleton.INSTANCE.getInstance().isConnected()) {
+                    ImageProxy.getInstance().stop();
                 } else {
                     startActivity(new Intent(SenderActivity.this, ConnectActivity.class));
                     finish();
@@ -81,8 +89,7 @@ public class SenderActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_CODE_CHOOSE && resultCode == RESULT_OK && data != null) {
-            mSelected = Matisse.obtainPathResult(data);
-            Log.d(TAG, "mSelected: " + mSelected);
+            Log.d(TAG, "mSelected: " + Matisse.obtainPathResult(data));
         }
     }
 }

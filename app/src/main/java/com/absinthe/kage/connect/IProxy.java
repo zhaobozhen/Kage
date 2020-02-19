@@ -1,4 +1,6 @@
-package com.absinthe.kage.device;
+package com.absinthe.kage.connect;
+
+import com.absinthe.kage.device.Device;
 
 public interface IProxy {
 

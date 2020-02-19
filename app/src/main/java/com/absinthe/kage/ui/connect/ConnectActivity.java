@@ -41,6 +41,14 @@ public class ConnectActivity extends AppCompatActivity {
         super.onDestroy();
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (mAdapter != null) {
+            mAdapter.notifyDataSetChanged();
+        }
+    }
+
     private void initView() {
         mDeviceManager = DeviceManager.Singleton.INSTANCE.getInstance();
 

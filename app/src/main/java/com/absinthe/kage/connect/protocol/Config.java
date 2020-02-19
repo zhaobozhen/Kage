@@ -1,4 +1,4 @@
-package com.absinthe.kage.protocol;
+package com.absinthe.kage.connect.protocol;
 
 public class Config {
     public static final int VERSION = 1;                 //Protocol version

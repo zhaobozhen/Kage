@@ -1,4 +1,4 @@
-package com.absinthe.kage.protocol;
+package com.absinthe.kage.connect.protocol;
 
 import java.util.Date;
 

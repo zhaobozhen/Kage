@@ -73,6 +73,7 @@ public abstract class BasePreviewActivity extends AppCompatActivity implements V
     private FrameLayout mBottomToolbar;
     private FrameLayout mTopToolbar;
     private boolean mIsToolbarHide = false;
+    private boolean mIsCasting = false;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -102,7 +103,7 @@ public abstract class BasePreviewActivity extends AppCompatActivity implements V
         }
         mButtonBack = (TextView) findViewById(R.id.button_back);
         mButtonApply = (TextView) findViewById(R.id.button_apply);
-        mButtonApply.setText(R.string.button_apply_default);
+        mButtonApply.setText(R.string.button_cast);
         mButtonApply.setEnabled(true);
         mSize = (TextView) findViewById(R.id.size);
         mButtonBack.setOnClickListener(this);
@@ -200,10 +201,19 @@ public abstract class BasePreviewActivity extends AppCompatActivity implements V
         } else if (v.getId() == R.id.button_apply) {
 //            sendBackResult(true);
 //            finish();
-            if (mSpec.onChooseItemListener != null) {
-                Item item = mAdapter.getMediaItem(mPager.getCurrentItem());
-                mSpec.onChooseItemListener.onChoose(PathUtils.getPath(this, item.getContentUri()));
+            if (!mIsCasting) {
+                if (mSpec.onChooseItemListener != null) {
+                    Item item = mAdapter.getMediaItem(mPager.getCurrentItem());
+                    mSpec.onChooseItemListener.onChoose(PathUtils.getPath(this, item.getContentUri()));
+                    mIsCasting = true;
+                }
+            } else {
+                if (mSpec.onChooseItemListener != null) {
+                    mSpec.onChooseItemListener.onStop();
+                    mIsCasting = false;
+                }
             }
+            updateApplyButton();
         }
     }
 
@@ -267,9 +277,7 @@ public abstract class BasePreviewActivity extends AppCompatActivity implements V
                 }
             }
             updateSize(item);
-        }
 
-        if (mPreviousPos != -1) {
             if (position > mPreviousPos) {
                 if (mSpec.onChooseItemListener != null) {
                     mSpec.onChooseItemListener.onNext();
@@ -278,6 +286,9 @@ public abstract class BasePreviewActivity extends AppCompatActivity implements V
                 if (mSpec.onChooseItemListener != null) {
                     mSpec.onChooseItemListener.onPreview();
                 }
+            }
+            if (mSpec.onChooseItemListener != null) {
+                mSpec.onChooseItemListener.onChoose(PathUtils.getPath(this, item.getContentUri()));
             }
         }
 
@@ -301,6 +312,14 @@ public abstract class BasePreviewActivity extends AppCompatActivity implements V
 //            mButtonApply.setEnabled(true);
 //            mButtonApply.setText(getString(R.string.button_apply, selectedCount));
 //        }
+
+        if (mIsCasting) {
+            mButtonApply.setText(R.string.button_stop_cast);
+            mButtonApply.setTextColor(getResources().getColor(R.color.red));
+        } else {
+            mButtonApply.setText(R.string.button_cast);
+            mButtonApply.setTextColor(getResources().getColor(R.color.blue));
+        }
 
         if (mSpec.originalable) {
             mOriginalLayout.setVisibility(View.VISIBLE);

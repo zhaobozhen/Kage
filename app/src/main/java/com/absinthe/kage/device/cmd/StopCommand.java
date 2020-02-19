@@ -4,19 +4,19 @@ import com.absinthe.kage.connect.protocol.IpMessageConst;
 import com.absinthe.kage.device.CommandBuilder;
 import com.absinthe.kage.device.Device;
 
-public class InquiryDeviceInfoCommand extends Device.Command {
+public class StopCommand extends Device.Command {
 
-    public String phoneName;
+    private static final String STOP = "STOP";
 
-    public InquiryDeviceInfoCommand() {
-        cmd = IpMessageConst.GET_DEVICE_INFO;
+    public StopCommand() {
+        cmd = IpMessageConst.MEDIA_STOP;
     }
 
     @Override
     public String pack() {
         return new CommandBuilder()
                 .with(this)
-                .append(phoneName)
+                .append(STOP)
                 .build();
     }
 }

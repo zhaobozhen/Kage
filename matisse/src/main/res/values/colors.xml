@@ -20,4 +20,7 @@
     <color name="preview_bottom_size">#61FFFFFF</color>
     <color name="transparent">#00000000</color>
 
+    <color name="blue">#FF0077D9</color>
+    <color name="red">#FFE3170D</color>
+
 </resources>

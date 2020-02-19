@@ -5,7 +5,7 @@ import android.os.HandlerThread;
 import android.os.Looper;
 import android.util.Log;
 
-import com.absinthe.kage.protocol.IProtocolHandler;
+import com.absinthe.kage.connect.protocol.IProtocolHandler;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;

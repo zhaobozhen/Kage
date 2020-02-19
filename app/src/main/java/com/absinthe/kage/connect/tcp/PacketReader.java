@@ -2,8 +2,8 @@ package com.absinthe.kage.connect.tcp;
 
 import android.util.Log;
 
-import com.absinthe.kage.protocol.IpMessageConst;
-import com.absinthe.kage.protocol.IpMessageProtocol;
+import com.absinthe.kage.connect.protocol.IpMessageConst;
+import com.absinthe.kage.connect.protocol.IpMessageProtocol;
 
 import java.io.DataInputStream;
 import java.io.IOException;

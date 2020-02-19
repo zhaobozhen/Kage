@@ -35,5 +35,13 @@ public class AboutActivity extends AbsAboutActivity {
         items.add(new Category("Open Source Licenses"));
         items.add(new License("MultiType", "drakeet", License.APACHE_2, "https://github.com/drakeet/MultiType"));
         items.add(new License("about-page", "drakeet", License.APACHE_2, "https://github.com/drakeet/about-page"));
+        items.add(new License("BaseRecyclerViewAdapterHelper", "CymChad", License.MIT, "https://github.com/CymChad/BaseRecyclerViewAdapterHelper"));
+        items.add(new License("Matisse", "zhihu", License.APACHE_2, "https://github.com/zhihu/Matisse"));
+        items.add(new License("AndroidX", "Google", License.APACHE_2, "https://source.google.com"));
+        items.add(new License("Android Jetpack", "Google", License.APACHE_2, "https://source.google.com"));
+        items.add(new License("RxAndroid", "JakeWharton", License.APACHE_2, "https://github.com/ReactiveX/RxAndroid"));
+        items.add(new License("RxJava", "ReactiveX", License.APACHE_2, "https://github.com/ReactiveX/RxJava"));
+        items.add(new License("glide", "bumptech", "License", "https://github.com/bumptech/glide"));
+
     }
 }

@@ -1,16 +1,16 @@
 package com.absinthe.kage.device;
 
-import android.text.TextUtils;
 import android.util.Log;
 
+import com.absinthe.kage.connect.protocol.Config;
+import com.absinthe.kage.connect.protocol.IProtocolHandler;
+import com.absinthe.kage.connect.protocol.IpMessageProtocol;
+import com.absinthe.kage.connect.protocol.ProtocolHandler;
 import com.absinthe.kage.connect.tcp.KageSocket;
 import com.absinthe.kage.connect.tcp.Packet;
 import com.absinthe.kage.device.heartbeat.HeartbeatSender;
 import com.absinthe.kage.device.model.DeviceConfig;
 import com.absinthe.kage.device.model.DeviceInfo;
-import com.absinthe.kage.protocol.Config;
-import com.absinthe.kage.protocol.IProtocolHandler;
-import com.absinthe.kage.protocol.ProtocolHandler;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -70,14 +70,6 @@ public class Device {
                 mSocket.disConnect();
             }
         };
-        int protocolVersion = 0;
-        if (!TextUtils.isEmpty(protocolVersionString)) {
-            try {
-                protocolVersion = Integer.parseInt(protocolVersionString);
-            } catch (Exception e) {
-                Log.d(TAG, e.toString());
-            }
-        }
 
         mProtocolHandler = new ProtocolHandler(this, this.mConfig, mProtocolHandlerCallback);
         this.mSocket = new KageSocket();
@@ -190,7 +182,7 @@ public class Device {
         }
     }
 
-    private void sendMsg(String data) {
+    private void sendMessage(String data) {
         Packet packet = new Packet();
         packet.setData(data);
         if (mSocket != null) {
@@ -201,7 +193,7 @@ public class Device {
     public void sendCommand(Command cmd) {
         String data = cmd.pack();
         if (data != null) {
-            sendMsg(data);
+            sendMessage(data);
         }
     }
 
@@ -257,11 +249,24 @@ public class Device {
         this.mConnectCallback = connectCallback;
     }
 
-    public abstract static class Command {
-        protected Command() { }
+    public synchronized void registerOnReceiveMsgListener(OnReceiveMsgListener listener) {
+        if (null != listener && !mOnReceiveMsgListeners.contains(listener)) {
+            mOnReceiveMsgListeners.add(listener);
+        }
+    }
 
+    public synchronized void unregisterOnReceiveMsgListener(OnReceiveMsgListener listener) {
+        if (null != listener) {
+            mOnReceiveMsgListeners.remove(listener);
+        }
+    }
+
+    public abstract static class Command {
+
+        protected static final String DELIMITER = IpMessageProtocol.DELIMITER;
         protected int cmd;
 
+        protected Command() {}
         public abstract String pack();
     }
 

@@ -6,8 +6,8 @@ import android.util.Log;
 import com.absinthe.kage.connect.UDP;
 import com.absinthe.kage.device.model.DeviceConfig;
 import com.absinthe.kage.device.model.DeviceInfo;
-import com.absinthe.kage.protocol.IpMessageConst;
-import com.absinthe.kage.protocol.IpMessageProtocol;
+import com.absinthe.kage.connect.protocol.IpMessageConst;
+import com.absinthe.kage.connect.protocol.IpMessageProtocol;
 
 import java.util.Iterator;
 import java.util.Map;

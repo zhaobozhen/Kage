@@ -14,10 +14,11 @@ import androidx.lifecycle.LifecycleService;
 import androidx.lifecycle.OnLifecycleEvent;
 
 import com.absinthe.kage.R;
-import com.absinthe.kage.client.Client;
+import com.absinthe.kage.connect.proxy.ImageProxy;
+import com.absinthe.kage.device.client.Client;
 import com.absinthe.kage.device.DeviceManager;
-import com.absinthe.kage.protocol.Config;
-import com.absinthe.kage.server.KageServer;
+import com.absinthe.kage.connect.protocol.Config;
+import com.absinthe.kage.device.server.KageServer;
 import com.absinthe.kage.ui.main.MainActivity;
 import com.absinthe.kage.utils.NotificationUtils;
 
@@ -37,6 +38,7 @@ public class TCPService extends LifecycleService {
 
         DeviceManager deviceManager = DeviceManager.Singleton.INSTANCE.getInstance();
         deviceManager.init();
+        addProxy(deviceManager);
         deviceManager.startMonitorDevice(2000);
         getLifecycle().addObserver(deviceManager);
 
@@ -47,7 +49,7 @@ public class TCPService extends LifecycleService {
                     Socket socket = mServerSocket.accept();
                     DataInputStream dis = new DataInputStream(socket.getInputStream());
                     DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
-                    new Client(socket, dis, dos).start();
+                    new Client(this, socket, dis, dos).start();
                 }
             } catch (IOException e) {
                 e.printStackTrace();
@@ -93,5 +95,9 @@ public class TCPService extends LifecycleService {
                 .setColor(ContextCompat.getColor(this, R.color.colorPrimary))
                 .setPriority(NotificationCompat.PRIORITY_LOW)
                 .build();
+    }
+
+    private void addProxy(DeviceManager deviceManager) {
+        deviceManager.addProxy(ImageProxy.getInstance());
     }
 }

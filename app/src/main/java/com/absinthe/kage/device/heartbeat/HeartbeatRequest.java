@@ -1,8 +1,8 @@
 package com.absinthe.kage.device.heartbeat;
 
 import com.absinthe.kage.connect.tcp.Request;
-import com.absinthe.kage.protocol.IpMessageConst;
-import com.absinthe.kage.protocol.IpMessageProtocol;
+import com.absinthe.kage.connect.protocol.IpMessageConst;
+import com.absinthe.kage.connect.protocol.IpMessageProtocol;
 
 public class HeartbeatRequest extends Request {
 

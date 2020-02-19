@@ -11,11 +11,12 @@ import androidx.lifecycle.LifecycleObserver;
 import androidx.lifecycle.OnLifecycleEvent;
 
 import com.absinthe.kage.connect.Const;
+import com.absinthe.kage.connect.IProxy;
 import com.absinthe.kage.connect.tcp.KageSocket;
 import com.absinthe.kage.device.cmd.PromptPhoneConnectedCommand;
 import com.absinthe.kage.device.model.DeviceConfig;
 import com.absinthe.kage.device.model.DeviceInfo;
-import com.absinthe.kage.protocol.Config;
+import com.absinthe.kage.connect.protocol.Config;
 import com.absinthe.kage.utils.ScanDeviceTool;
 
 import java.util.ArrayList;
@@ -173,7 +174,7 @@ public class DeviceManager extends KageObservable implements LifecycleObserver {
 
     public List<DeviceInfo> getDeviceInfoList() {
         if (!checkConfiguration()) {
-            Log.d(TAG, "!checkConfiguration()");
+            Log.d(TAG, "checkConfiguration() return false");
             return new ArrayList<>();
         }
         List<DeviceInfo> deviceInfoList = new ArrayList<>();
@@ -417,11 +418,11 @@ public class DeviceManager extends KageObservable implements LifecycleObserver {
             device.setConnectCallback(new Device.IConnectCallback() {
                 @Override
                 public void onConnectedFailed(final int code, Exception e) {
-                    Log.d(TAG, "onConnectedFailed:");
+                    Log.d(TAG, "onConnectedFailed");
                     synchronized (LOCK) {
                         mCurrentDeviceKey = null;
                         setConnectState(new StateIdle());
-                        String errorMessage = "未知错误";
+                        String errorMessage = "Unknown error";
                         if (null != e) {
                             errorMessage = e.getMessage();
                         }
@@ -446,7 +447,7 @@ public class DeviceManager extends KageObservable implements LifecycleObserver {
                     Log.d(TAG, "onConnectedSuccess");
                     synchronized (LOCK) {
                         PromptPhoneConnectedCommand promptPhoneConnectedCommand = new PromptPhoneConnectedCommand();
-                        promptPhoneConnectedCommand.uuid = mConfig.uuid;
+                        promptPhoneConnectedCommand.localIp = mConfig.localHost;
                         promptPhoneConnectedCommand.phoneName = mConfig.name;
                         device.sendCommand(promptPhoneConnectedCommand);
                         setConnectState(new DeviceManager.StateConnected(device));

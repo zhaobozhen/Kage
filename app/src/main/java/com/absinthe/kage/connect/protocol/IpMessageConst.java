@@ -1,4 +1,4 @@
-package com.absinthe.kage.protocol;
+package com.absinthe.kage.connect.protocol;
 
 public class IpMessageConst {
     public static final int VERSION = 0x001;    // Version
@@ -11,5 +11,14 @@ public class IpMessageConst {
     public static final int IS_ONLINE = 0x00000001; //Heartbeat
     public static final int GET_DEVICE_INFO = 0x00000002;   //Get device info
     public static final int PROMPT_PHONE_CONNECT = 0x00000003;  //Device connected response
+    public static final int MEDIA_SET_PLAYING_STATUS = 0x00000004;
+    public static final int MEDIA_SET_PLAYING_STATE = 0x00000005;
+    public static final int MEDIA_PLAY_PREVIOUS = 0x00000006;
+    public static final int MEDIA_PLAY_NEXT = 0x00000007;
+    public static final int MEDIA_STOP = 0x00000008;
+    public static final int MEDIA_PREPARE_PLAY = 0x00000009;
+    public static final int MEDIA_IMAGE_INFO = 0x0000000A;
+    public static final int MEDIA_GET_PLAY_STATE = 0x0000000B;
+    public static final int MEDIA_GET_PLAY_STATUS = 0x0000000C;
 
 }
