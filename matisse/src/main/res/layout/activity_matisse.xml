@@ -48,7 +48,8 @@
         android:layout_alignParentBottom="true"
         android:background="?attr/bottomToolbar.bg"
         android:elevation="4dp"
-        tools:targetApi="lollipop">
+        tools:targetApi="lollipop"
+        android:visibility="gone">
 
         <TextView
             android:id="@+id/button_preview"

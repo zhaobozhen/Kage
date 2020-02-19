@@ -8,4 +8,5 @@ ext {
 
     APPCOMPAT = "1.1.0"
     GLIDE = "4.11.0"
+    LIFECYCLE = "2.2.0"
 }

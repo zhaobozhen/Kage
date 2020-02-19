@@ -19,15 +19,16 @@ import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
-import androidx.annotation.Nullable;
-import androidx.viewpager.widget.ViewPager;
-import androidx.interpolator.view.animation.FastOutSlowInInterpolator;
-import androidx.appcompat.app.AppCompatActivity;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.interpolator.view.animation.FastOutSlowInInterpolator;
+import androidx.viewpager.widget.ViewPager;
 
 import com.zhihu.matisse.R;
 import com.zhihu.matisse.internal.entity.IncapableCause;
@@ -38,6 +39,7 @@ import com.zhihu.matisse.internal.ui.adapter.PreviewPagerAdapter;
 import com.zhihu.matisse.internal.ui.widget.CheckRadioView;
 import com.zhihu.matisse.internal.ui.widget.CheckView;
 import com.zhihu.matisse.internal.ui.widget.IncapableDialog;
+import com.zhihu.matisse.internal.utils.PathUtils;
 import com.zhihu.matisse.internal.utils.PhotoMetadataUtils;
 import com.zhihu.matisse.internal.utils.Platform;
 import com.zhihu.matisse.listener.OnFragmentInteractionListener;
@@ -100,6 +102,8 @@ public abstract class BasePreviewActivity extends AppCompatActivity implements V
         }
         mButtonBack = (TextView) findViewById(R.id.button_back);
         mButtonApply = (TextView) findViewById(R.id.button_apply);
+        mButtonApply.setText(R.string.button_apply_default);
+        mButtonApply.setEnabled(true);
         mSize = (TextView) findViewById(R.id.size);
         mButtonBack.setOnClickListener(this);
         mButtonApply.setOnClickListener(this);
@@ -194,8 +198,12 @@ public abstract class BasePreviewActivity extends AppCompatActivity implements V
         if (v.getId() == R.id.button_back) {
             onBackPressed();
         } else if (v.getId() == R.id.button_apply) {
-            sendBackResult(true);
-            finish();
+//            sendBackResult(true);
+//            finish();
+            if (mSpec.onChooseItemListener != null) {
+                Item item = mAdapter.getMediaItem(mPager.getCurrentItem());
+                mSpec.onChooseItemListener.onChoose(PathUtils.getPath(this, item.getContentUri()));
+            }
         }
     }
 
@@ -260,6 +268,19 @@ public abstract class BasePreviewActivity extends AppCompatActivity implements V
             }
             updateSize(item);
         }
+
+        if (mPreviousPos != -1) {
+            if (position > mPreviousPos) {
+                if (mSpec.onChooseItemListener != null) {
+                    mSpec.onChooseItemListener.onNext();
+                }
+            } else if (position < mPreviousPos) {
+                if (mSpec.onChooseItemListener != null) {
+                    mSpec.onChooseItemListener.onPreview();
+                }
+            }
+        }
+
         mPreviousPos = position;
     }
 
@@ -269,17 +290,17 @@ public abstract class BasePreviewActivity extends AppCompatActivity implements V
     }
 
     private void updateApplyButton() {
-        int selectedCount = mSelectedCollection.count();
-        if (selectedCount == 0) {
-            mButtonApply.setText(R.string.button_apply_default);
-            mButtonApply.setEnabled(false);
-        } else if (selectedCount == 1 && mSpec.singleSelectionModeEnabled()) {
-            mButtonApply.setText(R.string.button_apply_default);
-            mButtonApply.setEnabled(true);
-        } else {
-            mButtonApply.setEnabled(true);
-            mButtonApply.setText(getString(R.string.button_apply, selectedCount));
-        }
+//        int selectedCount = mSelectedCollection.count();
+//        if (selectedCount == 0) {
+//            mButtonApply.setText(R.string.button_apply_default);
+//            mButtonApply.setEnabled(false);
+//        } else if (selectedCount == 1 && mSpec.singleSelectionModeEnabled()) {
+//            mButtonApply.setText(R.string.button_apply_default);
+//            mButtonApply.setEnabled(true);
+//        } else {
+//            mButtonApply.setEnabled(true);
+//            mButtonApply.setText(getString(R.string.button_apply, selectedCount));
+//        }
 
         if (mSpec.originalable) {
             mOriginalLayout.setVisibility(View.VISIBLE);

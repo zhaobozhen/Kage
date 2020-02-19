@@ -37,6 +37,7 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 
     implementation "androidx.appcompat:appcompat:" + rootProject.ext.APPCOMPAT
+    implementation 'androidx.lifecycle:lifecycle-extensions:' + rootProject.ext.LIFECYCLE
     implementation "androidx.annotation:annotation:1.1.0"
     implementation "androidx.recyclerview:recyclerview:1.1.0"
     implementation 'it.sephiroth.android.library.imagezoom:library:1.0.4'

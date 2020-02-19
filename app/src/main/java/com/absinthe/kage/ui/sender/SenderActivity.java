@@ -9,11 +9,14 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.absinthe.kage.databinding.ActivitySenderBinding;
+import com.absinthe.kage.device.DeviceManager;
+import com.absinthe.kage.ui.connect.ConnectActivity;
 import com.absinthe.kage.utils.ToastUtil;
 import com.tbruyelle.rxpermissions2.RxPermissions;
 import com.zhihu.matisse.Matisse;
 import com.zhihu.matisse.MimeType;
 import com.zhihu.matisse.engine.impl.GlideEngine;
+import com.zhihu.matisse.listener.OnChooseItemListener;
 
 import java.util.List;
 
@@ -23,6 +26,7 @@ public class SenderActivity extends AppCompatActivity {
     private static final int REQUEST_CODE_CHOOSE = 1001;
     private ActivitySenderBinding binding;
     private List<String> mSelected;
+    private OnChooseItemListener mListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,6 +38,28 @@ public class SenderActivity extends AppCompatActivity {
     }
 
     private void initView() {
+        mListener = new OnChooseItemListener() {
+            @Override
+            public void onChoose(String itemUri) {
+                if (DeviceManager.Singleton.INSTANCE.getInstance().isConnected()) {
+
+                } else {
+                    startActivity(new Intent(SenderActivity.this, ConnectActivity.class));
+                    finish();
+                }
+            }
+
+            @Override
+            public void onPreview() {
+                Log.d(TAG, "onPreview()");
+            }
+
+            @Override
+            public void onNext() {
+                Log.d(TAG, "onNext()");
+            }
+        };
+
         binding.btnCastImage.setOnClickListener(v ->
                 new RxPermissions(this).request(Manifest.permission.READ_EXTERNAL_STORAGE)
                         .subscribe(grant -> {
@@ -42,6 +68,7 @@ public class SenderActivity extends AppCompatActivity {
                                         .choose(MimeType.ofImage())
                                         .countable(false)
                                         .maxSelectable(1)
+                                        .setOnChooseItemListener(mListener)
                                         .imageEngine(new GlideEngine())
                                         .forResult(REQUEST_CODE_CHOOSE);
                             } else {

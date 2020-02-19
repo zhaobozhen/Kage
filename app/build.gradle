@@ -35,9 +35,9 @@ dependencies {
     implementation project(':matisse')
     implementation files('libs/nanohttpd-2.3.1.jar')
     implementation 'androidx.appcompat:appcompat:' + rootProject.ext.APPCOMPAT
+    implementation 'androidx.lifecycle:lifecycle-extensions:' + rootProject.ext.LIFECYCLE
     implementation 'com.google.android.material:material:1.1.0'
     implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
-    implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'
 
     implementation 'com.github.CymChad:BaseRecyclerViewAdapterHelper:3.0.0-beta11'
     implementation "io.reactivex.rxjava2:rxjava:2.2.17"
