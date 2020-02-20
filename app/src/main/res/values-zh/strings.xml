@@ -2,8 +2,8 @@
     <!--  General  -->
     <string name="app_name">Kage</string>
     <string name="connect_label">连接</string>
-    <string name="sender_label">Sender</string>
-    <string name="receiver_label">Receiver</string>
+    <string name="sender_label">投射</string>
+    <string name="receiver_label">接收器</string>
 
     <!--  Connect  -->
     <string name="connect_empty_list">空列表</string>

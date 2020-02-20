@@ -2,7 +2,7 @@
     <!--  General  -->
     <string name="app_name">Kage</string>
     <string name="connect_label">Connect</string>
-    <string name="sender_label">Sender</string>
+    <string name="sender_label">Cast</string>
     <string name="receiver_label">Receiver</string>
 
     <!--  Connect  -->
