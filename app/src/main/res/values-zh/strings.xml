@@ -1,11 +1,21 @@
 <resources>
+    <!--  General  -->
     <string name="app_name">Kage</string>
-    <string name="connect_label">Connect</string>
+    <string name="connect_label">连接</string>
     <string name="sender_label">Sender</string>
     <string name="receiver_label">Receiver</string>
 
-    <string name="about_info">Kage - An app which can cast multi-media files to other Android devices.</string>
+    <!--  Receiver  -->
+    <string name="title_loading">加载中…</string>
 
-    <string name="notification_channel_tcp">Kage Service is running</string>
-    <string name="kage_service_notification_content">Tap to back home page</string>
+    <!--  About  -->
+    <string name="about_info">Kage - 一款可以向其它 Android 设备投射多媒体文件的 App</string>
+
+    <!--  Notification  -->
+    <string name="notification_channel_tcp">Kage 服务正在运行</string>
+    <string name="kage_service_notification_content">点按以回到主页</string>
+
+    <!--  Toast  -->
+    <string name="toast_connected">已连接</string>
+    <string name="toast_grant_storage_perm">请授权存储权限</string>
 </resources>
