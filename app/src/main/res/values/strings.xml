@@ -5,6 +5,12 @@
     <string name="sender_label">Sender</string>
     <string name="receiver_label">Receiver</string>
 
+    <!--  Connect  -->
+    <string name="connect_empty_list">Empty List</string>
+    <string name="connect_state_connecting">Connecting</string>
+    <string name="connect_state_connected">Connected</string>
+    <string name="connect_state_connect">Connect</string>
+
     <!--  Receiver  -->
     <string name="title_loading">Loading…</string>
 

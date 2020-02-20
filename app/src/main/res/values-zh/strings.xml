@@ -5,6 +5,12 @@
     <string name="sender_label">Sender</string>
     <string name="receiver_label">Receiver</string>
 
+    <!--  Connect  -->
+    <string name="connect_empty_list">空列表</string>
+    <string name="connect_state_connecting">连接中</string>
+    <string name="connect_state_connected">已连接</string>
+    <string name="connect_state_connect">连接</string>
+
     <!--  Receiver  -->
     <string name="title_loading">加载中…</string>
 

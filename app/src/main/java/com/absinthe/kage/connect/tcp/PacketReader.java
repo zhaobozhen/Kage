@@ -108,7 +108,7 @@ public class PacketReader implements IPacketReader {
                         if (data.isEmpty()) {
                             continue;
                         }
-                        Log.d(TAG, "receive Data: " + data);
+                        Log.d(TAG, "Receive Data: " + data);
                         mExecutorService.submit(() -> {
                             Packet packet = new Packet();
                             packet.setData(data);
@@ -175,7 +175,6 @@ public class PacketReader implements IPacketReader {
             Log.d(TAG, "readNextPacket IO : " + e.getMessage());
             return null;
         }
-        Log.d(TAG, "receiveLength = " + receiveLength);
         if (receiveLength >= MAX_READ_LENGTH) {
             throw new IllegalArgumentException("receiveLength too big, receiveLength = " + receiveLength);
         }

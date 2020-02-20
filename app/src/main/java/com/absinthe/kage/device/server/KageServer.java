@@ -26,7 +26,7 @@ public class KageServer extends NanoHTTPD {
         File rootDir = Environment.getExternalStorageDirectory();
         File[] filesList;
         Log.d(TAG, "Session Uri = " + filepath);
-        Log.d(TAG, "Environment.getExternalStorageDirectory() = " + Environment.getExternalStorageDirectory().getAbsolutePath());
+        Log.d(TAG, "Environment.getExternalStorageDirectory() = " + rootDir.getAbsolutePath());
 
         if (filepath.trim().isEmpty() || filepath.trim().equals(ROOT_DIR)) {
             filepath = rootDir.getAbsolutePath();

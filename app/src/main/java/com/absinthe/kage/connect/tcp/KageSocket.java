@@ -30,7 +30,7 @@ public class KageSocket {
             if (mSocket == null) {
                 new ConnectThread(ip, port, timeout).start();
             } else {
-                Log.e(TAG, "socket already exist");
+                Log.e(TAG, "Socket is already exist");
             }
         }
     }
@@ -66,7 +66,7 @@ public class KageSocket {
                             }
                         });
                     } catch (final Exception e) {
-                        Log.i(TAG, "Socket connect Exception: " + e);
+                        Log.i(TAG, "Socket connection Exception: " + e);
                         mSocket = null;
                         if (e instanceof SocketTimeoutException) {
                             ISocketCallback.KageSocketCallbackThreadHandler.getInstance().post(() -> {

@@ -45,7 +45,7 @@ public class UDP {
     }
 
     public void notify(IpMessageProtocol ipMsgSend, String ip, int port) {
-        Log.i(TAG, "ipMsgSend.getProtocolString() : " + ipMsgSend.getProtocolString() + ", ip = " + ip);
+        Log.i(TAG, "ipMsgSend.getProtocolString(): " + ipMsgSend.getProtocolString() + ", IP = " + ip);
 
         byte[] buffer;
         buffer = ipMsgSend.getProtocolString().getBytes(StandardCharsets.UTF_8);
@@ -53,7 +53,7 @@ public class UDP {
         try {
             broadcastAddress = InetAddress.getByName(ip);
         } catch (UnknownHostException e) {
-            Log.e(TAG, "mDatagramSocket.send error," + e.toString());
+            Log.e(TAG, "DatagramSocket#send error: " + e.toString());
             return;
         }
 
@@ -61,7 +61,7 @@ public class UDP {
         try {
             mDatagramSocket.send(packet);
         } catch (IOException e) {
-            Log.e(TAG, "mDatagramSocket.send error," + e.toString());
+            Log.e(TAG, "DatagramSocket#send error: " + e.toString());
         }
     }
 
@@ -136,7 +136,7 @@ public class UDP {
 
                 InetAddress address = packet.getAddress();
                 if (address == null) {
-                    Log.e(TAG, "address == null");
+                    Log.e(TAG, "Address == null");
                     break;
                 }
 

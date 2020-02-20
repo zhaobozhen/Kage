@@ -29,7 +29,7 @@
                 android:clickable="true"
                 android:focusable="true"
                 android:gravity="center"
-                android:text="Send"
+                android:text="@string/sender_label"
                 android:textColor="@color/white"
                 android:textSize="16sp"
                 android:textStyle="bold" />
@@ -42,7 +42,7 @@
                 android:clickable="true"
                 android:focusable="true"
                 android:gravity="center"
-                android:text="Connect"
+                android:text="@string/connect_label"
                 android:textColor="@color/white"
                 android:textSize="16sp"
                 android:textStyle="bold" />

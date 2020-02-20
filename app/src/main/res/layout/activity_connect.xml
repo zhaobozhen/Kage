@@ -25,7 +25,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
-                android:text="Empty List"
+                android:text="@string/connect_empty_list"
                 android:textAppearance="?attr/textAppearanceHeadline5" />
 
         </LinearLayout>

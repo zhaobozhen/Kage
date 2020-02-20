@@ -55,7 +55,7 @@ public class DeviceScanner {
                     try {
                         ipMessage = new IpMessageProtocol(data);
                     } catch (NumberFormatException e) {
-                        Log.e(TAG, "Parse UDP data error:" + e.toString());
+                        Log.e(TAG, "Parse UDP data error: " + e.toString());
                         return;
                     }
 

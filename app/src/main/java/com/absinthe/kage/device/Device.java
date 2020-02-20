@@ -140,7 +140,7 @@ public class Device {
         mHeartbeatSender.beat(heartbeatId, HEARTBEAT_DEFAULT_TIMEOUT, new HeartbeatSender.IHeartbeatCallback() {
             @Override
             public void onBeatSuccess(String heartbeatId) {
-                Log.d(TAG, "onBeatSuccess,heartbeatId = " + heartbeatId);
+                Log.v(TAG, "onBeatSuccess,heartbeatId = " + heartbeatId);
             }
 
             @Override

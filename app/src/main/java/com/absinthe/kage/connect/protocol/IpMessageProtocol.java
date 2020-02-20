@@ -23,7 +23,6 @@ public class IpMessageProtocol {
         senderName = args[2];
         cmd = Integer.parseInt(args[3]);
         additionalSection = args.length >= 5 ? args[4] : "";    //是否有附加数据
-        additionalSection = additionalSection.replace("\0", "");
     }
 
     public IpMessageProtocol(String senderName, int cmd, String additionalSection) {

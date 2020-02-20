@@ -20,13 +20,13 @@ public class DeviceAdapter extends BaseQuickAdapter<DeviceInfo, BaseViewHolder> 
         baseViewHolder.setText(R.id.tv_device_ip, deviceInfo.getIp());
         switch (deviceInfo.getState()) {
             case DeviceInfo.STATE_IDLE:
-                baseViewHolder.setText(R.id.btn_connect, "Connect");
+                baseViewHolder.setText(R.id.btn_connect, R.string.connect_state_connect);
                 break;
             case DeviceInfo.STATE_CONNECTING:
-                baseViewHolder.setText(R.id.btn_connect, "Connecting");
+                baseViewHolder.setText(R.id.btn_connect, R.string.connect_state_connecting);
                 break;
             case DeviceInfo.STATE_CONNECTED:
-                baseViewHolder.setText(R.id.btn_connect, "Connected");
+                baseViewHolder.setText(R.id.btn_connect, R.string.connect_state_connected);
                 break;
             default:
         }

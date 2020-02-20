@@ -131,7 +131,7 @@ public class Client extends Thread implements Runnable {
     }
 
     private String readToStream(DataInputStream dis, Client client) {
-        Log.i(TAG, "readToStream: isFirstCmd:" + client.isFirstCmd);
+        Log.i(TAG, "readToStream: isFirstCmd = " + client.isFirstCmd);
         int receivedLen;
 
         try {
