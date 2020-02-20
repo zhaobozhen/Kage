@@ -7,6 +7,7 @@
 
     <!--  Connect  -->
     <string name="connect_empty_list">空列表</string>
+    <string name="connect_empty_list_subtitle">请确保您的设备在同一局域网下并且已开启 Kage 服务</string>
     <string name="connect_state_connecting">连接中</string>
     <string name="connect_state_connected">已连接</string>
     <string name="connect_state_connect">连接</string>

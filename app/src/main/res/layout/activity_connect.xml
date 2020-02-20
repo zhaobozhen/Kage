@@ -28,6 +28,15 @@
                 android:text="@string/connect_empty_list"
                 android:textAppearance="?attr/textAppearanceHeadline5" />
 
+            <TextView
+                android:layout_width="280dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:gravity="center_horizontal"
+                android:text="@string/connect_empty_list_subtitle"
+                android:textAppearance="?attr/textAppearanceHeadline6"
+                android:textColor="@color/gray" />
+
         </LinearLayout>
 
         <androidx.recyclerview.widget.RecyclerView
