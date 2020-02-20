@@ -77,6 +77,7 @@ public class SenderActivity extends BaseActivity {
                                         .choose(MimeType.ofImage())
                                         .countable(false)
                                         .maxSelectable(1)
+                                        .theme(com.zhihu.matisse.R.style.Matisse_Dracula)
                                         .setOnChooseItemListener(mListener)
                                         .imageEngine(new GlideEngine())
                                         .forResult(REQUEST_CODE_CHOOSE);

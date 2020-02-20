@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   Copyright 2017 Zhihu Inc.
 
   Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,118 +13,123 @@
   See the License for the specific language governing permissions and
   limitations under the License.
   -->
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                xmlns:tools="http://schemas.android.com/tools"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent">
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
 
     <com.zhihu.matisse.internal.ui.widget.PreviewViewPager
         android:id="@+id/pager"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@android:color/black"/>
+        android:background="@android:color/black" />
 
-    <FrameLayout
-        android:id="@+id/bottom_toolbar"
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:background="@color/preview_bottom_toolbar_bg"
-        android:elevation="4dp"
-        tools:targetApi="lollipop">
+        android:layout_height="match_parent"
+        android:fitsSystemWindows="true">
 
-        <TextView
-            android:id="@+id/button_back"
-            android:layout_width="wrap_content"
+        <FrameLayout
+            android:id="@+id/bottom_toolbar"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:foreground="?selectableItemBackground"
-            android:padding="16dp"
-            android:layout_gravity="start"
-            android:text="@string/button_back"
-            android:textColor="?attr/preview.bottomToolbar.back.textColor"
-            android:textSize="16sp"/>
+            android:layout_alignParentBottom="true"
+            android:background="@color/preview_bottom_toolbar_bg"
+            android:elevation="4dp"
+            tools:targetApi="lollipop">
 
-
-        <LinearLayout
-            android:layout_gravity="center"
-            android:orientation="horizontal"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content">
+            <TextView
+                android:id="@+id/button_back"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="start"
+                android:foreground="?selectableItemBackground"
+                android:padding="16dp"
+                android:text="@string/button_back"
+                android:textColor="?attr/preview.bottomToolbar.back.textColor"
+                android:textSize="16sp" />
 
 
             <LinearLayout
-                android:padding="16dp"
-                android:id="@+id/originalLayout"
-                android:visibility="gone"
-                android:orientation="horizontal"
-                android:layout_gravity="center"
                 android:layout_width="wrap_content"
-                android:foreground="?selectableItemBackground"
                 android:layout_height="wrap_content"
-                tools:showIn="@layout/activity_matisse">
+                android:layout_gravity="center"
+                android:orientation="horizontal">
 
 
-                <com.zhihu.matisse.internal.ui.widget.CheckRadioView
-                    android:id="@+id/original"
-                    android:src="@drawable/ic_preview_radio_off"
-                    android:layout_gravity="center_vertical"
-                    android:tint="#ffffff"
-                    android:layout_width="16dp"
-                    android:layout_height="16dp" />
-
-                <TextView
+                <LinearLayout
+                    android:id="@+id/originalLayout"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
-                    android:enabled="true"
-                    android:paddingStart="4dp"
-                    android:paddingLeft="4dp"
-                    android:text="@string/button_original"
-                    android:textColor="?attr/preview.bottomToolbar.back.textColor"
-                    android:textSize="14sp" />
+                    android:layout_gravity="center"
+                    android:foreground="?selectableItemBackground"
+                    android:orientation="horizontal"
+                    android:padding="16dp"
+                    android:visibility="gone"
+                    tools:showIn="@layout/activity_matisse">
 
+
+                    <com.zhihu.matisse.internal.ui.widget.CheckRadioView
+                        android:id="@+id/original"
+                        android:layout_width="16dp"
+                        android:layout_height="16dp"
+                        android:layout_gravity="center_vertical"
+                        android:src="@drawable/ic_preview_radio_off"
+                        android:tint="#ffffff" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
+                        android:enabled="true"
+                        android:paddingStart="4dp"
+                        android:paddingLeft="4dp"
+                        android:text="@string/button_original"
+                        android:textColor="?attr/preview.bottomToolbar.back.textColor"
+                        android:textSize="14sp" />
+
+                </LinearLayout>
+
+
+                <TextView
+                    android:id="@+id/size"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:textColor="@color/preview_bottom_size"
+                    android:textSize="16sp"
+                    android:visibility="gone" />
             </LinearLayout>
 
 
-
             <TextView
-                android:id="@+id/size"
+                android:id="@+id/button_apply"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:textColor="@color/preview_bottom_size"
-                android:textSize="16sp"
-                android:visibility="gone"/>
-        </LinearLayout>
+                android:layout_gravity="end"
+                android:foreground="?selectableItemBackground"
+                android:padding="16dp"
+                android:textColor="?attr/preview.bottomToolbar.apply.textColor"
+                android:textSize="16sp" />
 
+        </FrameLayout>
 
-
-        <TextView
-            android:id="@+id/button_apply"
+        <FrameLayout
+            android:id="@+id/top_toolbar"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="end"
-            android:foreground="?selectableItemBackground"
-            android:padding="16dp"
-            android:textColor="?attr/preview.bottomToolbar.apply.textColor"
-            android:textSize="16sp"/>
+            android:layout_alignParentRight="true"
+            android:layout_margin="8dp"
+            android:fitsSystemWindows="true">
 
-    </FrameLayout>
+            <com.zhihu.matisse.internal.ui.widget.CheckView
+                android:id="@+id/check_view"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="10dp"
+                android:visibility="gone" />
+        </FrameLayout>
 
-    <FrameLayout
-        android:id="@+id/top_toolbar"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
-        android:layout_margin="8dp"
-        android:fitsSystemWindows="true">
+    </RelativeLayout>
 
-        <com.zhihu.matisse.internal.ui.widget.CheckView
-            android:id="@+id/check_view"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:padding="10dp"
-            android:visibility="gone"/>
-    </FrameLayout>
-
-</RelativeLayout>
+</FrameLayout>

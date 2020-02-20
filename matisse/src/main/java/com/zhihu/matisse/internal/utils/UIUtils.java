@@ -16,6 +16,12 @@
 package com.zhihu.matisse.internal.utils;
 
 import android.content.Context;
+import android.graphics.Color;
+import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 public class UIUtils {
 
@@ -29,4 +35,37 @@ public class UIUtils {
         return spanCount;
     }
 
+    public static void setBlackSystemBar(AppCompatActivity activity) {
+        Window window = activity.getWindow();
+        View view = window.getDecorView();
+
+        int flag = View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN |
+                View.SYSTEM_UI_FLAG_LAYOUT_STABLE |
+                View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION;
+
+        view.setSystemUiVisibility(flag);
+
+        window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+        window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION);
+        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+
+        window.setStatusBarColor(Color.TRANSPARENT);
+        window.setNavigationBarColor(Color.BLACK);
+    }
+
+    public static void setTransparentNavBar(AppCompatActivity activity) {
+        Window window = activity.getWindow();
+        View view = window.getDecorView();
+
+        int flag = View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN |
+                View.SYSTEM_UI_FLAG_LAYOUT_STABLE |
+                View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION;
+
+//        view.setSystemUiVisibility(flag);
+
+        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+        window.addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION);
+
+        window.setNavigationBarColor(Color.TRANSPARENT);
+    }
 }

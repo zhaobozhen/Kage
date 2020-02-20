@@ -30,8 +30,8 @@
                 android:focusable="true"
                 android:gravity="center"
                 android:text="@string/sender_label"
+                android:textAppearance="?attr/textAppearanceHeadline6"
                 android:textColor="@color/white"
-                android:textSize="16sp"
                 android:textStyle="bold" />
 
             <TextView
@@ -43,8 +43,8 @@
                 android:focusable="true"
                 android:gravity="center"
                 android:text="@string/connect_label"
+                android:textAppearance="?attr/textAppearanceHeadline6"
                 android:textColor="@color/white"
-                android:textSize="16sp"
                 android:textStyle="bold" />
 
         </LinearLayout>

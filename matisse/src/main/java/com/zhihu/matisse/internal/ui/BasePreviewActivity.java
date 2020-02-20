@@ -42,6 +42,7 @@ import com.zhihu.matisse.internal.ui.widget.IncapableDialog;
 import com.zhihu.matisse.internal.utils.PathUtils;
 import com.zhihu.matisse.internal.utils.PhotoMetadataUtils;
 import com.zhihu.matisse.internal.utils.Platform;
+import com.zhihu.matisse.internal.utils.UIUtils;
 import com.zhihu.matisse.listener.OnFragmentInteractionListener;
 
 public abstract class BasePreviewActivity extends AppCompatActivity implements View.OnClickListener,
@@ -78,6 +79,7 @@ public abstract class BasePreviewActivity extends AppCompatActivity implements V
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         setTheme(SelectionSpec.getInstance().themeId);
+        UIUtils.setBlackSystemBar(this);
         super.onCreate(savedInstanceState);
         if (!SelectionSpec.getInstance().hasInited) {
             setResult(RESULT_CANCELED);

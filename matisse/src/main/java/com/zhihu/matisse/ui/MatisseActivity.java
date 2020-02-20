@@ -30,6 +30,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.annotation.Nullable;
@@ -57,6 +58,7 @@ import com.zhihu.matisse.internal.utils.MediaStoreCompat;
 import com.zhihu.matisse.internal.utils.PathUtils;
 import com.zhihu.matisse.internal.utils.PhotoMetadataUtils;
 import com.zhihu.matisse.internal.utils.SingleMediaScanner;
+import com.zhihu.matisse.internal.utils.UIUtils;
 
 import java.util.ArrayList;
 
@@ -97,6 +99,7 @@ public class MatisseActivity extends AppCompatActivity implements
         // programmatically set theme before super.onCreate()
         mSpec = SelectionSpec.getInstance();
         setTheme(mSpec.themeId);
+        UIUtils.setTransparentNavBar(this);
         super.onCreate(savedInstanceState);
         if (!mSpec.hasInited) {
             setResult(RESULT_CANCELED);
@@ -121,6 +124,14 @@ public class MatisseActivity extends AppCompatActivity implements
         ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayShowTitleEnabled(false);
         actionBar.setDisplayHomeAsUpEnabled(true);
+
+        int height = 0;
+        int resourceId = getApplicationContext().getResources().getIdentifier("status_bar_height", "dimen", "android");
+        if (resourceId > 0) {
+            height = getApplicationContext().getResources().getDimensionPixelSize(resourceId);
+        }
+        toolbar.setPadding(0, height, 0, 0);
+
         Drawable navigationIcon = toolbar.getNavigationIcon();
         TypedArray ta = getTheme().obtainStyledAttributes(new int[]{R.attr.album_element_color});
         int color = ta.getColor(0, 0);
