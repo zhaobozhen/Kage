@@ -4,12 +4,12 @@ import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.ActionBar;
 
+import com.absinthe.kage.BaseActivity;
 import com.absinthe.kage.R;
 import com.absinthe.kage.databinding.ActivityReceiverBinding;
 import com.bumptech.glide.Glide;
@@ -17,10 +17,12 @@ import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
 import com.bumptech.glide.request.target.CustomTarget;
 import com.bumptech.glide.request.transition.Transition;
 
-public class ReceiverActivity extends AppCompatActivity {
+public class ReceiverActivity extends BaseActivity {
 
     public static final String EXTRA_IMAGE_URI = "IMAGE_URI";
     public static final String EXTRA_FINISH = "FINISH";
+    private static final int TITLE_STATE_LOADING = 0;
+    private static final int TITLE_STATE_NORMAL = 1;
 
     private ActivityReceiverBinding binding;
 
@@ -42,7 +44,6 @@ public class ReceiverActivity extends AppCompatActivity {
     private void processIntent(Intent intent) {
         if (intent != null) {
             String imageUri = intent.getStringExtra(EXTRA_IMAGE_URI);
-            Log.d("sasa",imageUri);
             if (!TextUtils.isEmpty(imageUri)) {
                 if (imageUri.equals(EXTRA_FINISH)) {
                     finish();
@@ -54,15 +55,16 @@ public class ReceiverActivity extends AppCompatActivity {
     }
 
     private void loadImage(String imageUri) {
-        getSupportActionBar().setTitle("Loading…");
+        setTitleState(TITLE_STATE_LOADING);
         Glide.with(this)
                 .load(imageUri)
                 .transition(DrawableTransitionOptions.withCrossFade())
+                .thumbnail(0.1f)
                 .into(new CustomTarget<Drawable>() {
                     @Override
                     public void onResourceReady(@NonNull Drawable resource, @Nullable Transition<? super Drawable> transition) {
                         binding.imageView.setImageDrawable(resource);
-                        getSupportActionBar().setTitle(R.string.receiver_label);
+                        setTitleState(TITLE_STATE_NORMAL);
                     }
 
                     @Override
@@ -70,5 +72,18 @@ public class ReceiverActivity extends AppCompatActivity {
 
                     }
                 });
+    }
+
+    private void setTitleState(int state) {
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar == null) {
+            return;
+        }
+
+        if (state == TITLE_STATE_LOADING) {
+            actionBar.setTitle("Loading…");
+        } else {
+            actionBar.setTitle(R.string.receiver_label);
+        }
     }
 }

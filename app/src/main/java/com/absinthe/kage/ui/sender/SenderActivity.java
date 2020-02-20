@@ -6,8 +6,8 @@ import android.os.Bundle;
 import android.util.Log;
 
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
 
+import com.absinthe.kage.BaseActivity;
 import com.absinthe.kage.connect.proxy.ImageProxy;
 import com.absinthe.kage.databinding.ActivitySenderBinding;
 import com.absinthe.kage.device.DeviceManager;
@@ -19,7 +19,7 @@ import com.zhihu.matisse.MimeType;
 import com.zhihu.matisse.engine.impl.GlideEngine;
 import com.zhihu.matisse.listener.OnChooseItemListener;
 
-public class SenderActivity extends AppCompatActivity {
+public class SenderActivity extends BaseActivity {
 
     private static final String TAG = SenderActivity.class.getSimpleName();
     private static final int REQUEST_CODE_CHOOSE = 1001;

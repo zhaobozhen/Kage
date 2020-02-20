@@ -162,7 +162,7 @@ public class DeviceScanner {
                 mUDP = null;
             }
             offlineALlDevices();
-            mScanCallback = null;//必须在offlineALlDevices之后
+            mScanCallback = null;
         }
     }
 
@@ -288,7 +288,7 @@ public class DeviceScanner {
         while (iterator.hasNext()) {
             Device device = iterator.next().getValue();
             spaceTime = System.currentTimeMillis() - device.getOnlineTime();
-            Log.d(TAG, "checkOffline ip=" + device.getIp() + ",state=" + device.getState() + ",spaceTime=" + spaceTime);
+            Log.d(TAG, "Check Offline IP = " + device.getIp() + ", State = " + device.getState() + ", SpaceTime=" + spaceTime);
             if (spaceTime > TIMEOUT && device.getState() == DeviceInfo.STATE_IDLE) {
                 iterator.remove();
                 if (mScanCallback != null) {

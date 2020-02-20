@@ -6,8 +6,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
 
+import com.absinthe.kage.BaseActivity;
 import com.absinthe.kage.R;
 import com.absinthe.kage.databinding.ActivityMainBinding;
 import com.absinthe.kage.device.DeviceManager;
@@ -16,7 +16,7 @@ import com.absinthe.kage.ui.about.AboutActivity;
 import com.absinthe.kage.ui.connect.ConnectActivity;
 import com.absinthe.kage.ui.sender.SenderActivity;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends BaseActivity {
     private static final String TAG = MainActivity.class.getSimpleName();
     private ActivityMainBinding binding;
 

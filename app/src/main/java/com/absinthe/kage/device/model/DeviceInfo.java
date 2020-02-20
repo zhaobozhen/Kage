@@ -1,5 +1,7 @@
 package com.absinthe.kage.device.model;
 
+import androidx.annotation.NonNull;
+
 public class DeviceInfo {
 
     private String name;
@@ -65,4 +67,9 @@ public class DeviceInfo {
         setState(STATE_CONNECTING);
     }
 
+    @NonNull
+    @Override
+    public String toString() {
+        return "DeviceInfo: Name = " + name + ", IP = " + ip;
+    }
 }

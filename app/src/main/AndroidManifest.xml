@@ -19,8 +19,9 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true"
+        android:requestLegacyExternalStorage="true"
         tools:ignore="AllowBackup"
-        tools:targetApi="m">
+        tools:targetApi="q">
 
         <service
             android:name=".service.TCPService"
