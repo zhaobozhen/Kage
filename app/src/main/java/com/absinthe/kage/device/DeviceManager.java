@@ -12,12 +12,12 @@ import androidx.lifecycle.OnLifecycleEvent;
 
 import com.absinthe.kage.connect.Const;
 import com.absinthe.kage.connect.IProxy;
+import com.absinthe.kage.connect.protocol.Config;
 import com.absinthe.kage.connect.tcp.KageSocket;
 import com.absinthe.kage.device.cmd.PromptPhoneConnectedCommand;
 import com.absinthe.kage.device.model.DeviceConfig;
 import com.absinthe.kage.device.model.DeviceInfo;
-import com.absinthe.kage.connect.protocol.Config;
-import com.absinthe.kage.utils.ScanDeviceTool;
+import com.absinthe.kage.utils.NetUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -85,7 +85,7 @@ public class DeviceManager extends KageObservable implements LifecycleObserver {
 
         config.uuid = UUID.randomUUID().toString();
         String localHost;
-        localHost = new ScanDeviceTool().getLocAddress();
+        localHost = NetUtils.getLocalAddress();
 
         config.localHost = localHost;
         config.broadcastHostInWifi = Const.BROADCAST_IP_IN_WIFI;

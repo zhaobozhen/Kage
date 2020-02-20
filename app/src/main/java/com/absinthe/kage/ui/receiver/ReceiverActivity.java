@@ -81,7 +81,7 @@ public class ReceiverActivity extends BaseActivity {
         }
 
         if (state == TITLE_STATE_LOADING) {
-            actionBar.setTitle("Loading…");
+            actionBar.setTitle(R.string.title_loading);
         } else {
             actionBar.setTitle(R.string.receiver_label);
         }

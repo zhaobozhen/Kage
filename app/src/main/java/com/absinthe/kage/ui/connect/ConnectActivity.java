@@ -90,7 +90,7 @@ public class ConnectActivity extends BaseActivity {
                 Log.d(TAG, "onDeviceConnected");
                 mAdapter.notifyDataSetChanged();
                 finish();
-                ToastUtil.makeText("Connected");
+                ToastUtil.makeText(R.string.toast_connected);
             }
 
             @Override

@@ -1,21 +1,11 @@
 <resources>
-    <!--  General  -->
     <string name="app_name">Kage</string>
     <string name="connect_label">Connect</string>
     <string name="sender_label">Sender</string>
     <string name="receiver_label">Receiver</string>
 
-    <!--  Receiver  -->
-    <string name="title_loading">Loading…</string>
-
-    <!--  About  -->
     <string name="about_info">Kage - An app which can cast multi-media files to other Android devices.</string>
 
-    <!--  Notification  -->
     <string name="notification_channel_tcp">Kage Service is running</string>
     <string name="kage_service_notification_content">Tap to back home page</string>
-
-    <!--  Toast  -->
-    <string name="toast_connected">Connected</string>
-    <string name="toast_grant_storage_perm">Please grant Storage permissions</string>
 </resources>

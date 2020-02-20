@@ -8,6 +8,7 @@ import android.util.Log;
 import androidx.annotation.Nullable;
 
 import com.absinthe.kage.BaseActivity;
+import com.absinthe.kage.R;
 import com.absinthe.kage.connect.proxy.ImageProxy;
 import com.absinthe.kage.databinding.ActivitySenderBinding;
 import com.absinthe.kage.device.DeviceManager;
@@ -80,7 +81,7 @@ public class SenderActivity extends BaseActivity {
                                         .imageEngine(new GlideEngine())
                                         .forResult(REQUEST_CODE_CHOOSE);
                             } else {
-                                ToastUtil.makeText("Please grant permissions");
+                                ToastUtil.makeText(R.string.toast_grant_storage_perm);
                             }
                         }).dispose());
     }

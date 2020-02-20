@@ -100,4 +100,9 @@ public class TCPService extends LifecycleService {
     private void addProxy(DeviceManager deviceManager) {
         deviceManager.addProxy(ImageProxy.getInstance());
     }
+
+    @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
+    private void removeProxy(DeviceManager deviceManager) {
+        deviceManager.removeProxy(ImageProxy.getInstance());
+    }
 }
