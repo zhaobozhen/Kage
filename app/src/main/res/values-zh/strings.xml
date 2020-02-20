@@ -12,6 +12,11 @@
     <string name="connect_state_connected">已连接</string>
     <string name="connect_state_connect">连接</string>
 
+    <!--  Sender  -->
+    <string name="btn_cast_image">投射图片</string>
+    <string name="btn_cast_video">投射视频</string>
+    <string name="btn_cast_music">投射音乐</string>
+
     <!--  Receiver  -->
     <string name="title_loading">加载中…</string>
 

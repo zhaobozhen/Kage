@@ -12,6 +12,11 @@
     <string name="connect_state_connected">Connected</string>
     <string name="connect_state_connect">Connect</string>
 
+    <!--  Sender  -->
+    <string name="btn_cast_image">Cast Image</string>
+    <string name="btn_cast_video">Cast Video</string>
+    <string name="btn_cast_music">Cast Music</string>
+
     <!--  Receiver  -->
     <string name="title_loading">Loading…</string>
 
