@@ -1,13 +1,15 @@
 package com.absinthe.kage.device.cmd;
 
 import com.absinthe.kage.connect.protocol.IpMessageConst;
+import com.absinthe.kage.device.Command;
 import com.absinthe.kage.device.CommandBuilder;
 import com.absinthe.kage.device.Device;
+import com.absinthe.kage.device.client.Client;
 
-public class InquiryPlayStateCommand extends Device.Command {
+public class InquiryPlayStateCommand extends Command {
 
     public InquiryPlayStateCommand() {
-        cmd = IpMessageConst.MEDIA_GET_PLAY_STATE;
+        cmd = IpMessageConst.MEDIA_GET_PLAYING_STATE;
     }
 
     @Override
@@ -15,5 +17,15 @@ public class InquiryPlayStateCommand extends Device.Command {
         return new CommandBuilder()
                 .with(this)
                 .build();
+    }
+
+    @Override
+    public void doWork(Client client, String received) {
+
+    }
+
+    @Override
+    public boolean parseReceived(String received) {
+        return true;
     }
 }

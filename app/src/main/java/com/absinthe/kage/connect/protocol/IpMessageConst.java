@@ -17,8 +17,8 @@ public class IpMessageConst {
     public static final int MEDIA_PLAY_NEXT = 0x00000007;
     public static final int MEDIA_STOP = 0x00000008;
     public static final int MEDIA_PREPARE_PLAY = 0x00000009;
-    public static final int MEDIA_IMAGE_INFO = 0x0000000A;
-    public static final int MEDIA_GET_PLAY_STATE = 0x0000000B;
-    public static final int MEDIA_GET_PLAY_STATUS = 0x0000000C;
-
+    public static final int MEDIA_IMAGE_INFO = 0x0000000A;  //Get image info like URI etc.
+    public static final int MEDIA_GET_PLAYING_STATE = 0x0000000B;
+    public static final int MEDIA_GET_PLAYING_STATUS = 0x0000000C;
+    public static final int DEVICE_ROTATION = 0x0000000D;   //Device rotate
 }

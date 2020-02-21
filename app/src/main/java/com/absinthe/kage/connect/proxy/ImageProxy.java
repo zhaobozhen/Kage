@@ -254,10 +254,10 @@ public class ImageProxy extends BaseProxy {
                 if (mDevice == null || !mDevice.isConnected()) {
                     break;
                 }
-                InquiryPlayStateCommand inquiryPlayStateCmd = new InquiryPlayStateCommand();
-                mDevice.sendCommand(inquiryPlayStateCmd);
-                InquiryPlayStatusCommand inquiryPlayStatusCmd = new InquiryPlayStatusCommand();
-                mDevice.sendCommand(inquiryPlayStatusCmd);
+//                InquiryPlayStateCommand inquiryPlayStateCmd = new InquiryPlayStateCommand();
+//                mDevice.sendCommand(inquiryPlayStateCmd);
+//                InquiryPlayStatusCommand inquiryPlayStatusCmd = new InquiryPlayStatusCommand();
+//                mDevice.sendCommand(inquiryPlayStatusCmd);
                 long inquiryPeriod = period;
                 try {
                     sleep(inquiryPeriod);

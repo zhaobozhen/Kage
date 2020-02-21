@@ -10,13 +10,13 @@ public class CommandBuilder {
         mStringBuilder = new StringBuilder();
     }
 
-    public CommandBuilder with(Device.Command command) {
+    public CommandBuilder with(Command command) {
         mStringBuilder.append(command.cmd);
         return this;
     }
 
     public CommandBuilder append(@NonNull String param) {
-        mStringBuilder.append(Device.Command.DELIMITER).append(param);
+        mStringBuilder.append(Command.DELIMITER).append(param);
         return this;
     }
 

@@ -2,8 +2,7 @@ package com.absinthe.kage.connect.tcp;
 
 import android.util.Log;
 
-import com.absinthe.kage.connect.protocol.IpMessageConst;
-import com.absinthe.kage.connect.protocol.IpMessageProtocol;
+import com.absinthe.kage.device.cmd.HeartbeatCommand;
 
 import java.io.DataInputStream;
 import java.io.IOException;
@@ -194,12 +193,7 @@ public class PacketReader implements IPacketReader {
     }
 
     private boolean isHeartBeat(String data) {
-        String[] split = data.split(IpMessageProtocol.DELIMITER);
-        if (split.length < 1) {
-            return false;
-        }
-        int cmd = Integer.parseInt(split[0]);
-        return IpMessageConst.IS_ONLINE == cmd;
+        return new HeartbeatCommand().parseReceived(data);
     }
 }
 

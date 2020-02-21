@@ -1,10 +1,14 @@
 package com.absinthe.kage.device.cmd;
 
-import com.absinthe.kage.connect.protocol.IpMessageConst;
-import com.absinthe.kage.device.CommandBuilder;
-import com.absinthe.kage.device.Device;
+import android.content.Intent;
 
-public class StopCommand extends Device.Command {
+import com.absinthe.kage.connect.protocol.IpMessageConst;
+import com.absinthe.kage.device.Command;
+import com.absinthe.kage.device.CommandBuilder;
+import com.absinthe.kage.device.client.Client;
+import com.absinthe.kage.ui.receiver.ReceiverActivity;
+
+public class StopCommand extends Command {
 
     private static final String STOP = "STOP";
 
@@ -18,5 +22,18 @@ public class StopCommand extends Device.Command {
                 .with(this)
                 .append(STOP)
                 .build();
+    }
+
+    @Override
+    public void doWork(Client client, String received) {
+        Intent stopIntent = new Intent(client.getContext(), ReceiverActivity.class);
+        stopIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        stopIntent.putExtra(ReceiverActivity.EXTRA_IMAGE_URI, ReceiverActivity.EXTRA_FINISH);
+        client.getContext().startActivity(stopIntent);
+    }
+
+    @Override
+    public boolean parseReceived(String received) {
+        return true;
     }
 }

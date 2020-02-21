@@ -4,7 +4,6 @@ import android.util.Log;
 
 import com.absinthe.kage.connect.protocol.Config;
 import com.absinthe.kage.connect.protocol.IProtocolHandler;
-import com.absinthe.kage.connect.protocol.IpMessageProtocol;
 import com.absinthe.kage.connect.protocol.ProtocolHandler;
 import com.absinthe.kage.connect.tcp.KageSocket;
 import com.absinthe.kage.connect.tcp.Packet;
@@ -19,9 +18,9 @@ public class Device {
     private static final String TAG = Device.class.getSimpleName();
     private static final int HEARTBEAT_DEFAULT_TIMEOUT = 20 * 1000;
 
+    private List<OnReceiveMsgListener> mOnReceiveMsgListeners = new ArrayList<>();
     private DeviceInfo mDeviceInfo;
     private IConnectCallback mConnectCallback;
-    private List<OnReceiveMsgListener> mOnReceiveMsgListeners = new ArrayList<>();
     private DeviceConfig mConfig;
     private IProtocolHandler mProtocolHandler;
     private HeartbeatSender mHeartbeatSender;
@@ -259,15 +258,6 @@ public class Device {
         if (null != listener) {
             mOnReceiveMsgListeners.remove(listener);
         }
-    }
-
-    public abstract static class Command {
-
-        protected static final String DELIMITER = IpMessageProtocol.DELIMITER;
-        protected int cmd;
-
-        protected Command() {}
-        public abstract String pack();
     }
 
     public interface IConnectCallback {

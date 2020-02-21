@@ -1,33 +1,33 @@
 package com.absinthe.kage.device.cmd;
 
 import com.absinthe.kage.connect.protocol.IpMessageConst;
+import com.absinthe.kage.connect.protocol.IpMessageProtocol;
 import com.absinthe.kage.device.Command;
 import com.absinthe.kage.device.CommandBuilder;
-import com.absinthe.kage.device.DeviceManager;
 import com.absinthe.kage.device.client.Client;
 
 import java.io.IOException;
 
-public class InquiryDeviceInfoCommand extends Command {
+public class HeartbeatCommand extends Command {
 
-    public String phoneName;
+    public static final String HEARTBEAT_MESSAGE = "HEARTBEAT";
+    public static final int LENGTH = 2;
 
-    public InquiryDeviceInfoCommand() {
-        cmd = IpMessageConst.GET_DEVICE_INFO;
+    public HeartbeatCommand() {
+        cmd = IpMessageConst.IS_ONLINE;
     }
 
     @Override
     public String pack() {
         return new CommandBuilder()
                 .with(this)
-                .append(phoneName)
+                .append(HEARTBEAT_MESSAGE)
                 .build();
     }
 
     @Override
     public void doWork(Client client, String received) {
         try {
-            phoneName = DeviceManager.Singleton.INSTANCE.getInstance().getConfig().name;
             client.writeToStream(pack());
         } catch (IOException e) {
             e.printStackTrace();
@@ -37,6 +37,16 @@ public class InquiryDeviceInfoCommand extends Command {
 
     @Override
     public boolean parseReceived(String received) {
-        return false;
+        String[] splits = received.split(IpMessageProtocol.DELIMITER);
+        if (splits.length == LENGTH) {
+            try {
+                return Integer.parseInt(splits[0]) == cmd;
+            } catch (NumberFormatException e) {
+                e.printStackTrace();
+                return false;
+            }
+        } else {
+            return false;
+        }
     }
 }

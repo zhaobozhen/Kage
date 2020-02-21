@@ -1,10 +1,12 @@
 package com.absinthe.kage.device.cmd;
 
 import com.absinthe.kage.connect.protocol.IpMessageConst;
+import com.absinthe.kage.connect.protocol.IpMessageProtocol;
+import com.absinthe.kage.device.Command;
 import com.absinthe.kage.device.CommandBuilder;
-import com.absinthe.kage.device.Device;
+import com.absinthe.kage.device.client.Client;
 
-public class MediaPreparePlayCommand extends Device.Command {
+public class MediaPreparePlayCommand extends Command {
 
     public static final String TYPE_IMAGE = "IMAGE";
     public static final String TYPE_VIDEO = "VIDEO";
@@ -24,5 +26,21 @@ public class MediaPreparePlayCommand extends Device.Command {
                 .with(this)
                 .append(type)
                 .build();
+    }
+
+    @Override
+    public void doWork(Client client, String received) {
+
+    }
+
+    @Override
+    public boolean parseReceived(String received) {
+        String[] splits = received.split(IpMessageProtocol.DELIMITER);
+        if (splits.length >= MIN_LENGTH) {
+            type = splits[1];
+            return true;
+        } else {
+            return false;
+        }
     }
 }

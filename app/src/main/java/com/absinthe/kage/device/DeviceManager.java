@@ -585,6 +585,13 @@ public class DeviceManager extends KageObservable implements LifecycleObserver {
         }
     }
 
+    public void sendCommandToCurrentDevice(Command command) {
+        Device device = getCurrentDevice();
+        if (device != null) {
+            device.sendCommand(command);
+        }
+    }
+
     interface ConnectState {
         void connect(DeviceInfo deviceInfo);
 
