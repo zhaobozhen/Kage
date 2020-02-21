@@ -281,15 +281,15 @@ public abstract class BasePreviewActivity extends AppCompatActivity implements V
             updateSize(item);
 
             if (position > mPreviousPos) {
-                if (mSpec.onChooseItemListener != null) {
+                if (mSpec.onChooseItemListener != null && mIsCasting) {
                     mSpec.onChooseItemListener.onNext();
                 }
             } else if (position < mPreviousPos) {
-                if (mSpec.onChooseItemListener != null) {
+                if (mSpec.onChooseItemListener != null && mIsCasting) {
                     mSpec.onChooseItemListener.onPreview();
                 }
             }
-            if (mSpec.onChooseItemListener != null) {
+            if (mSpec.onChooseItemListener != null && mIsCasting) {
                 mSpec.onChooseItemListener.onChoose(PathUtils.getPath(this, item.getContentUri()));
             }
         }

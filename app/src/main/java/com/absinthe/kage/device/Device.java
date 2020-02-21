@@ -122,7 +122,6 @@ public class Device {
 
             @Override
             public void onWriterIdle() {
-                //heartbeat
                 heartbeat();
             }
 

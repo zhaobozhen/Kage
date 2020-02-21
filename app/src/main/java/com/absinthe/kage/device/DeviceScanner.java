@@ -4,10 +4,10 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import com.absinthe.kage.connect.UDP;
-import com.absinthe.kage.device.model.DeviceConfig;
-import com.absinthe.kage.device.model.DeviceInfo;
 import com.absinthe.kage.connect.protocol.IpMessageConst;
 import com.absinthe.kage.connect.protocol.IpMessageProtocol;
+import com.absinthe.kage.device.model.DeviceConfig;
+import com.absinthe.kage.device.model.DeviceInfo;
 
 import java.util.Iterator;
 import java.util.Map;
@@ -61,13 +61,13 @@ public class DeviceScanner {
 
                     int cmd = 0x000000FF & ipMessage.getCmd();
 
-                    Device dev = mDevices.get(ip);
+                    Device device = mDevices.get(ip);
                     switch (cmd) {
                         case IpMessageConst.IP_MSG_BR_EXIT:
-                            if (dev != null && !dev.isConnected()) {
+                            if (device != null && !device.isConnected()) {
                                 mDevices.remove(ip);
                                 if (mScanCallback != null) {
-                                    mScanCallback.onDeviceOffline(dev);
+                                    mScanCallback.onDeviceOffline(device);
                                 }
                             }
                             break;
@@ -84,42 +84,42 @@ public class DeviceScanner {
                             break;
                         case IpMessageConst.IP_MSG_ANS_ENTRY:
                             Log.d(TAG, "IP_MSG_ANS_ENTRY");
-                            if (dev == null) {
+                            if (device == null) {
                                 String protocolVersion = ipMessage.getVersion();
-                                dev = new Device(mConfig, protocolVersion);
-                                dev.setIp(ip);
-                                dev.setName(ipMessage.getSenderName());
+                                device = new Device(mConfig, protocolVersion);
+                                device.setIp(ip);
+                                device.setName(ipMessage.getSenderName());
                                 String additionalSection = ipMessage.getAdditionalSection();
                                 String[] userInfo = additionalSection.split(IpMessageProtocol.DELIMITER);
                                 if (userInfo.length < 1) {
-                                    dev.setName(ipMessage.getSenderName());
+                                    device.setName(ipMessage.getSenderName());
                                 }
                                 if (userInfo.length >= 2) {
-                                    dev.setFunctionCode(userInfo[1]);
+                                    device.setFunctionCode(userInfo[1]);
                                 }
-                                mDevices.put(ip, dev);
+                                mDevices.put(ip, device);
 
                                 if (mScanCallback != null) {
-                                    mScanCallback.onDeviceOnline(dev);
+                                    mScanCallback.onDeviceOnline(device);
                                 }
-                            } else if (isDeviceInfoChanged(ipMessage, dev)) {
-                                dev.setName(ipMessage.getSenderName());
+                            } else if (isDeviceInfoChanged(ipMessage, device)) {
+                                device.setName(ipMessage.getSenderName());
                                 String additionalSection = ipMessage.getAdditionalSection();
                                 String[] userInfo = additionalSection.split(IpMessageProtocol.DELIMITER);
                                 if (userInfo.length < 1) {
-                                    dev.setName(ipMessage.getSenderName());
+                                    device.setName(ipMessage.getSenderName());
                                 }
                                 if (userInfo.length >= 2) {
-                                    dev.setFunctionCode(userInfo[1]);
+                                    device.setFunctionCode(userInfo[1]);
                                 }
                                 if (mScanCallback != null) {
-                                    mScanCallback.onDeviceInfoChanged(dev);
+                                    mScanCallback.onDeviceInfoChanged(device);
                                 }
                             }
-                            recount(dev);
                             if (mScanCallback != null) {
-                                mScanCallback.onDeviceNotice(dev);
+                                mScanCallback.onDeviceNotice(device);
                             }
+                            updateOnlineTime(device);
                             break;
                         default:
                             break;
@@ -140,8 +140,8 @@ public class DeviceScanner {
         return true;
     }
 
-    private boolean isDeviceInfoChanged(IpMessageProtocol ipMessage, Device dev) {
-        String name = dev.getName();
+    private boolean isDeviceInfoChanged(IpMessageProtocol ipMessage, Device device) {
+        String name = device.getName();
         String senderName = ipMessage.getSenderName();
         if (!TextUtils.isEmpty(name)) {
             return !name.equals(senderName);
@@ -187,16 +187,16 @@ public class DeviceScanner {
                 return null;
             }
 
-            Device dev = new Device(mConfig, protocolVersion);
-            dev.setIp(ip);
-            dev.setName(name);
-            dev.setFunctionCode(functionCode);
-            mDevices.put(ip, dev);
+            Device device = new Device(mConfig, protocolVersion);
+            device.setIp(ip);
+            device.setName(name);
+            device.setFunctionCode(functionCode);
+            mDevices.put(ip, device);
             if (mScanCallback != null) {
-                mScanCallback.onDeviceOnline(dev);
+                mScanCallback.onDeviceOnline(device);
             }
-            recount(dev);
-            return dev.getDeviceInfo();
+            updateOnlineTime(device);
+            return device.getDeviceInfo();
         } else {
             Device device = mDevices.get(deviceInfo.getIp());
             return device == null ? null : device.getDeviceInfo();
@@ -298,7 +298,7 @@ public class DeviceScanner {
         }
     }
 
-    private void recount(Device device) {
+    private void updateOnlineTime(Device device) {
         device.setOnlineTime(System.currentTimeMillis());
     }
 

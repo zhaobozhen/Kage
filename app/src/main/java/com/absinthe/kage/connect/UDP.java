@@ -5,7 +5,6 @@ import android.util.Log;
 import com.absinthe.kage.connect.protocol.IpMessageProtocol;
 
 import java.io.IOException;
-import java.net.BindException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
@@ -23,29 +22,17 @@ public class UDP {
 
     public UDP(String localIpAddress, int monitorPort) {
         mLocalIpAddress = localIpAddress;
-        int port = monitorPort;
 
-        while (true) {
-            try {
-                mDatagramSocket = new DatagramSocket(port);
-                break;
-            } catch (SocketException e) {
-                Log.e(TAG, "Create DatagramSocket error!" + e.getMessage());
-                if (e instanceof BindException) {
-                    if (port - monitorPort <= 20) {
-                        port++;
-                    } else {
-                        break;
-                    }
-                } else {
-                    break;
-                }
-            }
+        try {
+            mDatagramSocket = new DatagramSocket(monitorPort);
+        } catch (SocketException e) {
+            e.printStackTrace();
+            Log.e(TAG, "Create DatagramSocket error: " + e.getMessage());
         }
     }
 
     public void notify(IpMessageProtocol ipMsgSend, String ip, int port) {
-        Log.i(TAG, "ipMsgSend.getProtocolString(): " + ipMsgSend.getProtocolString() + ", IP = " + ip);
+        Log.i(TAG, "UDP Protocol String: " + ipMsgSend.getProtocolString() + ", IP = " + ip);
 
         byte[] buffer;
         buffer = ipMsgSend.getProtocolString().getBytes(StandardCharsets.UTF_8);
@@ -53,7 +40,7 @@ public class UDP {
         try {
             broadcastAddress = InetAddress.getByName(ip);
         } catch (UnknownHostException e) {
-            Log.e(TAG, "DatagramSocket#send error: " + e.toString());
+            Log.e(TAG, "DatagramSocket Send error: " + e.toString());
             return;
         }
 
@@ -61,7 +48,7 @@ public class UDP {
         try {
             mDatagramSocket.send(packet);
         } catch (IOException e) {
-            Log.e(TAG, "DatagramSocket#send error: " + e.toString());
+            Log.e(TAG, "DatagramSocket Send error: " + e.toString());
         }
     }
 
