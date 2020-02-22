@@ -8,8 +8,6 @@ import com.absinthe.kage.connect.protocol.IpMessageConst;
 import com.absinthe.kage.connect.protocol.IpMessageProtocol;
 import com.absinthe.kage.device.Device;
 import com.absinthe.kage.device.cmd.ImageInfoCommand;
-import com.absinthe.kage.device.cmd.InquiryPlayStateCommand;
-import com.absinthe.kage.device.cmd.InquiryPlayStatusCommand;
 import com.absinthe.kage.device.cmd.MediaPreparePlayCommand;
 import com.absinthe.kage.device.cmd.StopCommand;
 
@@ -140,11 +138,14 @@ public class ImageProxy extends BaseProxy {
                 mDevice.sendCommand(stopCmd);
             }
 
-            MediaPreparePlayCommand preparePlayCommand = new MediaPreparePlayCommand(MediaPreparePlayCommand.TYPE_IMAGE);
+            MediaPreparePlayCommand preparePlayCommand = new MediaPreparePlayCommand();
+            preparePlayCommand.type = MediaPreparePlayCommand.TYPE_IMAGE;
             mDevice.sendCommand(preparePlayCommand);
+
             ImageInfoCommand imageInfoCommand = new ImageInfoCommand();
             imageInfoCommand.info = url;
             mDevice.sendCommand(imageInfoCommand);
+
             scheduleInquiryPlayState(1000);
         }
     }

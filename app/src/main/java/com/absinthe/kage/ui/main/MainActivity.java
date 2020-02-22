@@ -2,6 +2,7 @@ package com.absinthe.kage.ui.main;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -15,6 +16,7 @@ import com.absinthe.kage.service.TCPService;
 import com.absinthe.kage.ui.about.AboutActivity;
 import com.absinthe.kage.ui.connect.ConnectActivity;
 import com.absinthe.kage.ui.sender.SenderActivity;
+import com.blankj.utilcode.util.ServiceUtils;
 
 public class MainActivity extends BaseActivity {
     private static final String TAG = MainActivity.class.getSimpleName();
@@ -28,7 +30,10 @@ public class MainActivity extends BaseActivity {
 
         initView();
 
-        TCPService.start(this);
+        Log.d(TAG, "OnCreate");
+        if (!ServiceUtils.isServiceRunning(TCPService.class)) {
+            TCPService.start(this);
+        }
     }
 
     @Override

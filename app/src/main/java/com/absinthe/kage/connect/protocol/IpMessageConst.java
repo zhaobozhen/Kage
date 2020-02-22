@@ -21,4 +21,9 @@ public class IpMessageConst {
     public static final int MEDIA_GET_PLAYING_STATE = 0x0000000B;
     public static final int MEDIA_GET_PLAYING_STATUS = 0x0000000C;
     public static final int DEVICE_ROTATION = 0x0000000D;   //Device rotate
+    public static final int MEDIA_AUDIO_INFO = 0x0000000E;  //Get audio info like URI etc.
+    public static final int MEDIA_PAUSE = 0x0000000F;
+    public static final int MEDIA_SEEK_TO = 0x00000010;
+    public static final int MEDIA_GET_DURATION = 0x00000011;
+
 }

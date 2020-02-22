@@ -98,9 +98,8 @@ public class Device {
                         return;
                     }
                     synchronized (Device.this) {
-                        int size = mOnReceiveMsgListeners.size();
-                        for (int i = 0; i < size; i++) {
-                            mOnReceiveMsgListeners.get(i).onReceiveMsg(msg);
+                        for (OnReceiveMsgListener listener : mOnReceiveMsgListeners) {
+                            listener.onReceiveMsg(msg);
                         }
                     }
                 }
@@ -250,12 +249,14 @@ public class Device {
     public synchronized void registerOnReceiveMsgListener(OnReceiveMsgListener listener) {
         if (null != listener && !mOnReceiveMsgListeners.contains(listener)) {
             mOnReceiveMsgListeners.add(listener);
+            Log.d(TAG, "registerOnReceiveMsgListener");
         }
     }
 
     public synchronized void unregisterOnReceiveMsgListener(OnReceiveMsgListener listener) {
         if (null != listener) {
             mOnReceiveMsgListeners.remove(listener);
+            Log.d(TAG, "unregisterOnReceiveMsgListener");
         }
     }
 

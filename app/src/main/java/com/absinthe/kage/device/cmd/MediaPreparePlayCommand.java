@@ -13,11 +13,10 @@ public class MediaPreparePlayCommand extends Command {
     public static final String TYPE_MUSIC = "MUSIC";
     public static final int MIN_LENGTH = 2;
 
-    public String type;
+    public String type = "UNKNOWN";
 
-    public MediaPreparePlayCommand(String type) {
+    public MediaPreparePlayCommand() {
         cmd = IpMessageConst.MEDIA_PREPARE_PLAY;
-        this.type = type;
     }
 
     @Override

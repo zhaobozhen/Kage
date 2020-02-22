@@ -73,7 +73,7 @@ public class Client extends Thread implements Runnable {
                     new StopCommand().doWork(this, command);
                     break;
                 case IpMessageConst.MEDIA_PREPARE_PLAY:
-                    new MediaPreparePlayCommand(MediaPreparePlayCommand.TYPE_IMAGE).doWork(this, command);
+                    new MediaPreparePlayCommand().doWork(this, command);
                     break;
                 case IpMessageConst.MEDIA_IMAGE_INFO:
                     new ImageInfoCommand().doWork(this, command);
