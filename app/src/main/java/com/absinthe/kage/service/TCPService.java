@@ -14,6 +14,7 @@ import androidx.lifecycle.LifecycleService;
 import androidx.lifecycle.OnLifecycleEvent;
 
 import com.absinthe.kage.R;
+import com.absinthe.kage.connect.proxy.AudioProxy;
 import com.absinthe.kage.connect.proxy.ImageProxy;
 import com.absinthe.kage.device.client.Client;
 import com.absinthe.kage.device.DeviceManager;
@@ -99,10 +100,12 @@ public class TCPService extends LifecycleService {
 
     private void addProxy(DeviceManager deviceManager) {
         deviceManager.addProxy(ImageProxy.getInstance());
+        deviceManager.addProxy(AudioProxy.getInstance());
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
     private void removeProxy(DeviceManager deviceManager) {
         deviceManager.removeProxy(ImageProxy.getInstance());
+        deviceManager.removeProxy(AudioProxy.getInstance());
     }
 }

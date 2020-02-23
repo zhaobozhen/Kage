@@ -36,6 +36,12 @@ public class SenderActivity extends BaseActivity {
         initView();
     }
 
+    @Override
+    protected void onDestroy() {
+        ImageProxy.getInstance().close();
+        super.onDestroy();
+    }
+
     private void initView() {
         mListener = new OnChooseItemListener() {
             @Override

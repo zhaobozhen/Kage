@@ -25,5 +25,13 @@ public class IpMessageConst {
     public static final int MEDIA_PAUSE = 0x0000000F;
     public static final int MEDIA_SEEK_TO = 0x00000010;
     public static final int MEDIA_GET_DURATION = 0x00000011;
+    public static final int RESPONSE_SET_PLAYBACK_PROCESS = 0x00000012;
+    public static final int RESPONSE_SET_AUDIO_DURATION = 0x00000013;
+    public static final int RESPONSE_PLAYING_INDEX = 0x00000014;
+    public static final int RESPONSE_SET_AUDIO_MODE = 0x00000015;
+    public static final int MEDIA_GET_PLAYING_POSITION = 0x00000016;
+    public static final int MEDIA_PLAY_AUDIO_LIST = 0x00000017;
+    public static final int MEDIA_SET_AUDIO_MODE = 0x00000018;
+    public static final int MEDIA_SET_PLAY_INDEX = 0x00000019;
 
 }

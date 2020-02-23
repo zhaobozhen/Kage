@@ -1,11 +1,22 @@
 package com.absinthe.kage.device.model;
 
+import com.google.gson.annotations.SerializedName;
+
 public class AudioInfo {
 
+    @SerializedName("url")
     private String url;//播放地址
+
+    @SerializedName("name")
     private String name;//歌曲名
+
+    @SerializedName("artist")
     private String artist;//演唱者
+
+    @SerializedName("album")
     private String album;//专辑
+
+    @SerializedName("coverPath")
     private String coverPath;//封面地址
 
     public String getUrl() {
