@@ -251,7 +251,7 @@ public class DeviceManager extends KageObservable implements LifecycleObserver {
     }
 
     @Override
-    protected void notifyDeviceDisConnect(Device device) {
+    protected void notifyDeviceDisconnect(Device device) {
         IDeviceObserver[] localObservers;
         synchronized (this) {
             localObservers = observers.toArray(new IDeviceObserver[0]);
@@ -459,7 +459,7 @@ public class DeviceManager extends KageObservable implements LifecycleObserver {
                         mCurrentDeviceKey = null;
                         setConnectState(new StateIdle());
                         notifyDeviceDisconnectToProxy(device);
-                        mHandler.post(() -> notifyDeviceDisConnect(device));
+                        mHandler.post(() -> notifyDeviceDisconnect(device));
                         if (null != delayToConnectDeviceInfoIp && null != mDeviceScanner) {
                             Device dev = mDeviceScanner.queryDevice(delayToConnectDeviceInfoIp);
                             if (dev != null) {

@@ -14,11 +14,11 @@ import androidx.lifecycle.LifecycleService;
 import androidx.lifecycle.OnLifecycleEvent;
 
 import com.absinthe.kage.R;
+import com.absinthe.kage.connect.protocol.Config;
 import com.absinthe.kage.connect.proxy.AudioProxy;
 import com.absinthe.kage.connect.proxy.ImageProxy;
-import com.absinthe.kage.device.client.Client;
 import com.absinthe.kage.device.DeviceManager;
-import com.absinthe.kage.connect.protocol.Config;
+import com.absinthe.kage.device.client.Client;
 import com.absinthe.kage.device.server.KageServer;
 import com.absinthe.kage.ui.main.MainActivity;
 import com.absinthe.kage.utils.NotificationUtils;

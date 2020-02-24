@@ -56,6 +56,217 @@ public class AudioProxy extends BaseProxy {
         return sInstance;
     }
 
+    public void play(AudioInfo audioInfo) {
+        if (mDevice != null && mDevice.isConnected()
+                && audioInfo != null && audioInfo.getUrl() != null) {
+            mDevice.unregisterOnReceiveMsgListener(mOnReceiveMsgListener);
+            cancelInquiryPlayState();
+            cancelInquiryCurrentPosition();
+            cancelInquiryDuration();
+            resetCurrentPlayInfo();
+            cancelInquiryPlayMode();
+            mDevice.registerOnReceiveMsgListener(mOnReceiveMsgListener);
+
+            StopCommand stopCmd = new StopCommand();
+            mDevice.sendCommand(stopCmd);
+            MediaPreparePlayCommand preparePlayCmd = new MediaPreparePlayCommand();
+            preparePlayCmd.type = MediaPreparePlayCommand.TYPE_MUSIC;
+            mDevice.sendCommand(preparePlayCmd);
+
+            AudioInfoCommand audioInfoCommand = new AudioInfoCommand();
+            audioInfoCommand.url = audioInfo.getUrl();
+            audioInfoCommand.name = audioInfo.getName();
+            audioInfoCommand.artist = audioInfo.getArtist();
+            audioInfoCommand.album = audioInfo.getAlbum();
+            audioInfoCommand.coverPath = audioInfo.getCoverPath();
+            mDevice.sendCommand(audioInfoCommand);
+            mCurrentPlayInfo.isPlayListMode = false;
+            scheduleInquiryPlayState(1000);
+            scheduleInquiryCurrentPlayMode(1000);
+        }
+    }
+
+    public void start() {
+        if (mCurrentPlayInfo.currentPlayState == PLAY_STATUS.PAUSED_PLAYBACK.getStatus()
+                && null != mDevice && mDevice.isConnected()) {
+            AudioInfoCommand audioInfoCommand = new AudioInfoCommand();
+            mDevice.sendCommand(audioInfoCommand);
+        }
+
+    }
+
+    public void pause() {
+        if (mCurrentPlayInfo.currentPlayState == PLAY_STATUS.PLAYING.getStatus()
+                && null != mDevice && mDevice.isConnected()) {
+            MediaPausePlayingCommand pauseCmd = new MediaPausePlayingCommand();
+            mDevice.sendCommand(pauseCmd);
+        }
+    }
+
+    public void stop() {
+        if (null != mDevice && mDevice.isConnected()) {
+            StopCommand stopCmd = new StopCommand();
+            mDevice.sendCommand(stopCmd);
+        }
+
+    }
+
+    public void seekTo(final int position) {
+        if (mCurrentPlayInfo.currentPlayState != PLAY_STATUS.STOPPED.getStatus()
+                && null != mDevice && mDevice.isConnected()) {
+            SeekToCommand seekToCmd = new SeekToCommand();
+            seekToCmd.position = position;
+            mDevice.sendCommand(seekToCmd);
+            mCurrentPlayInfo.position = position;
+        }
+    }
+
+    public synchronized void setOnPlayListener(OnPlayListener onPlayListener) {
+        mOnPlayListener = onPlayListener;
+    }
+
+    public int getPlayState() {
+        int currentPlayState = PlayStatue.INVALIDATE;
+        if (mCurrentPlayInfo != null) {
+            currentPlayState = mCurrentPlayInfo.currentPlayState;
+        }
+        return currentPlayState;
+    }
+
+    public int getDuration() {
+        if (mCurrentPlayInfo != null) {
+            return mCurrentPlayInfo.duration;
+        }
+        return 0;
+    }
+
+    public int getCurrentPosition() {
+        if (mCurrentPlayInfo != null) {
+            return mCurrentPlayInfo.position;
+        }
+        return 0;
+    }
+
+    public void recycle() {
+        mDevice.unregisterOnReceiveMsgListener(mOnReceiveMsgListener);
+        cancelInquiryCurrentPosition();
+        cancelInquiryDuration();
+        cancelInquiryPlayMode();
+        cancelInquiryPlayState();
+    }
+
+    public void playPrevious() {
+        if (null != mDevice && mDevice.isConnected()) {
+            if (!mCurrentPlayInfo.isPlayListMode) {
+                return;
+            }
+
+            mDevice.unregisterOnReceiveMsgListener(mOnReceiveMsgListener);
+            cancelInquiryPlayState();
+            cancelInquiryCurrentPosition();
+            cancelInquiryDuration();
+            resetCurrentPlayInfo();
+            cancelInquiryPlayMode();
+            mDevice.registerOnReceiveMsgListener(mOnReceiveMsgListener);
+
+            PlayPreviousCommand playPreCmd = new PlayPreviousCommand();
+            mDevice.sendCommand(playPreCmd);
+
+            scheduleInquiryPlayState(1000);
+            scheduleInquiryCurrentPlayMode(1000);
+        }
+    }
+
+    public void playNext() {
+        if (null != mDevice && mDevice.isConnected()) {
+            if (!mCurrentPlayInfo.isPlayListMode) {
+                return;
+            }
+
+            mDevice.unregisterOnReceiveMsgListener(mOnReceiveMsgListener);
+            cancelInquiryPlayState();
+            cancelInquiryCurrentPosition();
+            cancelInquiryDuration();
+            resetCurrentPlayInfo();
+            cancelInquiryPlayMode();
+            mDevice.registerOnReceiveMsgListener(mOnReceiveMsgListener);
+
+            PlayNextCommand playNextCmd = new PlayNextCommand();
+            mDevice.sendCommand(playNextCmd);
+
+            scheduleInquiryPlayState(1000);
+            scheduleInquiryCurrentPlayMode(1000);
+        }
+    }
+
+    public void playList(int index, List<AudioInfo> list) {
+        if (null != mDevice && mDevice.isConnected() && null != list && list.size() > 0) {
+            mDevice.unregisterOnReceiveMsgListener(mOnReceiveMsgListener);
+            cancelInquiryPlayState();
+            cancelInquiryCurrentPosition();
+            cancelInquiryDuration();
+            resetCurrentPlayInfo();
+            cancelInquiryPlayMode();
+            mDevice.registerOnReceiveMsgListener(mOnReceiveMsgListener);
+
+            StopCommand stopCmd = new StopCommand();
+            mDevice.sendCommand(stopCmd);
+
+            MediaPreparePlayCommand preparePlayCmd = new MediaPreparePlayCommand();
+            preparePlayCmd.type = MediaPreparePlayCommand.TYPE_MUSIC;
+            mDevice.sendCommand(preparePlayCmd);
+
+            PlayAudioListCommand playListCmd = new PlayAudioListCommand();
+            playListCmd.index = index;
+            playListCmd.size = list.size();
+            playListCmd.listInfo = new Gson().toJson(list);
+            mDevice.sendCommand(playListCmd);
+
+            mCurrentPlayInfo.isPlayListMode = true;
+            scheduleInquiryPlayState(1000);
+            scheduleInquiryCurrentPlayMode(1000);
+        }
+    }
+
+    public void setPlayAudioMode(int mode) {
+        if (null != mDevice && mDevice.isConnected()) {
+            if (!validate(mode)) {
+                return;
+            }
+            SetAudioModeCommand setAudioModeCmd = new SetAudioModeCommand();
+            setAudioModeCmd.mode = mode;
+            mDevice.sendCommand(setAudioModeCmd);
+        }
+    }
+
+    public void setPlayIndex(int index) {
+        if (null != mDevice && mDevice.isConnected()) {
+            if (!mCurrentPlayInfo.isPlayListMode) {
+                return;
+            }
+            if (index < 0) {
+                return;
+            }
+            SetPlayIndexCommand setPlayIndexCommand = new SetPlayIndexCommand();
+            setPlayIndexCommand.index = index;
+            mDevice.sendCommand(setPlayIndexCommand);
+            resetCurrentPlayInfo();
+        }
+    }
+
+    public int getPlayPositionInquiryPeriod() {
+        return mPlayPositionInquiryPeriod;
+    }
+
+    /**
+     * 设置同步remote播放进度时间间隔，在play之前设置有效
+     *
+     * @param inquiryPeriod mill seconds
+     */
+    public void setPlayPositionInquiryPeriod(int inquiryPeriod) {
+        this.mPlayPositionInquiryPeriod = inquiryPeriod;
+    }
+
     private void parserMsgAndNotifyIfNeed(String msg) {
         if (msg != null) {
             Log.d(TAG, "msg = " + msg);
@@ -176,71 +387,6 @@ public class AudioProxy extends BaseProxy {
         mCurrentPlayInfo.duration = 0;
         mCurrentPlayInfo.position = 0;
         mCurrentPlayInfo.currentPlayState = PlayStatue.STOPPED;
-    }
-
-    public void play(AudioInfo audioInfo) {
-        if (mDevice != null && mDevice.isConnected()
-                && audioInfo != null && audioInfo.getUrl() != null) {
-            mDevice.unregisterOnReceiveMsgListener(mOnReceiveMsgListener);
-            cancelInquiryPlayState();
-            cancelInquiryCurrentPosition();
-            cancelInquiryDuration();
-            resetCurrentPlayInfo();
-            cancelInquiryPlayMode();
-            mDevice.registerOnReceiveMsgListener(mOnReceiveMsgListener);
-
-            StopCommand stopCmd = new StopCommand();
-            mDevice.sendCommand(stopCmd);
-            MediaPreparePlayCommand preparePlayCmd = new MediaPreparePlayCommand();
-            preparePlayCmd.type = MediaPreparePlayCommand.TYPE_MUSIC;
-            mDevice.sendCommand(preparePlayCmd);
-
-            AudioInfoCommand audioInfoCommand = new AudioInfoCommand();
-            audioInfoCommand.url = audioInfo.getUrl();
-            audioInfoCommand.name = audioInfo.getName();
-            audioInfoCommand.artist = audioInfo.getArtist();
-            audioInfoCommand.album = audioInfo.getAlbum();
-            audioInfoCommand.coverPath = audioInfo.getCoverPath();
-            mDevice.sendCommand(audioInfoCommand);
-            mCurrentPlayInfo.isPlayListMode = false;
-            scheduleInquiryPlayState(1000);
-            scheduleInquiryCurrentPlayMode(1000);
-        }
-    }
-
-    public void start() {
-        if (mCurrentPlayInfo.currentPlayState == PLAY_STATUS.PAUSED_PLAYBACK.getStatus()
-                && null != mDevice && mDevice.isConnected()) {
-            AudioInfoCommand audioInfoCommand = new AudioInfoCommand();
-            mDevice.sendCommand(audioInfoCommand);
-        }
-
-    }
-
-    public void pause() {
-        if (mCurrentPlayInfo.currentPlayState == PLAY_STATUS.PLAYING.getStatus()
-                && null != mDevice && mDevice.isConnected()) {
-            MediaPausePlayingCommand pauseCmd = new MediaPausePlayingCommand();
-            mDevice.sendCommand(pauseCmd);
-        }
-    }
-
-    public void stop() {
-        if (null != mDevice && mDevice.isConnected()) {
-            StopCommand stopCmd = new StopCommand();
-            mDevice.sendCommand(stopCmd);
-        }
-
-    }
-
-    public void seekTo(final int position) {
-        if (mCurrentPlayInfo.currentPlayState != PLAY_STATUS.STOPPED.getStatus()
-                && null != mDevice && mDevice.isConnected()) {
-            SeekToCommand seekToCmd = new SeekToCommand();
-            seekToCmd.position = position;
-            mDevice.sendCommand(seekToCmd);
-            mCurrentPlayInfo.position = position;
-        }
     }
 
     private void scheduleInquiryPlayState(int period) {
@@ -449,48 +595,11 @@ public class AudioProxy extends BaseProxy {
         }
     }
 
-    public synchronized void setOnPlayListener(OnPlayListener onPlayListener) {
-        mOnPlayListener = onPlayListener;
-    }
-
-    public interface OnPlayListener {
-        void onCurrentPositionChanged(int duration, int position);
-
-        void onPlayStateChanged(int oldState, int newState);
-
-        void onPlayIndexChanged(int index);
-
-        void onMusicPlayModeChanged(int mode);
-    }
-
-    public int getPlayState() {
-        int currentPlayState = PlayStatue.INVALIDATE;
-        if (mCurrentPlayInfo != null) {
-            currentPlayState = mCurrentPlayInfo.currentPlayState;
-        }
-        return currentPlayState;
-    }
-
-    public int getDuration() {
-        if (mCurrentPlayInfo != null) {
-            return mCurrentPlayInfo.duration;
-        }
-        return 0;
-    }
-
-    public int getCurrentPosition() {
-        if (mCurrentPlayInfo != null) {
-            return mCurrentPlayInfo.position;
-        }
-        return 0;
-    }
-
-    public void recycle() {
-        mDevice.unregisterOnReceiveMsgListener(mOnReceiveMsgListener);
-        cancelInquiryCurrentPosition();
-        cancelInquiryDuration();
-        cancelInquiryPlayMode();
-        cancelInquiryPlayState();
+    private boolean validate(int mode) {
+        return PlayMode.ORDER_PLAY == mode
+                || PlayMode.SINGLE_LOOP == mode
+                || PlayMode.RANDOM_PLAY == mode
+                || PlayMode.LIST_LOOP == mode;
     }
 
     private static class PlayInfo {
@@ -498,20 +607,6 @@ public class AudioProxy extends BaseProxy {
         int position;
         int currentPlayState;
         boolean isPlayListMode;
-    }
-
-    public interface PlayStatue {
-        int INVALIDATE = -1;
-        int STOPPED = 1;
-        int TRANSITIONING = 2;
-        int PLAYING = 3;
-        int PAUSED = 4;
-
-        int OK = 10;
-        int PLAYER_EXIT = 11;
-        int ERROR_OCCURRED = 12;
-
-        int DISCONNECT = 20;
     }
 
     //  播放器状态
@@ -572,95 +667,18 @@ public class AudioProxy extends BaseProxy {
         notifyOnPlayStateChanged(playOldState, playerState);
     }
 
-    public void playPrevious() {
-        if (null != mDevice && mDevice.isConnected()) {
-            if (!mCurrentPlayInfo.isPlayListMode) {
-                return;
-            }
+    public interface PlayStatue {
+        int INVALIDATE = -1;
+        int STOPPED = 1;
+        int TRANSITIONING = 2;
+        int PLAYING = 3;
+        int PAUSED = 4;
 
-            mDevice.unregisterOnReceiveMsgListener(mOnReceiveMsgListener);
-            cancelInquiryPlayState();
-            cancelInquiryCurrentPosition();
-            cancelInquiryDuration();
-            resetCurrentPlayInfo();
-            cancelInquiryPlayMode();
-            mDevice.registerOnReceiveMsgListener(mOnReceiveMsgListener);
+        int OK = 10;
+        int PLAYER_EXIT = 11;
+        int ERROR_OCCURRED = 12;
 
-            PlayPreviousCommand playPreCmd = new PlayPreviousCommand();
-            mDevice.sendCommand(playPreCmd);
-
-            scheduleInquiryPlayState(1000);
-            scheduleInquiryCurrentPlayMode(1000);
-        }
-    }
-
-    public void playNext() {
-        if (null != mDevice && mDevice.isConnected()) {
-            if (!mCurrentPlayInfo.isPlayListMode) {
-                return;
-            }
-
-            mDevice.unregisterOnReceiveMsgListener(mOnReceiveMsgListener);
-            cancelInquiryPlayState();
-            cancelInquiryCurrentPosition();
-            cancelInquiryDuration();
-            resetCurrentPlayInfo();
-            cancelInquiryPlayMode();
-            mDevice.registerOnReceiveMsgListener(mOnReceiveMsgListener);
-
-            PlayNextCommand playNextCmd = new PlayNextCommand();
-            mDevice.sendCommand(playNextCmd);
-
-            scheduleInquiryPlayState(1000);
-            scheduleInquiryCurrentPlayMode(1000);
-        }
-    }
-
-    public void playList(int index, List<AudioInfo> list) {
-        if (null != mDevice && mDevice.isConnected() && null != list && list.size() > 0) {
-            mDevice.unregisterOnReceiveMsgListener(mOnReceiveMsgListener);
-            cancelInquiryPlayState();
-            cancelInquiryCurrentPosition();
-            cancelInquiryDuration();
-            resetCurrentPlayInfo();
-            cancelInquiryPlayMode();
-            mDevice.registerOnReceiveMsgListener(mOnReceiveMsgListener);
-
-            StopCommand stopCmd = new StopCommand();
-            mDevice.sendCommand(stopCmd);
-
-            MediaPreparePlayCommand preparePlayCmd = new MediaPreparePlayCommand();
-            preparePlayCmd.type = MediaPreparePlayCommand.TYPE_MUSIC;
-            mDevice.sendCommand(preparePlayCmd);
-
-            PlayAudioListCommand playListCmd = new PlayAudioListCommand();
-            playListCmd.index = index;
-            playListCmd.size = list.size();
-            playListCmd.listInfo = new Gson().toJson(list);
-            mDevice.sendCommand(playListCmd);
-
-            mCurrentPlayInfo.isPlayListMode = true;
-            scheduleInquiryPlayState(1000);
-            scheduleInquiryCurrentPlayMode(1000);
-        }
-    }
-
-    public void setPlayAudioMode(int mode) {
-        if (null != mDevice && mDevice.isConnected()) {
-            if (!validate(mode)) {
-                return;
-            }
-            SetAudioModeCommand setAudioModeCmd = new SetAudioModeCommand();
-            setAudioModeCmd.mode = mode;
-            mDevice.sendCommand(setAudioModeCmd);
-        }
-    }
-
-    private boolean validate(int mode) {
-        return PlayMode.ORDER_PLAY == mode
-                || PlayMode.SINGLE_LOOP == mode
-                || PlayMode.RANDOM_PLAY == mode
-                || PlayMode.LIST_LOOP == mode;
+        int DISCONNECT = 20;
     }
 
     public interface PlayMode {
@@ -670,31 +688,13 @@ public class AudioProxy extends BaseProxy {
         int LIST_LOOP = 4;
     }
 
-    public void setPlayIndex(int index) {
-        if (null != mDevice && mDevice.isConnected()) {
-            if (!mCurrentPlayInfo.isPlayListMode) {
-                return;
-            }
-            if (index < 0) {
-                return;
-            }
-            SetPlayIndexCommand setPlayIndexCommand = new SetPlayIndexCommand();
-            setPlayIndexCommand.index = index;
-            mDevice.sendCommand(setPlayIndexCommand);
-            resetCurrentPlayInfo();
-        }
-    }
+    public interface OnPlayListener {
+        void onCurrentPositionChanged(int duration, int position);
 
-    public int getPlayPositionInquiryPeriod() {
-        return mPlayPositionInquiryPeriod;
-    }
+        void onPlayStateChanged(int oldState, int newState);
 
-    /**
-     * 设置同步remote播放进度时间间隔，在play之前设置有效
-     *
-     * @param inquiryPeriod mill seconds
-     */
-    public void setPlayPositionInquiryPeriod(int inquiryPeriod) {
-        this.mPlayPositionInquiryPeriod = inquiryPeriod;
+        void onPlayIndexChanged(int index);
+
+        void onMusicPlayModeChanged(int mode);
     }
 }

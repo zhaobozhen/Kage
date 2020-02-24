@@ -7,7 +7,7 @@ public abstract class KageObservable {
     abstract protected void notifyFindDevice(Device device);
     abstract protected void notifyLostDevice(Device device);
     abstract protected void notifyDeviceConnected(Device device);
-    abstract protected void notifyDeviceDisConnect(Device device);
+    abstract protected void notifyDeviceDisconnect(Device device);
     protected abstract void notifyDeviceConnectFailed(Device device, int errorCode, String errorMessage);
 
 }
