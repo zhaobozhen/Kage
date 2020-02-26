@@ -8,7 +8,7 @@
 
     <!--  Connect  -->
     <string name="connect_empty_list">Empty List</string>
-    <string name="connect_empty_list_subtitle">Please make sure your device is on the same LAN and Kage service is turned on</string>
+    <string name="connect_empty_list_subtitle">Please make sure your device is on the same LAN and Kage service is turning on</string>
     <string name="connect_state_connecting">Connecting</string>
     <string name="connect_state_connected">Connected</string>
     <string name="connect_state_connect">Connect</string>

@@ -1,5 +1,6 @@
 package com.absinthe.kage;
 
+import android.annotation.SuppressLint;
 import android.content.res.Configuration;
 import android.os.Bundle;
 
@@ -13,6 +14,7 @@ import com.absinthe.kage.manager.ActivityStackManager;
 
 import java.lang.ref.WeakReference;
 
+@SuppressLint("Registered")
 public class BaseActivity extends AppCompatActivity {
 
     private WeakReference<BaseActivity> reference;

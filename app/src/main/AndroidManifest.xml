@@ -63,8 +63,8 @@
             android:theme="@style/AppTheme.About" />
         <activity
             android:name=".ui.sender.MusicActivity"
-            android:launchMode="singleTask"
-            android:parentActivityName=".ui.sender.SenderActivity" />
+            android:theme="@style/AppTheme.NoActionBar"
+            android:launchMode="singleTask" />
         <activity
             android:name=".ui.sender.MusicListActivity"
             android:label="@string/music_list_label"

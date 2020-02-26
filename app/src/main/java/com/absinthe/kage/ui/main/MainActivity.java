@@ -10,6 +10,7 @@ import androidx.annotation.NonNull;
 
 import com.absinthe.kage.BaseActivity;
 import com.absinthe.kage.R;
+import com.absinthe.kage.Settings;
 import com.absinthe.kage.databinding.ActivityMainBinding;
 import com.absinthe.kage.device.DeviceManager;
 import com.absinthe.kage.service.TCPService;
@@ -44,7 +45,7 @@ public class MainActivity extends BaseActivity {
 
     private void initView() {
         binding.btnSend.setOnClickListener(v -> {
-            if (DeviceManager.Singleton.INSTANCE.getInstance().isConnected()) {
+            if (DeviceManager.Singleton.INSTANCE.getInstance().isConnected() || !Settings.isDeviceNecessary()) {
                 startActivity(new Intent(MainActivity.this, SenderActivity.class));
             } else {
                 startActivity(new Intent(MainActivity.this, ConnectActivity.class));

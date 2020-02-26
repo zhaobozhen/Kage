@@ -16,5 +16,6 @@ public class KageApplication extends Application {
         super.onCreate();
         sContext = this;
         Logger.setDebugMode(BuildConfig.DEBUG);
+        Settings.setDeviceNecessary(false);
     }
 }
