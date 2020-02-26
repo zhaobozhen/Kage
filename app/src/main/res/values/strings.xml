@@ -4,6 +4,7 @@
     <string name="connect_label">Connect</string>
     <string name="sender_label">Cast</string>
     <string name="receiver_label">Receiver</string>
+    <string name="music_list_label">Music List</string>
 
     <!--  Connect  -->
     <string name="connect_empty_list">Empty List</string>

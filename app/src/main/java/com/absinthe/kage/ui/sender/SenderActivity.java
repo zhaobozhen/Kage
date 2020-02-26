@@ -26,6 +26,7 @@ public class SenderActivity extends BaseActivity {
     private static final int REQUEST_CODE_CHOOSE = 1001;
     private ActivitySenderBinding binding;
     private OnChooseItemListener mListener;
+    private final RxPermissions rxPermissions = new RxPermissions(this);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,7 +77,7 @@ public class SenderActivity extends BaseActivity {
         };
 
         binding.btnCastImage.setOnClickListener(v ->
-                new RxPermissions(this).request(Manifest.permission.READ_EXTERNAL_STORAGE)
+                rxPermissions.request(Manifest.permission.READ_EXTERNAL_STORAGE)
                         .subscribe(grant -> {
                             if (grant) {
                                 Matisse.from(SenderActivity.this)
@@ -90,7 +91,16 @@ public class SenderActivity extends BaseActivity {
                             } else {
                                 ToastUtil.makeText(R.string.toast_grant_storage_perm);
                             }
-                        }).dispose());
+                        }));
+        binding.btnCastMusic.setOnClickListener(v ->
+                rxPermissions.request(Manifest.permission.READ_EXTERNAL_STORAGE)
+                        .subscribe(grant -> {
+                            if (grant) {
+                                startActivity(new Intent(this, MusicListActivity.class));
+                            } else {
+                                ToastUtil.makeText(R.string.toast_grant_storage_perm);
+                            }
+                        }));
     }
 
     @Override

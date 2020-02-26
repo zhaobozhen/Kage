@@ -30,4 +30,5 @@
     <!--  Toast  -->
     <string name="toast_connected">已连接</string>
     <string name="toast_grant_storage_perm">请授权存储权限</string>
+    <string name="music_list_label">音乐列表</string>
 </resources>

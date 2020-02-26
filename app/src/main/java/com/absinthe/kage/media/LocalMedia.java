@@ -22,18 +22,18 @@ public class LocalMedia implements Parcelable {
     public static final int TYPE_VIDEO = 2;
     public static final int TYPE_AUDIO = 3;
 
-    private String title;
-    private String filePath;
-    private String date;
-    private String sortLetters;
-    private int type;
-    private long duration;
-    private float size;
+    protected String title;
+    protected String filePath;
+    protected String date;
+    protected String sortLetters;
+    protected int type;
+    protected long duration;
+    protected float size;
 
     public LocalMedia() {
     }
 
-    protected LocalMedia(Parcel in) {
+    public LocalMedia(Parcel in) {
         title = in.readString();
         filePath = in.readString();
         date = in.readString();
@@ -126,7 +126,7 @@ public class LocalMedia implements Parcelable {
         return null;
     }
 
-    public static List<MediaDirectory> getImageDirectory(Context context) {
+    private static List<MediaDirectory> getImageDirectory(Context context) {
         List<MediaDirectory> result = new ArrayList<>();
         Cursor cursor = context.getContentResolver().query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, null, null, null, null);
         if (cursor != null && cursor.moveToFirst()) {
@@ -167,7 +167,7 @@ public class LocalMedia implements Parcelable {
         return result;
     }
 
-    public static List<MediaDirectory> getVideoDirectory(Context context) {
+    private static List<MediaDirectory> getVideoDirectory(Context context) {
         List<MediaDirectory> result = new ArrayList<>();
         Cursor cursor = context.getContentResolver().query(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, null, null, null, null);
         if (cursor != null && cursor.moveToFirst()) {
