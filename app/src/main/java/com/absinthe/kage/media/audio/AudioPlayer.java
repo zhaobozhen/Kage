@@ -1,5 +1,6 @@
 package com.absinthe.kage.media.audio;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.media.session.PlaybackState;
 import android.net.wifi.WifiManager;
@@ -23,6 +24,7 @@ public class AudioPlayer extends Observable implements Playback.Callback {
     public static final int SHUFFLED = 2;
     public static final int REPEAT_ALL = 3;
 
+    @SuppressLint("StaticFieldLeak")
     private static AudioPlayer sInstance;
     private Context mContext;
     private Handler mHandler = new Handler(Looper.getMainLooper());
@@ -57,9 +59,8 @@ public class AudioPlayer extends Observable implements Playback.Callback {
 
     public void release() {
         mPlayState = 0;
-        Playback playback = mPlayback;
-        if (playback != null) {
-            playback.stop(false);
+        if (mPlayback != null) {
+            mPlayback.stop(false);
         }
         deleteObservers();
         if (mWakeLock != null && mWakeLock.isHeld()) {
