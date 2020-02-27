@@ -97,7 +97,7 @@ public class AudioProxy extends BaseProxy {
 
     public void pause() {
         if (mCurrentPlayInfo.currentPlayState == PLAY_STATUS.PLAYING.getStatus()
-                && null != mDevice && mDevice.isConnected()) {
+                && mDevice != null && mDevice.isConnected()) {
             MediaPausePlayingCommand pauseCmd = new MediaPausePlayingCommand();
             mDevice.sendCommand(pauseCmd);
         }

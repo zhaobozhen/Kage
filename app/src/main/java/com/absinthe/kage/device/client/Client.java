@@ -5,6 +5,7 @@ import android.util.Log;
 
 import com.absinthe.kage.connect.protocol.IpMessageConst;
 import com.absinthe.kage.connect.protocol.IpMessageProtocol;
+import com.absinthe.kage.device.cmd.AudioInfoCommand;
 import com.absinthe.kage.device.cmd.DeviceRotationCommand;
 import com.absinthe.kage.device.cmd.HeartbeatCommand;
 import com.absinthe.kage.device.cmd.ImageInfoCommand;
@@ -80,6 +81,9 @@ public class Client extends Thread implements Runnable {
                     break;
                 case IpMessageConst.DEVICE_ROTATION:
                     new DeviceRotationCommand().doWork(this, command);
+                    break;
+                case IpMessageConst.MEDIA_AUDIO_INFO:
+                    new AudioInfoCommand().doWork(this, command);
                     break;
                 default:
             }

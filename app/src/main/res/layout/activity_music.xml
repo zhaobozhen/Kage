@@ -31,8 +31,8 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="30dp"
             android:layout_marginEnd="30dp"
-            android:layout_marginBottom="100dp"
-            app:layout_constraintBottom_toBottomOf="parent" />
+            android:layout_marginBottom="50dp"
+            app:layout_constraintBottom_toTopOf="@id/btn_cast" />
 
         <TextView
             android:id="@+id/tv_current_time"
@@ -49,6 +49,16 @@
             android:textSize="12sp"
             app:layout_constraintEnd_toEndOf="@id/seekBar"
             app:layout_constraintTop_toBottomOf="@id/seekBar" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_cast"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Cast to device"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:layout_marginBottom="100dp"/>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

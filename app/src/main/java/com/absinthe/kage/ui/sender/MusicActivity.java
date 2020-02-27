@@ -16,10 +16,12 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.absinthe.kage.BaseActivity;
+import com.absinthe.kage.connect.proxy.AudioProxy;
 import com.absinthe.kage.databinding.ActivityMusicBinding;
 import com.absinthe.kage.device.DeviceManager;
 import com.absinthe.kage.device.DeviceObserverImpl;
 import com.absinthe.kage.device.IDeviceObserver;
+import com.absinthe.kage.device.model.AudioInfo;
 import com.absinthe.kage.device.model.DeviceInfo;
 import com.absinthe.kage.media.LocalMedia;
 import com.absinthe.kage.media.PlayList;
@@ -38,6 +40,10 @@ import java.util.Observer;
 public class MusicActivity extends BaseActivity implements Observer {
 
     public static final String EXTRA_MUSIC_INFO = "MUSIC_INFO";
+    public static final String EXTRA_DEVICE_TYPE = "DEVICE_TYPE";
+    public static final int TYPE_NONE = -1;
+    public static final int TYPE_SENDER = 0;
+    public static final int TYPE_RECEIVER = 1;
 
     private ActivityMusicBinding mBinding;
     private LocalMusic mLocalMusic;
@@ -108,6 +114,20 @@ public class MusicActivity extends BaseActivity implements Observer {
             mBinding.toolbar.tvMusicName.setText(mLocalMusic.getTitle());
             mBinding.toolbar.tvArtist.setText(mLocalMusic.getArtist());
         }
+
+        int launchType = intent.getIntExtra(EXTRA_DEVICE_TYPE, TYPE_NONE);
+        switch (launchType) {
+            case TYPE_NONE:
+                finish();
+                break;
+            case TYPE_SENDER:
+                mBinding.btnCast.setVisibility(View.VISIBLE);
+                break;
+            case TYPE_RECEIVER:
+                mBinding.btnCast.setVisibility(View.GONE);
+                break;
+            default:
+        }
     }
 
     private void initView() {
@@ -163,6 +183,15 @@ public class MusicActivity extends BaseActivity implements Observer {
                     seekBar.setProgress(0);
                 }
             }
+        });
+        mBinding.btnCast.setOnClickListener(v -> {
+            AudioInfo audioInfo = new AudioInfo();
+            audioInfo.setName(mLocalMusic.getTitle());
+            audioInfo.setAlbum(mLocalMusic.getAlbum());
+            audioInfo.setArtist(mLocalMusic.getArtist());
+            audioInfo.setCoverPath("null");
+            audioInfo.setUrl(mLocalMusic.getUrl());
+            AudioProxy.getInstance().play(audioInfo);
         });
     }
 

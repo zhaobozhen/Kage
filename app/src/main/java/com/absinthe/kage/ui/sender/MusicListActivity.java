@@ -40,6 +40,7 @@ public class MusicListActivity extends BaseActivity {
             if (localMusic != null) {
                 Intent intent = new Intent(MusicListActivity.this, MusicActivity.class);
                 intent.putExtra(MusicActivity.EXTRA_MUSIC_INFO, localMusic);
+                intent.putExtra(MusicActivity.EXTRA_DEVICE_TYPE, MusicActivity.TYPE_SENDER);
                 Logger.d(localMusic.getAlbumId());
                 startActivity(intent);
             }

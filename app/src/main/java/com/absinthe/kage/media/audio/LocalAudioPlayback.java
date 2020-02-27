@@ -1,9 +1,12 @@
 package com.absinthe.kage.media.audio;
 
 import android.content.Context;
+import android.media.AudioAttributes;
+import android.media.AudioFocusRequest;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.media.session.PlaybackState;
+import android.os.Build;
 import android.os.PowerManager;
 import android.text.TextUtils;
 import android.util.Log;
@@ -66,7 +69,16 @@ public class LocalAudioPlayback implements Playback {
                 mCallback.onPlaybackStateChanged(mPlayState);
             }
 
-            mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                AudioAttributes mAudioAttributes =
+                        new AudioAttributes.Builder()
+                                .setUsage(AudioAttributes.USAGE_MEDIA)
+                                .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+                                .build();
+                mMediaPlayer.setAudioAttributes(mAudioAttributes);
+            } else {
+                mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+            }
             mMediaPlayer.setDataSource(media.getFilePath());
             mMediaPlayer.prepareAsync();
         } catch (Exception e) {
@@ -209,8 +221,26 @@ public class LocalAudioPlayback implements Playback {
     private void tryToGetAudioFocus() {
         Log.d(TAG, "Try to get AudioFocus");
         if (mAudioFocus != AUDIO_FOCUSED) {
-            if (mAudioManager.requestAudioFocus(mFocusChangeListener, AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN)
-                    == AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
+            int result;
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                AudioAttributes mAudioAttributes =
+                        new AudioAttributes.Builder()
+                                .setUsage(AudioAttributes.USAGE_MEDIA)
+                                .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+                                .build();
+                AudioFocusRequest mAudioFocusRequest =
+                        new AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN)
+                                .setAudioAttributes(mAudioAttributes)
+                                .setAcceptsDelayedFocusGain(true)
+                                .setOnAudioFocusChangeListener(mFocusChangeListener)
+                                .build();
+                result = mAudioManager.requestAudioFocus(mAudioFocusRequest);
+            } else {
+                result = mAudioManager.requestAudioFocus(mFocusChangeListener, AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN);
+            }
+
+            if (result == AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
                 mAudioFocus = AUDIO_FOCUSED;
                 Log.d(TAG, "Try to get AudioFocus success");
             }
@@ -220,7 +250,26 @@ public class LocalAudioPlayback implements Playback {
     private void giveUpAudioFocus() {
         Log.d(TAG, "giveUpAudioFocus");
         if (mAudioFocus == AUDIO_FOCUSED) {
-            if (mAudioManager.abandonAudioFocus(mFocusChangeListener) == AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
+            int result;
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                AudioAttributes mAudioAttributes =
+                        new AudioAttributes.Builder()
+                                .setUsage(AudioAttributes.USAGE_MEDIA)
+                                .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+                                .build();
+                AudioFocusRequest mAudioFocusRequest =
+                        new AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN)
+                                .setAudioAttributes(mAudioAttributes)
+                                .setAcceptsDelayedFocusGain(true)
+                                .setOnAudioFocusChangeListener(mFocusChangeListener)
+                                .build();
+                result = mAudioManager.abandonAudioFocusRequest(mAudioFocusRequest);
+            } else {
+                result = mAudioManager.abandonAudioFocus(mFocusChangeListener);
+            }
+
+            if (result == AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
                 mAudioFocus = AUDIO_NO_FOCUS_NO_DUCK;
                 Log.d(TAG, "giveUpAudioFocus success");
             }

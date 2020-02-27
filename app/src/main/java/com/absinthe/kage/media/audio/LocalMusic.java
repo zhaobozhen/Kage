@@ -13,7 +13,7 @@ public class LocalMusic extends LocalMedia implements Parcelable {
     private int artistId;
     private String coverPath;
 
-    LocalMusic() {}
+    public LocalMusic() {}
 
     private LocalMusic(Parcel in) {
         title = in.readString();
