@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.media.session.PlaybackState;
 import android.net.wifi.WifiManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -165,25 +166,31 @@ public class AudioPlayer extends Observable implements Playback.Callback {
     public PlaybackState getPlaybackState() {
         long actions;
         mPlayState = mPlayback.getState();
-        Log.d(TAG, "getPlaybackState mPlayState: " + mPlayState);
 
-        if (mPlayState == 3) {
-            actions = PlaybackState.ACTION_PAUSE | 330;
+        if (mPlayState == PlaybackState.STATE_PLAYING) {
+            actions = PlaybackState.ACTION_STOP | PlaybackState.ACTION_PAUSE
+                    | PlaybackState.ACTION_REWIND | PlaybackState.ACTION_FAST_FORWARD
+                    | PlaybackState.ACTION_SEEK_TO;
         } else {
             actions = PlaybackState.ACTION_STOP | PlaybackState.ACTION_PLAY;
         }
+
         if (hasNext()) {
             actions |= PlaybackState.ACTION_SKIP_TO_NEXT;
         }
         if (hasPre()) {
             actions |= PlaybackState.ACTION_SKIP_TO_PREVIOUS;
         }
+
         Bundle extras = new Bundle();
         extras.putInt(EXTRA_PLAY_MODE, mPlayMode);
+
         PlaybackState.Builder builder = new PlaybackState.Builder();
         builder.setActions(actions);
         builder.setState(mPlayState, mPlayback.getCurrentPosition(), 1.0f);
-        builder.setExtras(extras);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
+            builder.setExtras(extras);
+        }
         if (mPlaylist != null) {
             builder.setActiveQueueItemId(mPlaylist.getCurrentIndex());
         }

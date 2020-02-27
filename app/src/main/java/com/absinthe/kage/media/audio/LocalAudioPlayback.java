@@ -186,13 +186,15 @@ public class LocalAudioPlayback implements Playback {
     private void createAudioFocusChangeListener() {
         mFocusChangeListener = focusChange -> {
             Log.d(TAG, "onAudioFocusChange: " + focusChange);
-            if (focusChange == 1) {
+            if (focusChange == AudioManager.AUDIOFOCUS_GAIN) {
                 mAudioFocus = AUDIO_FOCUSED;
                 if (mPlayState == PlaybackState.STATE_PAUSED) {
                     play(true);
                 }
-            } else if (focusChange == -1 || focusChange == -2 || focusChange == -3) {
-                if (focusChange == -3) {
+            } else if (focusChange == AudioManager.AUDIOFOCUS_LOSS
+                    || focusChange == AudioManager.AUDIOFOCUS_LOSS_TRANSIENT
+                    || focusChange == AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK) {
+                if (focusChange == AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK) {
                     mAudioFocus = AUDIO_NO_FOCUS_CAN_DUCK;
                 }
                 if (mPlayState == PlaybackState.STATE_PLAYING) {
