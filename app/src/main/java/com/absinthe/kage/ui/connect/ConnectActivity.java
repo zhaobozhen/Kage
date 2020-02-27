@@ -2,7 +2,10 @@ package com.absinthe.kage.ui.connect;
 
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MenuItem;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.absinthe.kage.BaseActivity;
@@ -64,6 +67,10 @@ public class ConnectActivity extends BaseActivity {
         if (list != null && list.size() > 0) {
             mAdapter.setNewData(list);
             switchContainer(VF_DEVICE_LIST);
+        }
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setDisplayHomeAsUpEnabled(true);
         }
     }
 
@@ -137,5 +144,14 @@ public class ConnectActivity extends BaseActivity {
                 binding.vfContainer.setDisplayedChild(VF_DEVICE_LIST);
             }
         }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {
+            finish();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 }

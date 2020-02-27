@@ -12,9 +12,10 @@ public class MediaDirectory implements Parcelable {
     private String name;
     private int type;
 
-    public MediaDirectory() {}
+    MediaDirectory() {
+    }
 
-    protected MediaDirectory(Parcel in) {
+    private MediaDirectory(Parcel in) {
         id = in.readLong();
         mediaList = in.createTypedArrayList(LocalMedia.CREATOR);
         name = in.readString();

@@ -216,8 +216,8 @@ public class LocalMedia implements Parcelable {
             return "00:00";
         }
 
-        long hours = (long) (time / 3600);
-        long remainder = (long) (time % 3600);
+        long hours = time / 3600;
+        long remainder = time % 3600;
         long minutes = remainder / 60;
         long secs = remainder % 60;
 

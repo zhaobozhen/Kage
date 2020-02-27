@@ -1,5 +1,6 @@
 package com.absinthe.kage.media.audio;
 
+import android.media.session.PlaybackState;
 import android.util.Log;
 
 import com.absinthe.kage.connect.proxy.AudioProxy;
@@ -17,9 +18,9 @@ public class RemoteAudioPlayback implements Playback {
     private Callback mCallback;
     private AudioProxy mAudioProxy = AudioProxy.getInstance();
     private PlayList mPlayList;
-    private int mPlayState = 0;
+    private int mPlayState = PlaybackState.STATE_NONE;
 
-    public RemoteAudioPlayback() {
+    RemoteAudioPlayback() {
         mAudioProxy.setOnPlayListener(new AudioProxy.OnPlayListener() {
 
             @Override
@@ -30,27 +31,27 @@ public class RemoteAudioPlayback implements Playback {
             @Override
             public void onPlayStateChanged(int oldState, int newState) {
                 Log.d(TAG, "onPlayStateChanged: " + newState);
-                if (newState == -1) {
-                    mPlayState = 0;
-                } else if (newState == 11) {
-                    mPlayState = 1;
-                } else if (newState != 20) {
+                if (newState == AudioProxy.PlayStatue.INVALIDATE) {
+                    mPlayState = PlaybackState.STATE_NONE;
+                } else if (newState == AudioProxy.PlayStatue.PLAYER_EXIT) {
+                    mPlayState = PlaybackState.STATE_STOPPED;
+                } else if (newState != AudioProxy.PlayStatue.DISCONNECT) {
                     switch (newState) {
-                        case 1:
-                            mPlayState = 1;
+                        case AudioProxy.PlayStatue.STOPPED:
+                            mPlayState = PlaybackState.STATE_STOPPED;
                             break;
-                        case 2:
-                            mPlayState = 6;
+                        case AudioProxy.PlayStatue.TRANSITIONING:
+                            mPlayState = PlaybackState.STATE_BUFFERING;
                             break;
-                        case 3:
-                            mPlayState = 3;
+                        case AudioProxy.PlayStatue.PLAYING:
+                            mPlayState = PlaybackState.STATE_PLAYING;
                             break;
-                        case 4:
-                            mPlayState = 2;
+                        case AudioProxy.PlayStatue.PAUSED:
+                            mPlayState = PlaybackState.STATE_PAUSED;
                             break;
                     }
                 } else {
-                    mPlayState = 1;
+                    mPlayState = PlaybackState.STATE_STOPPED;
                 }
                 handlePlayState(false);
             }
@@ -77,7 +78,9 @@ public class RemoteAudioPlayback implements Playback {
             if (index >= 0) {
                 mAudioProxy.setPlayIndex(index);
             }
-            mPlayState = 6;
+
+            mPlayState = PlaybackState.STATE_BUFFERING;
+
             if (mCallback != null) {
                 mCallback.onMediaMetadataChanged(localMedia);
                 mCallback.onPlaybackStateChanged(mPlayState);
@@ -88,6 +91,7 @@ public class RemoteAudioPlayback implements Playback {
     public void playListMedia(PlayList playlist) {
         mPlayList = playlist;
         List<AudioInfo> audioInfos = new ArrayList<>();
+
         for (LocalMedia media : playlist.getList()) {
             if (media instanceof LocalMusic) {
                 AudioInfo audioInfo = new AudioInfo();
@@ -98,8 +102,10 @@ public class RemoteAudioPlayback implements Playback {
                 audioInfos.add(audioInfo);
             }
         }
+
         mAudioProxy.playList(mPlayList.getCurrentIndex(), audioInfos);
-        mPlayState = 6;
+        mPlayState = PlaybackState.STATE_BUFFERING;
+
         if (mCallback != null) {
             mCallback.onMediaMetadataChanged(mPlayList.getCurrentMedia());
             mCallback.onPlaybackStateChanged(mPlayState);
@@ -107,12 +113,12 @@ public class RemoteAudioPlayback implements Playback {
     }
 
     public void play() {
-        mPlayState = 3;
+        mPlayState = PlaybackState.STATE_PLAYING;
         handlePlayState(true);
     }
 
     public void pause() {
-        mPlayState = 2;
+        mPlayState = PlaybackState.STATE_PAUSED;
         handlePlayState(true);
     }
 
@@ -141,23 +147,25 @@ public class RemoteAudioPlayback implements Playback {
     }
 
     public void stop(boolean fromUser) {
-        mPlayState = 1;
+        mPlayState = PlaybackState.STATE_STOPPED;
+
         if (fromUser && mCallback != null) {
             mAudioProxy.stop();
             mCallback.onPlaybackStateChanged(mPlayState);
         }
+
         mAudioProxy.recycle();
     }
 
     private void handlePlayState(boolean fromUser) {
         if (fromUser) {
-            int i = mPlayState;
-            if (i == 3) {
+            if (mPlayState == PlaybackState.STATE_PLAYING) {
                 mAudioProxy.start();
-            } else if (i == 2) {
+            } else if (mPlayState == PlaybackState.STATE_PAUSED) {
                 mAudioProxy.pause();
             }
         }
+
         if (mCallback != null) {
             mCallback.onPlaybackStateChanged(mPlayState);
         }

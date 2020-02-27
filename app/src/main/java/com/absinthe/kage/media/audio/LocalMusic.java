@@ -13,9 +13,9 @@ public class LocalMusic extends LocalMedia implements Parcelable {
     private int artistId;
     private String coverPath;
 
-    public LocalMusic() {}
+    LocalMusic() {}
 
-    public LocalMusic(Parcel in) {
+    private LocalMusic(Parcel in) {
         title = in.readString();
         filePath = in.readString();
         date = in.readString();

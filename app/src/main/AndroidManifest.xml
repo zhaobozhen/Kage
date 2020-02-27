@@ -16,11 +16,11 @@
         android:allowBackup="false"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
-        android:requestLegacyExternalStorage="true"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true"
+        android:requestLegacyExternalStorage="true"
         tools:ignore="AllowBackup"
         tools:targetApi="q">
 
@@ -44,14 +44,12 @@
             android:name=".ui.connect.ConnectActivity"
             android:configChanges="orientation|screenSize"
             android:label="@string/connect_label"
-            android:launchMode="singleTask"
-            android:parentActivityName=".ui.main.MainActivity" />
+            android:launchMode="singleTask" />
         <activity
             android:name=".ui.receiver.ReceiverActivity"
             android:configChanges="orientation|screenSize"
             android:label="@string/receiver_label"
-            android:launchMode="singleTask"
-            android:parentActivityName=".ui.main.MainActivity" />
+            android:launchMode="singleTask" />
         <activity
             android:name=".ui.sender.SenderActivity"
             android:configChanges="orientation|screenSize"
@@ -63,11 +61,14 @@
             android:theme="@style/AppTheme.About" />
         <activity
             android:name=".ui.sender.MusicActivity"
+            android:configChanges="orientation|screenSize"
             android:theme="@style/AppTheme.NoActionBar"
             android:launchMode="singleTask" />
         <activity
             android:name=".ui.sender.MusicListActivity"
             android:label="@string/music_list_label"
+            android:launchMode="singleTask"
+            android:configChanges="orientation|screenSize"
             android:parentActivityName=".ui.sender.SenderActivity" />
 
         <uses-library

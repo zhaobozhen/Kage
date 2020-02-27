@@ -15,7 +15,7 @@ public class PlayList implements Parcelable {
 
     public PlayList() {}
 
-    protected PlayList(Parcel in) {
+    private PlayList(Parcel in) {
         mCurrentIndex = in.readInt();
         mList = in.createTypedArrayList(LocalMedia.CREATOR);
     }
@@ -66,7 +66,7 @@ public class PlayList implements Parcelable {
         }
 
         if (isShuffled) {
-            double size = (double) mList.size();
+            double size = mList.size();
             double random = Math.random();
             mCurrentIndex = (int) (size * random);
         } else {
@@ -88,7 +88,7 @@ public class PlayList implements Parcelable {
         }
 
         if (isShuffled) {
-            double size = (double) mList.size();
+            double size = mList.size();
             double random = Math.random();
             mCurrentIndex = (int) (size * random);
         } else {

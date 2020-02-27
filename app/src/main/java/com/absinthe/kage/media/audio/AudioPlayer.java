@@ -33,8 +33,8 @@ public class AudioPlayer extends Observable implements Playback.Callback {
     private PowerManager.WakeLock mWakeLock;
     private WifiManager.WifiLock mWifiLock;
     private int mBeforePosition = 0;
-    private int mPlayMode = 3;
-    private int mPlayState = 0;
+    private int mPlayMode = REPEAT_ALL;
+    private int mPlayState = PlaybackState.STATE_NONE;
     private int mPlayType;
 
     public static AudioPlayer getInstance(Context context) {
@@ -58,7 +58,7 @@ public class AudioPlayer extends Observable implements Playback.Callback {
     }
 
     public void release() {
-        mPlayState = 0;
+        mPlayState = PlaybackState.STATE_NONE;
         if (mPlayback != null) {
             mPlayback.stop(false);
         }
@@ -136,25 +136,17 @@ public class AudioPlayer extends Observable implements Playback.Callback {
 
     public void playNext() {
         if (mPlaylist != null) {
-            int i = mPlayMode;
-            boolean z = false;
-            boolean z2 = i == 1 || i == 3;
-            if (mPlayMode == 2) {
-                z = true;
-            }
-            playMedia(mPlaylist.getNextMedia(z2, z));
+            playMedia(mPlaylist.getNextMedia(
+                    mPlayMode == REPEAT_ONE || mPlayMode == REPEAT_ALL,
+                    mPlayMode == SHUFFLED));
         }
     }
 
     public void playPrevious() {
         if (mPlaylist != null) {
-            int i = mPlayMode;
-            boolean z = false;
-            boolean z2 = i == 1 || i == 3;
-            if (mPlayMode == 2) {
-                z = true;
-            }
-            playMedia(mPlaylist.getPreviousMedia(z2, z));
+            playMedia(mPlaylist.getPreviousMedia(
+                    mPlayMode == REPEAT_ONE || mPlayMode == REPEAT_ALL,
+                    mPlayMode == SHUFFLED));
         }
     }
 
@@ -176,24 +168,24 @@ public class AudioPlayer extends Observable implements Playback.Callback {
         Log.d(TAG, "getPlaybackState mPlayState: " + mPlayState);
 
         if (mPlayState == 3) {
-            actions = 1 | 330;
+            actions = PlaybackState.ACTION_PAUSE | 330;
         } else {
-            actions = 1 | 4;
+            actions = PlaybackState.ACTION_STOP | PlaybackState.ACTION_PLAY;
         }
         if (hasNext()) {
-            actions |= 32;
+            actions |= PlaybackState.ACTION_SKIP_TO_NEXT;
         }
         if (hasPre()) {
-            actions |= 16;
+            actions |= PlaybackState.ACTION_SKIP_TO_PREVIOUS;
         }
         Bundle extras = new Bundle();
         extras.putInt(EXTRA_PLAY_MODE, mPlayMode);
         PlaybackState.Builder builder = new PlaybackState.Builder();
         builder.setActions(actions);
-        builder.setState(mPlayState, (long) mPlayback.getCurrentPosition(), 1.0f);
+        builder.setState(mPlayState, mPlayback.getCurrentPosition(), 1.0f);
         builder.setExtras(extras);
         if (mPlaylist != null) {
-            builder.setActiveQueueItemId((long) mPlaylist.getCurrentIndex());
+            builder.setActiveQueueItemId(mPlaylist.getCurrentIndex());
         }
         return builder.build();
     }
@@ -220,7 +212,7 @@ public class AudioPlayer extends Observable implements Playback.Callback {
     }
 
     public void onCompletion() {
-        if (mPlayState == 3) {
+        if (mPlayState == PlaybackState.STATE_PLAYING) {
             playNext();
         } else {
             Log.w(TAG, "mPlayState is not playing");
@@ -228,9 +220,10 @@ public class AudioPlayer extends Observable implements Playback.Callback {
     }
 
     public void onPlaybackStateChanged(int state) {
-        Log.d(TAG, "onPlaybackStateChanged before state: " + mPlayState + ", after state: " + state);
-
-        if (mPlayback != null && mPlayState == 6 && state == 3 && mBeforePosition > 0) {
+        if (mPlayback != null
+                && mPlayState == PlaybackState.STATE_BUFFERING
+                && state == PlaybackState.STATE_PLAYING
+                && mBeforePosition > 0) {
             Log.d(TAG, "seekTo: " + mBeforePosition);
             mPlayback.seekTo(mBeforePosition);
             mBeforePosition = 0;
@@ -242,7 +235,7 @@ public class AudioPlayer extends Observable implements Playback.Callback {
     }
 
     public void onError(String error) {
-        mPlayState = 7;
+        mPlayState = PlaybackState.STATE_ERROR;
         updateMediaPlayState();
     }
 
@@ -277,14 +270,14 @@ public class AudioPlayer extends Observable implements Playback.Callback {
     }
 
     private boolean hasNext() {
-        if (mPlayMode == 0) {
+        if (mPlayMode == NOT_REPEATING) {
             return mPlaylist != null && mPlaylist.hasNextMedia();
         }
         return true;
     }
 
     private boolean hasPre() {
-        if (mPlayMode == 0) {
+        if (mPlayMode == NOT_REPEATING) {
             return mPlaylist != null && mPlaylist.hasPreviousMedia();
         }
         return true;
@@ -292,8 +285,7 @@ public class AudioPlayer extends Observable implements Playback.Callback {
 
     private boolean isPlayOrPause() {
         if (getCurrentMedia() != null) {
-            int i = mPlayState;
-            return i == 3 || i == 2;
+            return mPlayState == PlaybackState.STATE_PLAYING || mPlayState == PlaybackState.STATE_PAUSED;
         }
         return false;
     }

@@ -3,6 +3,7 @@ package com.absinthe.kage.media.audio;
 import android.content.Context;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
+import android.media.session.PlaybackState;
 import android.os.PowerManager;
 import android.text.TextUtils;
 import android.util.Log;
@@ -11,6 +12,7 @@ import com.absinthe.kage.media.LocalMedia;
 import com.absinthe.kage.media.Playback;
 
 public class LocalAudioPlayback implements Playback {
+
     private static final String TAG = LocalAudioPlayback.class.getSimpleName();
 
     private static final int AUDIO_NO_FOCUS_NO_DUCK = 0;
@@ -19,25 +21,27 @@ public class LocalAudioPlayback implements Playback {
 
     private int mAudioFocus = AUDIO_NO_FOCUS_NO_DUCK;
     private int mAudioSession;
+    private int mPlayState = PlaybackState.STATE_NONE;
     private boolean mPlayOnFocusGain;
-    private int mPlayState = 0;
+
     private AudioManager mAudioManager;
     private Callback mCallback;
     private Context mContext;
     private MediaPlayer mMediaPlayer;
     private AudioManager.OnAudioFocusChangeListener mFocusChangeListener;
 
-    public LocalAudioPlayback(Context context) {
+    LocalAudioPlayback(Context context) {
         mContext = context.getApplicationContext();
         mAudioManager = (AudioManager) mContext.getSystemService(Context.AUDIO_SERVICE);
         createAudioFocusChangeListener();
     }
 
+    @Override
     public void playMedia(LocalMedia media) {
         try {
             createMediaPlayerIfNeeded();
             if (mMediaPlayer == null || media == null || TextUtils.isEmpty(media.getFilePath())) {
-                mPlayState = 7;
+                mPlayState = PlaybackState.STATE_ERROR;
                 if (mCallback != null) {
                     mCallback.onPlaybackStateChanged(mPlayState);
                 }
@@ -55,19 +59,19 @@ public class LocalAudioPlayback implements Playback {
             }
             Log.d(TAG, "setDataSource: " + media.getFilePath());
 
-            mPlayState = 6;
+            mPlayState = PlaybackState.STATE_BUFFERING;
             Log.d(TAG, "PlayState: STATE_BUFFERING");
 
             if (mCallback != null) {
                 mCallback.onPlaybackStateChanged(mPlayState);
             }
 
-            mMediaPlayer.setAudioStreamType(3);
+            mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
             mMediaPlayer.setDataSource(media.getFilePath());
             mMediaPlayer.prepareAsync();
         } catch (Exception e) {
             e.printStackTrace();
-            mPlayState = 7;
+            mPlayState = PlaybackState.STATE_ERROR;
             if (mCallback != null) {
                 mCallback.onPlaybackStateChanged(mPlayState);
             }
@@ -77,12 +81,12 @@ public class LocalAudioPlayback implements Playback {
     public void play() {
         Log.d(TAG, "play");
         tryToGetAudioFocus();
-        mPlayState = 3;
+        mPlayState = PlaybackState.STATE_PLAYING;
         handlePlayState();
     }
 
     public void pause() {
-        mPlayState = 2;
+        mPlayState = PlaybackState.STATE_PAUSED;
         handlePlayState();
     }
 
@@ -106,7 +110,7 @@ public class LocalAudioPlayback implements Playback {
 
     public void stop(boolean fromUser) {
         Log.d(TAG, "stop");
-        mPlayState = 1;
+        mPlayState = PlaybackState.STATE_STOPPED;
         if (fromUser) {
             if (mCallback != null) {
                 mCallback.onPlaybackStateChanged(mPlayState);
@@ -163,9 +167,9 @@ public class LocalAudioPlayback implements Playback {
     private void handlePlayState() {
         Log.d(TAG, "handlePlayState");
         if (mMediaPlayer != null) {
-            if (mPlayState == 3 && !mMediaPlayer.isPlaying()) {
+            if (mPlayState == PlaybackState.STATE_PLAYING && !mMediaPlayer.isPlaying()) {
                 mMediaPlayer.start();
-            } else if (mPlayState == 2 && mMediaPlayer.isPlaying()) {
+            } else if (mPlayState == PlaybackState.STATE_PAUSED && mMediaPlayer.isPlaying()) {
                 mMediaPlayer.pause();
             }
 
@@ -176,46 +180,48 @@ public class LocalAudioPlayback implements Playback {
     }
 
     private boolean isPlayOrPause() {
-        int i = mPlayState;
-        return i == 3 || i == 2;
+        return mPlayState == PlaybackState.STATE_PLAYING || mPlayState == PlaybackState.STATE_PAUSED;
     }
 
     private void createAudioFocusChangeListener() {
-        mFocusChangeListener = new AudioManager.OnAudioFocusChangeListener() {
-            public void onAudioFocusChange(int focusChange) {
-                Log.d(TAG, "onAudioFocusChange: " + focusChange);
-                if (focusChange == 1) {
-                    mAudioFocus = AUDIO_FOCUSED;
-                    if (mPlayState == 2) {
-                        play(true);
-                    }
-                } else if (focusChange == -1 || focusChange == -2 || focusChange == -3) {
-                    if (focusChange == -3) {
-                        mAudioFocus = AUDIO_NO_FOCUS_CAN_DUCK;
-                    }
-                    if (mPlayState == 3) {
-                        pause(true);
-                    }
-                } else {
-                    Log.d(TAG, "onAudioFocusChange: Ignoring unsupported focusChange: " + focusChange);
+        mFocusChangeListener = focusChange -> {
+            Log.d(TAG, "onAudioFocusChange: " + focusChange);
+            if (focusChange == 1) {
+                mAudioFocus = AUDIO_FOCUSED;
+                if (mPlayState == PlaybackState.STATE_PAUSED) {
+                    play(true);
                 }
+            } else if (focusChange == -1 || focusChange == -2 || focusChange == -3) {
+                if (focusChange == -3) {
+                    mAudioFocus = AUDIO_NO_FOCUS_CAN_DUCK;
+                }
+                if (mPlayState == PlaybackState.STATE_PLAYING) {
+                    pause(true);
+                }
+            } else {
+                Log.d(TAG, "onAudioFocusChange: Ignoring unsupported focusChange: " + focusChange);
             }
         };
     }
 
     private void tryToGetAudioFocus() {
-        Log.d(TAG, "tryToGetAudioFocus");
-        if (mAudioFocus != AUDIO_FOCUSED && mAudioManager.requestAudioFocus(mFocusChangeListener, 3, 1) == 1) {
-            mAudioFocus = AUDIO_FOCUSED;
-            Log.d(TAG, "tryToGetAudioFocus success");
+        Log.d(TAG, "Try to get AudioFocus");
+        if (mAudioFocus != AUDIO_FOCUSED) {
+            if (mAudioManager.requestAudioFocus(mFocusChangeListener, AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN)
+                    == AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
+                mAudioFocus = AUDIO_FOCUSED;
+                Log.d(TAG, "Try to get AudioFocus success");
+            }
         }
     }
 
     private void giveUpAudioFocus() {
         Log.d(TAG, "giveUpAudioFocus");
-        if (mAudioFocus == AUDIO_FOCUSED && mAudioManager.abandonAudioFocus(mFocusChangeListener) == 1) {
-            mAudioFocus = AUDIO_NO_FOCUS_NO_DUCK;
-            Log.d(TAG, "giveUpAudioFocus success");
+        if (mAudioFocus == AUDIO_FOCUSED) {
+            if (mAudioManager.abandonAudioFocus(mFocusChangeListener) == AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
+                mAudioFocus = AUDIO_NO_FOCUS_NO_DUCK;
+                Log.d(TAG, "giveUpAudioFocus success");
+            }
         }
     }
 
@@ -230,11 +236,10 @@ public class LocalAudioPlayback implements Playback {
     }
 
     private void setMediaPlayerListener() {
-        MediaPlayer mediaPlayer = mMediaPlayer;
         if (mMediaPlayer != null) {
             mMediaPlayer.setOnErrorListener((mp, what, extra) -> {
                 Log.d(TAG, "SetOnErrorListener, what: " + what + ", extra: " + extra);
-                mPlayState = 7;
+                mPlayState = PlaybackState.STATE_ERROR;
                 return false;
             });
             mMediaPlayer.setOnSeekCompleteListener(mp -> {
