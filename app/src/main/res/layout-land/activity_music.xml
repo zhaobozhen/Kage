@@ -18,33 +18,30 @@
         android:layout_height="match_parent"
         android:fitsSystemWindows="true">
 
-        <include
-            android:id="@+id/toolbar"
-            layout="@layout/layout_music_toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/music_toolbar_height"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <com.absinthe.kage.view.MusicRouletteView
-            android:id="@+id/music_roulette"
-            android:layout_width="@dimen/music_roulette_size"
-            android:layout_height="@dimen/music_roulette_size"
-            android:layout_marginStart="200dp"
-            app:borderColor="@color/musicRouletteBorder"
-            app:borderWidth="25dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <include
-            android:id="@+id/layout_controls"
-            layout="@layout/layout_music_controls"
+        <LinearLayout
             android:layout_width="wrap_content"
-            android:layout_height="@dimen/music_roulette_size"
-            android:layout_marginStart="20dp"
-            app:layout_constraintBottom_toBottomOf="@id/music_roulette"
-            app:layout_constraintStart_toEndOf="@id/music_roulette"
-            app:layout_constraintTop_toTopOf="@id/music_roulette" />
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/layout_seek_bar"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <com.absinthe.kage.view.MusicRouletteView
+                android:id="@+id/music_roulette"
+                android:layout_width="@dimen/music_roulette_size"
+                android:layout_height="@dimen/music_roulette_size"
+                app:borderColor="@color/musicRouletteBorder"
+                app:borderWidth="25dp" />
+
+            <include
+                android:id="@+id/layout_controls"
+                layout="@layout/layout_music_controls"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/music_roulette_size"
+                android:layout_marginStart="20dp" />
+
+        </LinearLayout>
 
         <include
             android:id="@+id/layout_seek_bar"
@@ -60,10 +57,17 @@
             android:id="@+id/btn_cast"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="50dp"
+            android:layout_marginEnd="40dp"
             android:text="Cast"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toEndOf="@id/layout_controls"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <include
+            android:id="@+id/toolbar"
+            layout="@layout/layout_music_toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/music_toolbar_height"
             app:layout_constraintTop_toTopOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>

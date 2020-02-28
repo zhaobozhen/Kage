@@ -231,7 +231,7 @@ public class MusicActivity extends BaseActivity implements Observer {
 
     private void initPlayer() {
         mAudioPlayer = AudioPlayer.getInstance(this);
-        mAudioPlayer.changePlayer(AudioPlayer.REPEAT_ONE);
+        mAudioPlayer.changePlayer(AudioPlayer.TYPE_LOCAL);
         PlayList playList = new PlayList();
         for (LocalMusic localMusic : MusicListActivity.sMusicList) {
             playList.addMedia(localMusic);
@@ -295,6 +295,9 @@ public class MusicActivity extends BaseActivity implements Observer {
         } else {
             mBinding.layoutControls.btnNext.setEnabled(false);
         }
+        //Todo Will be deleted
+        mBinding.layoutControls.btnNext.setEnabled(false);
+        mBinding.layoutControls.btnPrevious.setEnabled(false);
 
         if (isNotify && state == PlaybackState.STATE_STOPPED) {
             finish();

@@ -7,8 +7,8 @@ android {
         applicationId "com.absinthe.kage"
         minSdkVersion rootProject.ext.android.minSdkVersion
         targetSdkVersion rootProject.ext.android.targetSdkVersion
-        versionCode 102
-        versionName "0.1.2"
+        versionCode 201
+        versionName "0.2.1"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
     buildTypes {

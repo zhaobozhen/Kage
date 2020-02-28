@@ -20,10 +20,14 @@ import java.util.Observable;
 public class AudioPlayer extends Observable implements Playback.Callback {
     public static final String TAG = AudioPlayer.class.getSimpleName();
     public static final String EXTRA_PLAY_MODE = "EXTRA_PLAY_MODE";
+
     public static final int NOT_REPEATING = 0;
     public static final int REPEAT_ONE = 1;
     public static final int SHUFFLED = 2;
     public static final int REPEAT_ALL = 3;
+
+    public static final int TYPE_LOCAL = 1;
+    public static final int TYPE_REMOTE = 2;
 
     @SuppressLint("StaticFieldLeak")
     private static AudioPlayer sInstance;
@@ -82,14 +86,14 @@ public class AudioPlayer extends Observable implements Playback.Callback {
             mBeforePosition = mPlayback.getCurrentPosition();
             mPlayback.stop(true);
         }
-        if (type == REPEAT_ONE) {
+        if (type == TYPE_LOCAL) {
             mPlayback = new LocalAudioPlayback(mContext);
             mPlayback.setCallback(this);
 
             if (mPlaylist != null) {
                 mPlayback.playMedia(mPlaylist.getCurrentMedia());
             }
-        } else if (type == SHUFFLED) {
+        } else if (type == TYPE_REMOTE) {
             RemoteAudioPlayback playback = new RemoteAudioPlayback();
             playback.setCallback(this);
             if (mPlaylist != null) {
