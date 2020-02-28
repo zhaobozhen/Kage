@@ -1,21 +1,29 @@
 package com.absinthe.kage.ui.sender;
 
+import android.animation.ObjectAnimator;
+import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.ColorMatrix;
+import android.graphics.ColorMatrixColorFilter;
+import android.graphics.Paint;
 import android.graphics.drawable.Drawable;
 import android.media.session.PlaybackState;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.View;
 import android.view.Window;
+import android.view.animation.LinearInterpolator;
 import android.widget.SeekBar;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.absinthe.kage.BaseActivity;
+import com.absinthe.kage.R;
 import com.absinthe.kage.connect.proxy.AudioProxy;
 import com.absinthe.kage.databinding.ActivityMusicBinding;
 import com.absinthe.kage.device.DeviceManager;
@@ -50,6 +58,7 @@ public class MusicActivity extends BaseActivity implements Observer {
     private DeviceManager mDeviceManager;
     private IDeviceObserver deviceObserver;
     private AudioPlayer mAudioPlayer;
+    private ObjectAnimator mObjectAnimator;
 
     private Handler mHandler = new Handler();
     private final Runnable mShowProgressTask = new Runnable() {
@@ -59,6 +68,7 @@ public class MusicActivity extends BaseActivity implements Observer {
     };
 
     private boolean isSeekBarTouch = false;
+    private float mCurrentRotation = 0.0f;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -88,6 +98,7 @@ public class MusicActivity extends BaseActivity implements Observer {
     @Override
     protected void onPause() {
         super.onPause();
+        pauseAnimation();
         mHandler.removeCallbacks(mShowProgressTask);
         mAudioPlayer.deleteObserver(this);
     }
@@ -137,9 +148,12 @@ public class MusicActivity extends BaseActivity implements Observer {
                 | View.SYSTEM_UI_FLAG_LAYOUT_STABLE
                 | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION);
         window.setStatusBarColor(Color.TRANSPARENT);
+        window.setNavigationBarColor(Color.TRANSPARENT);
 
         applyBlurBackground(mLocalMusic.getAlbumId());
+        applyRouletteAlbum(mLocalMusic.getAlbumId());
         mBinding.toolbar.ibConnect.setSelected(mDeviceManager.isConnected());
+        initAnimator();
     }
 
     private void initListener() {
@@ -159,7 +173,7 @@ public class MusicActivity extends BaseActivity implements Observer {
         mBinding.toolbar.ibBack.setOnClickListener(v -> finish());
         mBinding.toolbar.ibConnect.setOnClickListener(v ->
                 startActivity(new Intent(MusicActivity.this, ConnectActivity.class)));
-        mBinding.seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+        mBinding.layoutSeekBar.seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 mHandler.removeCallbacks(mShowProgressTask);
@@ -193,13 +207,36 @@ public class MusicActivity extends BaseActivity implements Observer {
             audioInfo.setUrl(mLocalMusic.getUrl());
             AudioProxy.getInstance().play(audioInfo);
         });
+        mBinding.layoutControls.btnPlay.setOnClickListener(v -> {
+            int state = mAudioPlayer.getPlaySate();
+            if (state == PlaybackState.STATE_PLAYING) {
+                mBinding.layoutControls.btnPlay.setIconResource(R.drawable.ic_play_arrow);
+                mAudioPlayer.pause();
+            } else if (state == PlaybackState.STATE_PAUSED) {
+                mBinding.layoutControls.btnPlay.setIconResource(R.drawable.ic_pause);
+                mAudioPlayer.play();
+            }
+        });
+        mBinding.layoutControls.btnPrevious.setOnClickListener(v -> {
+            if (mAudioPlayer != null) {
+                mAudioPlayer.playPrevious();
+            }
+        });
+        mBinding.layoutControls.btnNext.setOnClickListener(v -> {
+            if (mAudioPlayer != null) {
+                mAudioPlayer.playNext();
+            }
+        });
     }
 
     private void initPlayer() {
         mAudioPlayer = AudioPlayer.getInstance(this);
         mAudioPlayer.changePlayer(AudioPlayer.REPEAT_ONE);
         PlayList playList = new PlayList();
-        playList.addMedia(mLocalMusic);
+        for (LocalMusic localMusic : MusicListActivity.sMusicList) {
+            playList.addMedia(localMusic);
+        }
+        playList.setCurrentIndex(MusicListActivity.sMusicList.indexOf(mLocalMusic));
         mAudioPlayer.playMediaList(playList);
     }
 
@@ -219,45 +256,47 @@ public class MusicActivity extends BaseActivity implements Observer {
         int max = mAudioPlayer.getDuration();
         int current = mAudioPlayer.getCurrentPosition();
         int buffer = mAudioPlayer.getBufferPosition();
-        mBinding.seekBar.setMax(max);
+        mBinding.layoutSeekBar.seekBar.setMax(max);
+
         if (isSeekBarTouch) {
             isSeekBarTouch = false;
         } else {
-            mBinding.seekBar.setProgress(current);
+            mBinding.layoutSeekBar.seekBar.setProgress(current);
         }
-        mBinding.seekBar.setSecondaryProgress(buffer);
-        mBinding.tvCurrentTime.setText(LocalMedia.millisecondToTimeString(current));
-        mBinding.tvDuration.setText(LocalMedia.millisecondToTimeString(max));
+
+        mBinding.layoutSeekBar.seekBar.setSecondaryProgress(buffer);
+        mBinding.layoutSeekBar.tvCurrentTime.setText(LocalMedia.millisecondToTimeString(current));
+        mBinding.layoutSeekBar.tvDuration.setText(LocalMedia.millisecondToTimeString(max));
         return current;
     }
 
     private void updatePlayState(PlaybackState playbackState, boolean isNotify) {
         int state = playbackState.getState();
-        if (state == 6) {
-//            this.mStateIV.setImageResource(R.drawable.icon_pause_music);
-        } else if (state == 3) {
+        if (state == PlaybackState.STATE_BUFFERING) {
+            mBinding.layoutControls.btnPlay.setIconResource(R.drawable.ic_pause);
+        } else if (state == PlaybackState.STATE_PLAYING) {
             mHandler.post(mShowProgressTask);
-//            startAnimator();
-//            this.mStateIV.setImageResource(R.drawable.icon_pause_music);
+            startAnimation();
+            mBinding.layoutControls.btnPlay.setIconResource(R.drawable.ic_pause);
         } else {
             mHandler.removeCallbacks(mShowProgressTask);
-//            pauseAnimation();
-//            this.mStateIV.setImageResource(R.drawable.icon_play_music);
+            pauseAnimation();
+            mBinding.layoutControls.btnPlay.setIconResource(R.drawable.ic_play_arrow);
         }
 
         long actions = playbackState.getActions();
-        if ((16 & actions) != 0) {
-//            this.mPreIV.setEnabled(true);
+        if ((PlaybackState.ACTION_SKIP_TO_PREVIOUS & actions) != 0) {
+            mBinding.layoutControls.btnPrevious.setEnabled(true);
         } else {
-//            this.mPreIV.setEnabled(false);
+            mBinding.layoutControls.btnPrevious.setEnabled(false);
         }
-        if ((32 & actions) != 0) {
-//            this.mNextIV.setEnabled(true);
+        if ((PlaybackState.ACTION_SKIP_TO_NEXT & actions) != 0) {
+            mBinding.layoutControls.btnNext.setEnabled(true);
         } else {
-//            this.mNextIV.setEnabled(false);
+            mBinding.layoutControls.btnNext.setEnabled(false);
         }
 
-        if (isNotify && state == 1) {
+        if (isNotify && state == PlaybackState.STATE_STOPPED) {
             finish();
         }
     }
@@ -266,17 +305,24 @@ public class MusicActivity extends BaseActivity implements Observer {
     private void updateMediaInfo(LocalMedia media, boolean isNotify) {
         if (media != null) {
             if (isNotify) {
-//                stopAnimation();
+                stopAnimation();
             }
             if (media instanceof LocalMusic) {
                 mBinding.toolbar.tvMusicName.setText(media.getTitle());
                 mBinding.toolbar.tvArtist.setText(((LocalMusic) media).getArtist());
                 applyBlurBackground(((LocalMusic) media).getAlbumId());
+                applyRouletteAlbum(((LocalMusic) media).getAlbumId());
                 mHandler.post(mShowProgressTask);
             }
-            mBinding.tvCurrentTime.setText("00:00");
-            mBinding.tvDuration.setText(LocalMedia.millisecondToTimeString((int) media.getDuration()));
+            mBinding.layoutSeekBar.tvCurrentTime.setText("00:00");
+            mBinding.layoutSeekBar.tvDuration.setText(LocalMedia.millisecondToTimeString((int) media.getDuration()));
         }
+    }
+
+    private void applyRouletteAlbum(int albumId) {
+        Glide.with(this)
+                .load(MusicHelper.getAlbumArt(this, albumId))
+                .into(mBinding.musicRoulette);
     }
 
     private void applyBlurBackground(int albumId) {
@@ -287,6 +333,22 @@ public class MusicActivity extends BaseActivity implements Observer {
                     @Override
                     public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
                         Bitmap result = ImageUtils.renderScriptBlur(resource, 25);
+
+                        ColorMatrix cMatrix = new ColorMatrix();
+                        int brightness = -70;
+                        cMatrix.set(new float[] {
+                                1, 0, 0, 0, brightness,
+                                0, 1, 0, 0, brightness,
+                                0, 0, 1, 0, brightness,
+                                0, 0, 0, 1, 0 });
+
+                        Paint paint = new Paint();
+                        paint.setColorFilter(new ColorMatrixColorFilter(cMatrix));
+
+                        Canvas canvas = new Canvas(result);
+                        // 在 Canvas 上绘制一个已经存在的 Bitmap
+                        canvas.drawBitmap(result, 0, 0, paint);
+
                         mBinding.ivBackground.setImageBitmap(result);
                     }
 
@@ -295,5 +357,45 @@ public class MusicActivity extends BaseActivity implements Observer {
 
                     }
                 });
+    }
+
+    private void initAnimator() {
+        mCurrentRotation = 0.0f;
+        if (mObjectAnimator == null) {
+            mObjectAnimator = new ObjectAnimator();
+            mObjectAnimator.setTarget(mBinding.musicRoulette);
+            mObjectAnimator.setPropertyName("rotation");
+            mObjectAnimator.setDuration(20000);
+            mObjectAnimator.setInterpolator(new LinearInterpolator());
+            mObjectAnimator.setRepeatCount(ValueAnimator.INFINITE);
+            mObjectAnimator.setRepeatMode(ValueAnimator.RESTART);
+            mObjectAnimator.addUpdateListener(animation ->
+                    mCurrentRotation = (Float) animation.getAnimatedValue());
+        }
+        if (mObjectAnimator.isStarted()) {
+            mObjectAnimator.cancel();
+        }
+    }
+
+    private void startAnimation() {
+        if (mObjectAnimator != null && !mObjectAnimator.isStarted()) {
+            mObjectAnimator.setFloatValues(mCurrentRotation, mCurrentRotation + 360.0f);
+            mObjectAnimator.start();
+        }
+    }
+
+    public void pauseAnimation() {
+        if (mObjectAnimator != null && mObjectAnimator.isStarted()) {
+            mObjectAnimator.cancel();
+        }
+    }
+
+    public void stopAnimation() {
+        if (mObjectAnimator != null) {
+            if (mObjectAnimator.isStarted() || mObjectAnimator.isRunning()) {
+                mObjectAnimator.end();
+            }
+            mCurrentRotation = 0.0f;
+        }
     }
 }

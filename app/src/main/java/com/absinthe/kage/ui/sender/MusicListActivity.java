@@ -13,8 +13,12 @@ import com.absinthe.kage.media.audio.LocalMusic;
 import com.absinthe.kage.utils.Logger;
 import com.absinthe.kage.viewmodel.MusicViewModel;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class MusicListActivity extends BaseActivity {
 
+    public static List<LocalMusic> sMusicList = new ArrayList<>();
     private ActivityMusicListBinding mBinding;
     private MusicViewModel mViewModel;
     private MusicListAdapter mAdapter;
@@ -51,6 +55,7 @@ public class MusicListActivity extends BaseActivity {
         mViewModel.getMusicList().observe(this, localMusics -> {
             mBinding.srlContainer.setRefreshing(false);
             mAdapter.setNewData(localMusics);
+            sMusicList = localMusics;
             mBinding.srlContainer.setEnabled(false);
         });
 

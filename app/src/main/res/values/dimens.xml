@@ -6,4 +6,8 @@
     <dimen name="album_size">60dp</dimen>
     <dimen name="music_toolbar_height">70dp</dimen>
     <dimen name="music_toolbar_icon_size">32dp</dimen>
+
+    <dimen name="music_roulette_size">300dp</dimen>
+    <dimen name="music_control_size">60dp</dimen>
+    <dimen name="music_control_inset">5dp</dimen>
 </resources>

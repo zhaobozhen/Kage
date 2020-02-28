@@ -12,4 +12,5 @@
     <color name="ripple">#FFBBBBBB</color>
 
     <color name="aboutHeader">#FFFFC107</color>
+    <color name="musicRouletteBorder">#FF232323</color>
 </resources>
