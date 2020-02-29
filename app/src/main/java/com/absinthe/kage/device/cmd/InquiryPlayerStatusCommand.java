@@ -9,10 +9,10 @@ import com.absinthe.kage.media.audio.AudioPlayer;
 
 import java.io.IOException;
 
-public class InquiryPlayStatusCommand extends Command {
+public class InquiryPlayerStatusCommand extends Command {
 
-    public InquiryPlayStatusCommand() {
-        cmd = IpMessageConst.MEDIA_GET_PLAYING_STATUS;
+    public InquiryPlayerStatusCommand() {
+        cmd = IpMessageConst.MEDIA_GET_PLAYER_STATUS;
     }
 
     @Override

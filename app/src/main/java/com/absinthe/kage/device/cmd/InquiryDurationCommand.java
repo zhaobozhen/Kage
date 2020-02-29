@@ -4,6 +4,9 @@ import com.absinthe.kage.connect.protocol.IpMessageConst;
 import com.absinthe.kage.device.Command;
 import com.absinthe.kage.device.CommandBuilder;
 import com.absinthe.kage.device.client.Client;
+import com.absinthe.kage.media.audio.AudioPlayer;
+
+import java.io.IOException;
 
 public class InquiryDurationCommand extends Command {
 
@@ -23,7 +26,15 @@ public class InquiryDurationCommand extends Command {
 
     @Override
     public void doWork(Client client, String received) {
+        int duration = AudioPlayer.getInstance(client.getContext()).getDuration();
+        SetDurationCommand command = new SetDurationCommand();
+        command.duration = duration;
 
+        try {
+            client.writeToStream(command.pack());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override

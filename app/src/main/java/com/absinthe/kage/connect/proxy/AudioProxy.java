@@ -2,6 +2,7 @@ package com.absinthe.kage.connect.proxy;
 
 import android.os.Handler;
 import android.os.Looper;
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.absinthe.kage.connect.protocol.IpMessageConst;
@@ -10,7 +11,7 @@ import com.absinthe.kage.device.Device;
 import com.absinthe.kage.device.cmd.AudioInfoCommand;
 import com.absinthe.kage.device.cmd.InquiryDurationCommand;
 import com.absinthe.kage.device.cmd.InquiryPlayStateCommand;
-import com.absinthe.kage.device.cmd.InquiryPlayStatusCommand;
+import com.absinthe.kage.device.cmd.InquiryPlayerStatusCommand;
 import com.absinthe.kage.device.cmd.InquiryPlayingPositionCommand;
 import com.absinthe.kage.device.cmd.MediaPausePlayingCommand;
 import com.absinthe.kage.device.cmd.MediaPreparePlayCommand;
@@ -22,6 +23,7 @@ import com.absinthe.kage.device.cmd.SetAudioModeCommand;
 import com.absinthe.kage.device.cmd.SetPlayIndexCommand;
 import com.absinthe.kage.device.cmd.StopCommand;
 import com.absinthe.kage.device.model.AudioInfo;
+import com.absinthe.kage.utils.Logger;
 import com.google.gson.Gson;
 
 import java.util.List;
@@ -282,17 +284,19 @@ public class AudioProxy extends BaseProxy {
                         notifyOnCurrentPositionChanged(mCurrentPlayInfo);
                         scheduleInquiryCurrentPosition();//获取到总长度后询问当前播放进度
                         break;
-                    case IpMessageConst.MEDIA_SET_PLAYING_STATUS:
-                        int playerState = PLAYER_STATUS.valueOf(split[1]).getStatus();
+                    case IpMessageConst.MEDIA_SET_PLAYER_STATUS:
+                        int playerState = Integer.parseInt(split[1]);
                         int playOldState = mCurrentPlayInfo.currentPlayState;
+
                         if (PlayStatue.PLAYER_EXIT == playerState) {
                             onPlayStopped();
                         }
                         notifyOnPlayStateChanged(playOldState, playerState);
                         break;
                     case IpMessageConst.MEDIA_SET_PLAYING_STATE:
-                        int newState = PLAY_STATUS.valueOf(split[1]).getStatus();
+                        int newState = Integer.parseInt(split[1]);
                         int oldState = mCurrentPlayInfo.currentPlayState;
+
                         if (oldState == newState) {
                             break;
                         }
@@ -508,7 +512,7 @@ public class AudioProxy extends BaseProxy {
                 }
                 InquiryPlayStateCommand inquiryPlayStateCmd = new InquiryPlayStateCommand();
                 mDevice.sendCommand(inquiryPlayStateCmd);
-                InquiryPlayStatusCommand inquiryPlayStatusCmd = new InquiryPlayStatusCommand();
+                InquiryPlayerStatusCommand inquiryPlayStatusCmd = new InquiryPlayerStatusCommand();
                 mDevice.sendCommand(inquiryPlayStatusCmd);
 
                 long inquiryPeriod = period;
@@ -548,8 +552,18 @@ public class AudioProxy extends BaseProxy {
         private int getStatus() {
             return status;
         }
+
+        public static PLAYER_STATUS getEnumByValue(int value) {
+            for (PLAYER_STATUS status : PLAYER_STATUS.values()) {
+                if (value == status.status) {
+                    return status;
+                }
+            }
+            return null;
+        }
     }
 
+    //  播放状态
     private enum PLAY_STATUS {
         STOPPED(PlayStatue.STOPPED),
         PLAYING(PlayStatue.PLAYING),
@@ -564,6 +578,15 @@ public class AudioProxy extends BaseProxy {
 
         private int getStatus() {
             return status;
+        }
+
+        public static PLAY_STATUS getEnumByValue(int value) {
+            for (PLAY_STATUS status : PLAY_STATUS.values()) {
+                if (value == status.status) {
+                    return status;
+                }
+            }
+            return null;
         }
     }
 

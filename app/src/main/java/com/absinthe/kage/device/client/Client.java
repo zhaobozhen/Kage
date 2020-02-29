@@ -10,8 +10,9 @@ import com.absinthe.kage.device.cmd.DeviceRotationCommand;
 import com.absinthe.kage.device.cmd.HeartbeatCommand;
 import com.absinthe.kage.device.cmd.ImageInfoCommand;
 import com.absinthe.kage.device.cmd.InquiryDeviceInfoCommand;
+import com.absinthe.kage.device.cmd.InquiryDurationCommand;
 import com.absinthe.kage.device.cmd.InquiryPlayStateCommand;
-import com.absinthe.kage.device.cmd.InquiryPlayStatusCommand;
+import com.absinthe.kage.device.cmd.InquiryPlayerStatusCommand;
 import com.absinthe.kage.device.cmd.MediaPausePlayingCommand;
 import com.absinthe.kage.device.cmd.MediaPreparePlayCommand;
 import com.absinthe.kage.device.cmd.PlayAudioListCommand;
@@ -92,14 +93,17 @@ public class Client extends Thread implements Runnable {
                 case IpMessageConst.MEDIA_PAUSE:
                     new MediaPausePlayingCommand().doWork(this, command);
                     break;
-                case IpMessageConst.MEDIA_GET_PLAYING_STATUS:
-                    new InquiryPlayStatusCommand().doWork(this, command);
+                case IpMessageConst.MEDIA_GET_PLAYER_STATUS:
+                    new InquiryPlayerStatusCommand().doWork(this, command);
                     break;
                 case IpMessageConst.MEDIA_GET_PLAYING_STATE:
                     new InquiryPlayStateCommand().doWork(this, command);
                     break;
                 case IpMessageConst.MEDIA_PLAY_AUDIO_LIST:
                     new PlayAudioListCommand().doWork(this, command);
+                    break;
+                case IpMessageConst.MEDIA_GET_DURATION:
+                    new InquiryDurationCommand().doWork(this, command);
                     break;
                 default:
             }

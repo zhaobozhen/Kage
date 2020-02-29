@@ -10,7 +10,7 @@ public class SetPlayStatusCommand extends Command {
     public int statusCode;
 
     public SetPlayStatusCommand() {
-        cmd = IpMessageConst.MEDIA_SET_PLAYING_STATUS;
+        cmd = IpMessageConst.MEDIA_SET_PLAYER_STATUS;
     }
 
     @Override

@@ -48,7 +48,7 @@ public class ImageProxy extends BaseProxy {
             try {
                 int cmd = Integer.parseInt(split[0]);
                 switch (cmd) {
-                    case IpMessageConst.MEDIA_SET_PLAYING_STATUS:
+                    case IpMessageConst.MEDIA_SET_PLAYER_STATUS:
                         final int playerState = PlayerStatus.valueOf(split[1]).getStatus();
                         final int playOldState = mPlayInfo.playState;
                         if (playerState == playOldState) {
