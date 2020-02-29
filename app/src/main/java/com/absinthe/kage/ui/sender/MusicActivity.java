@@ -24,12 +24,10 @@ import androidx.annotation.Nullable;
 
 import com.absinthe.kage.BaseActivity;
 import com.absinthe.kage.R;
-import com.absinthe.kage.connect.proxy.AudioProxy;
 import com.absinthe.kage.databinding.ActivityMusicBinding;
 import com.absinthe.kage.device.DeviceManager;
 import com.absinthe.kage.device.DeviceObserverImpl;
 import com.absinthe.kage.device.IDeviceObserver;
-import com.absinthe.kage.device.model.AudioInfo;
 import com.absinthe.kage.device.model.DeviceInfo;
 import com.absinthe.kage.media.LocalMedia;
 import com.absinthe.kage.media.PlayList;
@@ -69,6 +67,7 @@ public class MusicActivity extends BaseActivity implements Observer {
 
     private boolean isSeekBarTouch = false;
     private float mCurrentRotation = 0.0f;
+    private int type = TYPE_NONE;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -126,8 +125,8 @@ public class MusicActivity extends BaseActivity implements Observer {
             mBinding.toolbar.tvArtist.setText(mLocalMusic.getArtist());
         }
 
-        int launchType = intent.getIntExtra(EXTRA_DEVICE_TYPE, TYPE_NONE);
-        switch (launchType) {
+        type = intent.getIntExtra(EXTRA_DEVICE_TYPE, TYPE_NONE);
+        switch (type) {
             case TYPE_NONE:
                 finish();
                 break;
@@ -150,8 +149,10 @@ public class MusicActivity extends BaseActivity implements Observer {
         window.setStatusBarColor(Color.TRANSPARENT);
         window.setNavigationBarColor(Color.TRANSPARENT);
 
-        applyBlurBackground(mLocalMusic.getAlbumId());
-        applyRouletteAlbum(mLocalMusic.getAlbumId());
+        if (type == TYPE_SENDER) {
+            applyBlurBackground(mLocalMusic.getAlbumId());
+            applyRouletteAlbum(mLocalMusic.getAlbumId());
+        }
         mBinding.toolbar.ibConnect.setSelected(mDeviceManager.isConnected());
         initAnimator();
     }
@@ -199,16 +200,10 @@ public class MusicActivity extends BaseActivity implements Observer {
             }
         });
         mBinding.btnCast.setOnClickListener(v -> {
-            AudioInfo audioInfo = new AudioInfo();
-            audioInfo.setName(mLocalMusic.getTitle());
-            audioInfo.setAlbum(mLocalMusic.getAlbum());
-            audioInfo.setArtist(mLocalMusic.getArtist());
-            audioInfo.setCoverPath("null");
-            audioInfo.setUrl(mLocalMusic.getUrl());
-            AudioProxy.getInstance().play(audioInfo);
+            mAudioPlayer.setPlayerType(AudioPlayer.TYPE_REMOTE);
         });
         mBinding.layoutControls.btnPlay.setOnClickListener(v -> {
-            int state = mAudioPlayer.getPlaySate();
+            int state = mAudioPlayer.getPlayState();
             if (state == PlaybackState.STATE_PLAYING) {
                 mBinding.layoutControls.btnPlay.setIconResource(R.drawable.ic_play_arrow);
                 mAudioPlayer.pause();
@@ -231,12 +226,9 @@ public class MusicActivity extends BaseActivity implements Observer {
 
     private void initPlayer() {
         mAudioPlayer = AudioPlayer.getInstance(this);
-        mAudioPlayer.changePlayer(AudioPlayer.TYPE_LOCAL);
+        mAudioPlayer.setPlayerType(AudioPlayer.TYPE_LOCAL);
         PlayList playList = new PlayList();
-        for (LocalMusic localMusic : MusicListActivity.sMusicList) {
-            playList.addMedia(localMusic);
-        }
-        playList.setCurrentIndex(MusicListActivity.sMusicList.indexOf(mLocalMusic));
+        playList.addMedia(mLocalMusic);
         mAudioPlayer.playMediaList(playList);
     }
 

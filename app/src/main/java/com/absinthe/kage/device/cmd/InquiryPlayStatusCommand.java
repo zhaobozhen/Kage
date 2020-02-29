@@ -5,6 +5,9 @@ import com.absinthe.kage.device.Command;
 import com.absinthe.kage.device.CommandBuilder;
 import com.absinthe.kage.device.Device;
 import com.absinthe.kage.device.client.Client;
+import com.absinthe.kage.media.audio.AudioPlayer;
+
+import java.io.IOException;
 
 public class InquiryPlayStatusCommand extends Command {
 
@@ -21,7 +24,15 @@ public class InquiryPlayStatusCommand extends Command {
 
     @Override
     public void doWork(Client client, String received) {
+        SetPlayStatusCommand command = new SetPlayStatusCommand();
+        command.statusCode = AudioPlayer.getInstance(client.getContext()).getPlayState();
 
+        try {
+            client.writeToStream(command.pack());
+        } catch (IOException e) {
+            e.printStackTrace();
+            client.offline();
+        }
     }
 
     @Override

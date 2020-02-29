@@ -64,11 +64,6 @@ public class RemoteAudioPlayback implements Playback {
                     mCallback.onMediaMetadataChanged(mPlayList.getCurrentMedia());
                 }
             }
-
-            @Override
-            public void onMusicPlayModeChanged(int mode) {
-
-            }
         });
     }
 

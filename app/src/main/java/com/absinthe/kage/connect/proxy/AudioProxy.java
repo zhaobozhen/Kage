@@ -8,7 +8,6 @@ import com.absinthe.kage.connect.protocol.IpMessageConst;
 import com.absinthe.kage.connect.protocol.IpMessageProtocol;
 import com.absinthe.kage.device.Device;
 import com.absinthe.kage.device.cmd.AudioInfoCommand;
-import com.absinthe.kage.device.cmd.InquiryAudioModeCommand;
 import com.absinthe.kage.device.cmd.InquiryDurationCommand;
 import com.absinthe.kage.device.cmd.InquiryPlayStateCommand;
 import com.absinthe.kage.device.cmd.InquiryPlayStatusCommand;
@@ -33,7 +32,6 @@ public class AudioProxy extends BaseProxy {
 
     private InquiryCurrentPositionThread mInquiryCurrentPositionThread;
     private InquiryPlayStateThread mInquiryPlayStateThread;
-    private InquiryPlayModeThread mInquiryPlayModeThread;
     private InquiryDurationThread mInquiryDurationThread;
     private OnPlayListener mOnPlayListener;
     private Device.OnReceiveMsgListener mOnReceiveMsgListener;
@@ -64,7 +62,6 @@ public class AudioProxy extends BaseProxy {
             cancelInquiryCurrentPosition();
             cancelInquiryDuration();
             resetCurrentPlayInfo();
-            cancelInquiryPlayMode();
             mDevice.registerOnReceiveMsgListener(mOnReceiveMsgListener);
 
             StopCommand stopCmd = new StopCommand();
@@ -82,7 +79,6 @@ public class AudioProxy extends BaseProxy {
             mDevice.sendCommand(audioInfoCommand);
             mCurrentPlayInfo.isPlayListMode = false;
             scheduleInquiryPlayState(1000);
-            scheduleInquiryCurrentPlayMode(1000);
         }
     }
 
@@ -151,7 +147,6 @@ public class AudioProxy extends BaseProxy {
         mDevice.unregisterOnReceiveMsgListener(mOnReceiveMsgListener);
         cancelInquiryCurrentPosition();
         cancelInquiryDuration();
-        cancelInquiryPlayMode();
         cancelInquiryPlayState();
     }
 
@@ -166,14 +161,12 @@ public class AudioProxy extends BaseProxy {
             cancelInquiryCurrentPosition();
             cancelInquiryDuration();
             resetCurrentPlayInfo();
-            cancelInquiryPlayMode();
             mDevice.registerOnReceiveMsgListener(mOnReceiveMsgListener);
 
             PlayPreviousCommand playPreCmd = new PlayPreviousCommand();
             mDevice.sendCommand(playPreCmd);
 
             scheduleInquiryPlayState(1000);
-            scheduleInquiryCurrentPlayMode(1000);
         }
     }
 
@@ -188,14 +181,12 @@ public class AudioProxy extends BaseProxy {
             cancelInquiryCurrentPosition();
             cancelInquiryDuration();
             resetCurrentPlayInfo();
-            cancelInquiryPlayMode();
             mDevice.registerOnReceiveMsgListener(mOnReceiveMsgListener);
 
             PlayNextCommand playNextCmd = new PlayNextCommand();
             mDevice.sendCommand(playNextCmd);
 
             scheduleInquiryPlayState(1000);
-            scheduleInquiryCurrentPlayMode(1000);
         }
     }
 
@@ -206,7 +197,6 @@ public class AudioProxy extends BaseProxy {
             cancelInquiryCurrentPosition();
             cancelInquiryDuration();
             resetCurrentPlayInfo();
-            cancelInquiryPlayMode();
             mDevice.registerOnReceiveMsgListener(mOnReceiveMsgListener);
 
             StopCommand stopCmd = new StopCommand();
@@ -224,15 +214,11 @@ public class AudioProxy extends BaseProxy {
 
             mCurrentPlayInfo.isPlayListMode = true;
             scheduleInquiryPlayState(1000);
-            scheduleInquiryCurrentPlayMode(1000);
         }
     }
 
     public void setPlayAudioMode(int mode) {
         if (null != mDevice && mDevice.isConnected()) {
-            if (!validate(mode)) {
-                return;
-            }
             SetAudioModeCommand setAudioModeCmd = new SetAudioModeCommand();
             setAudioModeCmd.mode = mode;
             mDevice.sendCommand(setAudioModeCmd);
@@ -329,10 +315,6 @@ public class AudioProxy extends BaseProxy {
                         int index = Integer.parseInt(split[1]);
                         notifyOnPlayIndexChanged(index);
                         break;
-                    case IpMessageConst.RESPONSE_SET_AUDIO_MODE:
-                        int mode = Integer.parseInt(split[1]);
-                        notifyOnMusicPlayModeChanged(mode);
-                        break;
                     default:
                 }
             } catch (Exception e) {
@@ -344,7 +326,6 @@ public class AudioProxy extends BaseProxy {
     private void onPlayStopped() {
         resetCurrentPlayInfo();
         cancelInquiryPlayState();
-        cancelInquiryPlayMode();
     }
 
 
@@ -362,7 +343,6 @@ public class AudioProxy extends BaseProxy {
             if (mOnPlayListener != null) {
                 mOnPlayListener.onPlayStateChanged(oldState, newState);
             }
-
         });
     }
 
@@ -372,14 +352,6 @@ public class AudioProxy extends BaseProxy {
                 mOnPlayListener.onPlayIndexChanged(index);
             }
 
-        });
-    }
-
-    private void notifyOnMusicPlayModeChanged(final int mode) {
-        mHandler.post(() -> {
-            if (mOnPlayListener != null) {
-                mOnPlayListener.onMusicPlayModeChanged(mode);
-            }
         });
     }
 
@@ -554,54 +526,6 @@ public class AudioProxy extends BaseProxy {
         }
     }
 
-    private void scheduleInquiryCurrentPlayMode(int period) {
-        cancelInquiryPlayMode();
-        mInquiryPlayModeThread = new InquiryPlayModeThread();
-        mInquiryPlayModeThread.setPeriod(period);
-        mInquiryPlayModeThread.start();
-    }
-
-    private void cancelInquiryPlayMode() {
-        if (mInquiryPlayModeThread != null) {
-            mInquiryPlayModeThread.interrupt();
-            mInquiryPlayModeThread = null;
-        }
-    }
-
-    private class InquiryPlayModeThread extends Thread {
-        private int period = 2000;
-
-        @Override
-        public void run() {
-            while (true) {
-                if (isInterrupted() || mDevice == null || !mDevice.isConnected()) {
-                    break;
-                }
-                InquiryAudioModeCommand audioModeCommand = new InquiryAudioModeCommand();
-                mDevice.sendCommand(audioModeCommand);
-
-                long inquiryPeriod = period;
-                try {
-                    sleep(inquiryPeriod);
-                } catch (InterruptedException e) {
-                    Log.e(TAG, "InquiryPlayModeThread is interrupted");
-                    break;
-                }
-            }
-        }
-
-        public void setPeriod(int period) {
-            this.period = period;
-        }
-    }
-
-    private boolean validate(int mode) {
-        return PlayMode.ORDER_PLAY == mode
-                || PlayMode.SINGLE_LOOP == mode
-                || PlayMode.RANDOM_PLAY == mode
-                || PlayMode.LIST_LOOP == mode;
-    }
-
     private static class PlayInfo {
         int duration;
         int position;
@@ -652,7 +576,6 @@ public class AudioProxy extends BaseProxy {
                 cancelInquiryPlayState();
                 cancelInquiryCurrentPosition();
                 cancelInquiryDuration();
-                cancelInquiryPlayMode();
             }
             this.mDevice = device;
         }
@@ -681,20 +604,11 @@ public class AudioProxy extends BaseProxy {
         int DISCONNECT = 20;
     }
 
-    public interface PlayMode {
-        int ORDER_PLAY = 0;
-        int SINGLE_LOOP = 2;
-        int RANDOM_PLAY = 3;
-        int LIST_LOOP = 4;
-    }
-
     public interface OnPlayListener {
         void onCurrentPositionChanged(int duration, int position);
 
         void onPlayStateChanged(int oldState, int newState);
 
         void onPlayIndexChanged(int index);
-
-        void onMusicPlayModeChanged(int mode);
     }
 }

@@ -80,12 +80,14 @@ public class AudioPlayer extends Observable implements Playback.Callback {
         mContext = null;
     }
 
-    public void changePlayer(int type) {
+    public void setPlayerType(int type) {
         mPlayType = type;
+
         if (mPlayback != null) {
             mBeforePosition = mPlayback.getCurrentPosition();
             mPlayback.stop(true);
         }
+
         if (type == TYPE_LOCAL) {
             mPlayback = new LocalAudioPlayback(mContext);
             mPlayback.setCallback(this);
@@ -94,12 +96,12 @@ public class AudioPlayer extends Observable implements Playback.Callback {
                 mPlayback.playMedia(mPlaylist.getCurrentMedia());
             }
         } else if (type == TYPE_REMOTE) {
-            RemoteAudioPlayback playback = new RemoteAudioPlayback();
-            playback.setCallback(this);
+            mPlayback = new RemoteAudioPlayback();
+            mPlayback.setCallback(this);
+
             if (mPlaylist != null) {
-                playback.playListMedia(mPlaylist);
+                ((RemoteAudioPlayback) mPlayback).playListMedia(mPlaylist);
             }
-            mPlayback = playback;
         }
     }
 
@@ -113,9 +115,8 @@ public class AudioPlayer extends Observable implements Playback.Callback {
             if (mPlaylist == null) {
                 mPlaylist = new PlayList();
             }
-            Log.d(TAG, "beforeIndex: " + mPlaylist.getCurrentIndex() + ", newIndex: " + playList.getCurrentIndex());
+
             mPlaylist.setList(playList.getList(), playList.getCurrentIndex());
-            Log.d(TAG, "afterIndex: " + mPlaylist.getCurrentIndex());
 
             if (mPlayback instanceof RemoteAudioPlayback) {
                 ((RemoteAudioPlayback) mPlayback).playListMedia(mPlaylist);
@@ -163,7 +164,7 @@ public class AudioPlayer extends Observable implements Playback.Callback {
         return mPlaylist == null ? null : mPlaylist.getCurrentMedia();
     }
 
-    public int getPlaySate() {
+    public int getPlayState() {
         return mPlayState;
     }
 

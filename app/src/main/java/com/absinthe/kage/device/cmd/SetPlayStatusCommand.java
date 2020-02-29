@@ -1,35 +1,29 @@
 package com.absinthe.kage.device.cmd;
 
-import android.media.session.PlaybackState;
-
 import com.absinthe.kage.connect.protocol.IpMessageConst;
 import com.absinthe.kage.device.Command;
 import com.absinthe.kage.device.CommandBuilder;
 import com.absinthe.kage.device.client.Client;
-import com.absinthe.kage.media.audio.AudioPlayer;
 
-public class MediaPausePlayingCommand extends Command {
+public class SetPlayStatusCommand extends Command {
 
-    public static final String PAUSE_MESSAGE = "PAUSE";
+    public int statusCode;
 
-    public MediaPausePlayingCommand() {
-        cmd = IpMessageConst.MEDIA_PAUSE;
+    public SetPlayStatusCommand() {
+        cmd = IpMessageConst.MEDIA_SET_PLAYING_STATUS;
     }
 
     @Override
     public String pack() {
         return new CommandBuilder()
                 .with(this)
-                .append(PAUSE_MESSAGE)
+                .append(String.valueOf(statusCode))
                 .build();
     }
 
     @Override
     public void doWork(Client client, String received) {
-        AudioPlayer audioPlayer = AudioPlayer.getInstance(client.getContext());
-        if (audioPlayer.getPlayState() == PlaybackState.STATE_PLAYING) {
-            audioPlayer.pause();
-        }
+
     }
 
     @Override
