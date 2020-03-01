@@ -16,6 +16,7 @@ import com.absinthe.kage.utils.Logger;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
+import java.io.File;
 import java.util.List;
 
 public class PlayAudioListCommand extends Command {
@@ -54,6 +55,8 @@ public class PlayAudioListCommand extends Command {
                         localMusic.setArtist(audioInfo.getArtist());
                         localMusic.setAlbum(audioInfo.getAlbum());
                         localMusic.setFilePath(String.format(Const.HTTP_SERVER_FORMAT, ip) + audioInfo.getUrl());
+                        localMusic.setCoverPath(String.format(Const.HTTP_SERVER_FORMAT, ip)
+                                + client.getContext().getExternalFilesDir(null) + File.separator + Const.albumName);
                         Logger.d(localMusic.getFilePath());
 
                         Intent intent = new Intent(client.getContext(), MusicActivity.class);

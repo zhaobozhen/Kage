@@ -2,7 +2,6 @@ package com.absinthe.kage.connect.proxy;
 
 import android.os.Handler;
 import android.os.Looper;
-import android.text.TextUtils;
 import android.util.Log;
 
 import com.absinthe.kage.connect.protocol.IpMessageConst;
@@ -23,7 +22,6 @@ import com.absinthe.kage.device.cmd.SetAudioModeCommand;
 import com.absinthe.kage.device.cmd.SetPlayIndexCommand;
 import com.absinthe.kage.device.cmd.StopCommand;
 import com.absinthe.kage.device.model.AudioInfo;
-import com.absinthe.kage.utils.Logger;
 import com.google.gson.Gson;
 
 import java.util.List;
@@ -266,7 +264,7 @@ public class AudioProxy extends BaseProxy {
             try {
                 int cmd = Integer.parseInt(split[0]);
                 switch (cmd) {
-                    case IpMessageConst.RESPONSE_SET_PLAYBACK_PROCESS:
+                    case IpMessageConst.RESPONSE_SET_PLAYBACK_PROGRESS:
                         int position = Integer.parseInt(split[1]);
                         if (mCurrentPlayInfo == null || mCurrentPlayInfo.duration <= 0) {
                             break;

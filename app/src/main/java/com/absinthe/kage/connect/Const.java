@@ -8,4 +8,5 @@ public class Const {
     public static final String BROADCAST_IP_IN_WIFI = "255.255.255.255";
 
     public static final String HTTP_SERVER_FORMAT = "http://%s:" + Config.HTTP_SERVER_PORT;
+    public static final String albumName = "album.png";
 }

@@ -13,6 +13,7 @@ import com.absinthe.kage.device.cmd.InquiryDeviceInfoCommand;
 import com.absinthe.kage.device.cmd.InquiryDurationCommand;
 import com.absinthe.kage.device.cmd.InquiryPlayStateCommand;
 import com.absinthe.kage.device.cmd.InquiryPlayerStatusCommand;
+import com.absinthe.kage.device.cmd.InquiryPlayingPositionCommand;
 import com.absinthe.kage.device.cmd.MediaPausePlayingCommand;
 import com.absinthe.kage.device.cmd.MediaPreparePlayCommand;
 import com.absinthe.kage.device.cmd.PlayAudioListCommand;
@@ -104,6 +105,9 @@ public class Client extends Thread implements Runnable {
                     break;
                 case IpMessageConst.MEDIA_GET_DURATION:
                     new InquiryDurationCommand().doWork(this, command);
+                    break;
+                case IpMessageConst.MEDIA_GET_PLAYING_POSITION:
+                    new InquiryPlayingPositionCommand().doWork(this, command);
                     break;
                 default:
             }
