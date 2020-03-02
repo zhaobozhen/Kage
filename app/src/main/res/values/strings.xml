@@ -19,7 +19,7 @@
     <string name="btn_cast_music">Cast Music</string>
 
     <!--  Receiver  -->
-    <string name="title_loading">Loading…</string>
+    <string name="title_loading">Loading</string>
 
     <!--  About  -->
     <string name="about_info">Kage - An app which can cast multi-media files to other Android devices.</string>

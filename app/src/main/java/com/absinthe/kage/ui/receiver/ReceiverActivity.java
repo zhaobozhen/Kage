@@ -1,17 +1,19 @@
 package com.absinthe.kage.ui.receiver;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.Window;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.ActionBar;
 
+import com.absinthe.anywhere_.utils.AnimationUtil;
 import com.absinthe.kage.BaseActivity;
-import com.absinthe.kage.R;
 import com.absinthe.kage.databinding.ActivityReceiverBinding;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
@@ -22,8 +24,6 @@ public class ReceiverActivity extends BaseActivity {
 
     public static final String EXTRA_IMAGE_URI = "IMAGE_URI";
     public static final String EXTRA_FINISH = "FINISH";
-    private static final int TITLE_STATE_LOADING = 0;
-    private static final int TITLE_STATE_NORMAL = 1;
 
     private ActivityReceiverBinding binding;
 
@@ -33,11 +33,7 @@ public class ReceiverActivity extends BaseActivity {
         binding = ActivityReceiverBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        ActionBar actionBar = getSupportActionBar();
-        if (actionBar != null) {
-            actionBar.setDisplayHomeAsUpEnabled(true);
-        }
-
+        initView();
         processIntent(getIntent());
     }
 
@@ -45,6 +41,16 @@ public class ReceiverActivity extends BaseActivity {
     protected void onNewIntent(Intent intent) {
         processIntent(intent);
         super.onNewIntent(intent);
+    }
+
+    private void initView() {
+        Window window = getWindow();
+        View view = window.getDecorView();
+        view.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                | View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION);
+        window.setStatusBarColor(Color.TRANSPARENT);
+        window.setNavigationBarColor(Color.TRANSPARENT);
     }
 
     private void processIntent(Intent intent) {
@@ -61,7 +67,7 @@ public class ReceiverActivity extends BaseActivity {
     }
 
     private void loadImage(String imageUri) {
-        setTitleState(TITLE_STATE_LOADING);
+        showLoading();
         Glide.with(this)
                 .load(imageUri)
                 .transition(DrawableTransitionOptions.withCrossFade())
@@ -70,7 +76,7 @@ public class ReceiverActivity extends BaseActivity {
                     @Override
                     public void onResourceReady(@NonNull Drawable resource, @Nullable Transition<? super Drawable> transition) {
                         binding.imageView.setImageDrawable(resource);
-                        setTitleState(TITLE_STATE_NORMAL);
+                        hideLoading();
                     }
 
                     @Override
@@ -80,17 +86,12 @@ public class ReceiverActivity extends BaseActivity {
                 });
     }
 
-    private void setTitleState(int state) {
-        ActionBar actionBar = getSupportActionBar();
-        if (actionBar == null) {
-            return;
-        }
+    private void showLoading() {
+        AnimationUtil.showAndHiddenAnimation(binding.layoutLoading.getRoot(), AnimationUtil.AnimationState.STATE_SHOW, 300);
+    }
 
-        if (state == TITLE_STATE_LOADING) {
-            actionBar.setTitle(R.string.title_loading);
-        } else {
-            actionBar.setTitle(R.string.receiver_label);
-        }
+    private void hideLoading() {
+        AnimationUtil.showAndHiddenAnimation(binding.layoutLoading.getRoot(), AnimationUtil.AnimationState.STATE_GONE, 300);
     }
 
     @Override

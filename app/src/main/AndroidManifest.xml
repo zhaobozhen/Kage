@@ -48,6 +48,7 @@
         <activity
             android:name=".ui.receiver.ReceiverActivity"
             android:configChanges="orientation|screenSize"
+            android:theme="@style/AppTheme.NoActionBar"
             android:label="@string/receiver_label"
             android:launchMode="singleTask" />
         <activity

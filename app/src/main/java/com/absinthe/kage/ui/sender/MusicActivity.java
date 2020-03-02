@@ -41,6 +41,7 @@ import com.absinthe.kage.utils.Logger;
 import com.absinthe.kage.utils.StorageUtils;
 import com.blankj.utilcode.util.ImageUtils;
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.target.CustomTarget;
 import com.bumptech.glide.request.transition.Transition;
 
@@ -80,15 +81,9 @@ public class MusicActivity extends BaseActivity implements Observer {
         mBinding = ActivityMusicBinding.inflate(getLayoutInflater());
         setContentView(mBinding.getRoot());
 
-        Intent intent = getIntent();
-        if (intent != null) {
-            getMusicInfo(intent);
-            initListener();
-            initView();
-            initPlayer();
-        } else {
-            finish();
-        }
+        initListener();
+
+        processIntent(getIntent());
     }
 
     @Override
@@ -114,12 +109,20 @@ public class MusicActivity extends BaseActivity implements Observer {
         super.onDestroy();
     }
 
+    private void processIntent(Intent intent) {
+        if (intent != null) {
+            getMusicInfo(intent);
+            initView();
+            initPlayer();
+        } else {
+            finish();
+        }
+    }
+
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
-        if (intent != null) {
-            getMusicInfo(intent);
-        }
+        processIntent(intent);
     }
 
     private void getMusicInfo(@NonNull Intent intent) {
@@ -208,15 +211,13 @@ public class MusicActivity extends BaseActivity implements Observer {
                 }
             }
         });
-        mBinding.btnCast.setOnClickListener(v -> {
-            mAudioPlayer.setPlayerType(AudioPlayer.TYPE_REMOTE);
-        });
+        mBinding.btnCast.setOnClickListener(v -> mAudioPlayer.setPlayerType(AudioPlayer.TYPE_REMOTE));
         mBinding.layoutControls.btnPlay.setOnClickListener(v -> {
             int state = mAudioPlayer.getPlayState();
             if (state == PlaybackState.STATE_PLAYING) {
                 mBinding.layoutControls.btnPlay.setIconResource(R.drawable.ic_play_arrow);
                 mAudioPlayer.pause();
-            } else if (state == PlaybackState.STATE_PAUSED) {
+            } else if (state == PlaybackState.STATE_PAUSED || state == PlaybackState.STATE_BUFFERING) {
                 mBinding.layoutControls.btnPlay.setIconResource(R.drawable.ic_pause);
                 mAudioPlayer.play();
             }
@@ -236,6 +237,7 @@ public class MusicActivity extends BaseActivity implements Observer {
     private void initPlayer() {
         mAudioPlayer = AudioPlayer.getInstance(this);
         mAudioPlayer.setPlayerType(AudioPlayer.TYPE_LOCAL);
+        mAudioPlayer.clearPlayList();
         PlayList playList = new PlayList();
         playList.addMedia(mLocalMusic);
         mAudioPlayer.playMediaList(playList);
@@ -273,8 +275,9 @@ public class MusicActivity extends BaseActivity implements Observer {
 
     private void updatePlayState(PlaybackState playbackState, boolean isNotify) {
         int state = playbackState.getState();
+        Logger.d("state:",state);
         if (state == PlaybackState.STATE_BUFFERING) {
-            mBinding.layoutControls.btnPlay.setIconResource(R.drawable.ic_pause);
+            mBinding.layoutControls.btnPlay.setIconResource(R.drawable.ic_play_arrow);
         } else if (state == PlaybackState.STATE_PLAYING) {
             mHandler.post(mShowProgressTask);
             startAnimation();
@@ -326,6 +329,7 @@ public class MusicActivity extends BaseActivity implements Observer {
         Glide.with(this)
                 .asBitmap()
                 .load(uri)
+                .diskCacheStrategy(DiskCacheStrategy.NONE)
                 .into(new CustomTarget<Bitmap>() {
                     @Override
                     public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
@@ -347,10 +351,14 @@ public class MusicActivity extends BaseActivity implements Observer {
                         canvas.drawBitmap(result, 0, 0, paint);
 
                         mBinding.ivBackground.setImageBitmap(result);
-                        saveAlbumBitmap(resource);
+
+                        if (type == TYPE_SENDER) {
+                            saveAlbumBitmap(resource);
+                        }
 
                         Glide.with(getApplicationContext())
                                 .load(resource)
+                                .diskCacheStrategy(DiskCacheStrategy.NONE)
                                 .into(mBinding.musicRoulette);
                     }
 

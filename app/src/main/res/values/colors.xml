@@ -9,6 +9,7 @@
     <color name="white">#FFFFFFFF</color>
     <color name="black">#FF000000</color>
     <color name="gray">#FF888888</color>
+    <color name="lightGray">#FFBBBBBB</color>
     <color name="blue">#FF03A9F4</color>
     <color name="ripple">#FFBBBBBB</color>
 

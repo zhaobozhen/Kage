@@ -18,7 +18,7 @@
     <string name="btn_cast_music">投射音乐</string>
 
     <!--  Receiver  -->
-    <string name="title_loading">加载中…</string>
+    <string name="title_loading">加载中</string>
 
     <!--  About  -->
     <string name="about_info">Kage - 一款可以向其它 Android 设备投射多媒体文件的 App</string>

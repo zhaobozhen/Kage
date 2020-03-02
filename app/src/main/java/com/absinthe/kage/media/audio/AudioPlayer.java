@@ -20,14 +20,13 @@ import java.util.Observable;
 public class AudioPlayer extends Observable implements Playback.Callback {
     public static final String TAG = AudioPlayer.class.getSimpleName();
     public static final String EXTRA_PLAY_MODE = "EXTRA_PLAY_MODE";
-
-    public static final int NOT_REPEATING = 0;
-    public static final int REPEAT_ONE = 1;
-    public static final int SHUFFLED = 2;
-    public static final int REPEAT_ALL = 3;
-
     public static final int TYPE_LOCAL = 1;
     public static final int TYPE_REMOTE = 2;
+
+    private static final int NOT_REPEATING = 0;
+    private static final int REPEAT_ONE = 1;
+    private static final int SHUFFLED = 2;
+    private static final int REPEAT_ALL = 3;
 
     @SuppressLint("StaticFieldLeak")
     private static AudioPlayer sInstance;
@@ -102,6 +101,12 @@ public class AudioPlayer extends Observable implements Playback.Callback {
             if (mPlaylist != null) {
                 ((RemoteAudioPlayback) mPlayback).playListMedia(mPlaylist);
             }
+        }
+    }
+
+    public void clearPlayList() {
+        if (mPlaylist != null) {
+            mPlaylist.clearPlaylist();
         }
     }
 
@@ -223,6 +228,7 @@ public class AudioPlayer extends Observable implements Playback.Callback {
         return 0;
     }
 
+    @Override
     public void onCompletion() {
         if (mPlayState == PlaybackState.STATE_PLAYING) {
             playNext();
@@ -231,6 +237,7 @@ public class AudioPlayer extends Observable implements Playback.Callback {
         }
     }
 
+    @Override
     public void onPlaybackStateChanged(int state) {
         if (mPlayback != null
                 && mPlayState == PlaybackState.STATE_BUFFERING
@@ -246,11 +253,13 @@ public class AudioPlayer extends Observable implements Playback.Callback {
         }
     }
 
+    @Override
     public void onError(String error) {
         mPlayState = PlaybackState.STATE_ERROR;
         updateMediaPlayState();
     }
 
+    @Override
     public void onMediaMetadataChanged(LocalMedia localMedia) {
         updateMediaMetadata(localMedia);
     }

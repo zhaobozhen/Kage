@@ -12,7 +12,6 @@ import com.absinthe.kage.device.client.Client;
 import com.absinthe.kage.device.model.AudioInfo;
 import com.absinthe.kage.media.audio.LocalMusic;
 import com.absinthe.kage.ui.sender.MusicActivity;
-import com.absinthe.kage.utils.Logger;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
@@ -57,7 +56,6 @@ public class PlayAudioListCommand extends Command {
                         localMusic.setFilePath(String.format(Const.HTTP_SERVER_FORMAT, ip) + audioInfo.getUrl());
                         localMusic.setCoverPath(String.format(Const.HTTP_SERVER_FORMAT, ip)
                                 + client.getContext().getExternalFilesDir(null) + File.separator + Const.albumName);
-                        Logger.d(localMusic.getFilePath());
 
                         Intent intent = new Intent(client.getContext(), MusicActivity.class);
                         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
