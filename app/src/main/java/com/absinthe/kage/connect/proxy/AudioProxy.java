@@ -23,7 +23,6 @@ import com.absinthe.kage.device.cmd.SetAudioModeCommand;
 import com.absinthe.kage.device.cmd.SetPlayIndexCommand;
 import com.absinthe.kage.device.cmd.StopCommand;
 import com.absinthe.kage.device.model.AudioInfo;
-import com.absinthe.kage.utils.Logger;
 import com.google.gson.Gson;
 
 import java.util.List;
@@ -299,7 +298,6 @@ public class AudioProxy extends BaseProxy {
                         if (mPlayInfo != null) {
                             mPlayInfo.playState = newState;
                         }
-                        Logger.d("newState=",newState);//Todo
                         notifyOnPlayStateChanged(oldState, newState);
                         break;
                     case IpMessageConst.RESPONSE_PLAYING_INDEX:

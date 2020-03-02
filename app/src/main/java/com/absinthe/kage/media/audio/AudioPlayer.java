@@ -134,11 +134,15 @@ public class AudioPlayer extends Observable implements Playback.Callback {
         if (mWakeLock != null && mWakeLock.isHeld()) {
             mWakeLock.acquire(10 * 60 * 1000L /*10 minutes*/);
         }
-        mPlayback.play();
+        if (mPlayback != null) {
+            mPlayback.play();
+        }
     }
 
     public void pause() {
-        mPlayback.pause();
+        if (mPlayback != null) {
+            mPlayback.pause();
+        }
         if (mWakeLock != null && mWakeLock.isHeld()) {
             mWakeLock.release();
         }
@@ -169,7 +173,9 @@ public class AudioPlayer extends Observable implements Playback.Callback {
     }
 
     public void seekTo(int to) {
-        mPlayback.seekTo(to);
+        if (mPlayback != null) {
+            mPlayback.seekTo(to);
+        }
     }
 
     public LocalMedia getCurrentMedia() {
