@@ -18,6 +18,7 @@ import com.absinthe.kage.device.cmd.MediaPausePlayingCommand;
 import com.absinthe.kage.device.cmd.MediaPreparePlayCommand;
 import com.absinthe.kage.device.cmd.PlayAudioListCommand;
 import com.absinthe.kage.device.cmd.PromptPhoneConnectedCommand;
+import com.absinthe.kage.device.cmd.ResumePlayCommand;
 import com.absinthe.kage.device.cmd.StopCommand;
 import com.absinthe.kage.device.model.DeviceInfo;
 
@@ -109,6 +110,8 @@ public class Client extends Thread implements Runnable {
                 case IpMessageConst.MEDIA_GET_PLAYING_POSITION:
                     new InquiryPlayingPositionCommand().doWork(this, command);
                     break;
+                case IpMessageConst.MEDIA_RESUME_PLAY:
+                    new ResumePlayCommand().doWork(this, command);
                 default:
             }
         }

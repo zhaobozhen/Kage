@@ -1,5 +1,6 @@
 package com.absinthe.kage.connect.proxy;
 
+import android.media.session.PlaybackState;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
@@ -22,6 +23,7 @@ import com.absinthe.kage.device.cmd.SetAudioModeCommand;
 import com.absinthe.kage.device.cmd.SetPlayIndexCommand;
 import com.absinthe.kage.device.cmd.StopCommand;
 import com.absinthe.kage.device.model.AudioInfo;
+import com.absinthe.kage.utils.Logger;
 import com.google.gson.Gson;
 
 import java.util.List;
@@ -29,15 +31,15 @@ import java.util.List;
 public class AudioProxy extends BaseProxy {
     private static final String TAG = AudioProxy.class.getSimpleName();
     private static AudioProxy sInstance;
+    private static final int PLAY_POSITION_INQUIRY_PERIOD = 1000;
 
     private InquiryCurrentPositionThread mInquiryCurrentPositionThread;
     private InquiryPlayStateThread mInquiryPlayStateThread;
     private InquiryDurationThread mInquiryDurationThread;
     private OnPlayListener mOnPlayListener;
     private Device.OnReceiveMsgListener mOnReceiveMsgListener;
-    private PlayInfo mCurrentPlayInfo = new PlayInfo();
+    private PlayInfo mPlayInfo = new PlayInfo();
     private Handler mHandler = new Handler(Looper.getMainLooper());
-    private int mPlayPositionInquiryPeriod = 1000;
 
     private AudioProxy() {
         mOnReceiveMsgListener = this::parserMsgAndNotifyIfNeed;
@@ -77,13 +79,13 @@ public class AudioProxy extends BaseProxy {
             audioInfoCommand.album = audioInfo.getAlbum();
             audioInfoCommand.coverPath = audioInfo.getCoverPath();
             mDevice.sendCommand(audioInfoCommand);
-            mCurrentPlayInfo.isPlayListMode = false;
+            mPlayInfo.isPlayListMode = false;
             scheduleInquiryPlayState(1000);
         }
     }
 
     public void start() {
-        if (mCurrentPlayInfo.currentPlayState == PLAY_STATUS.PAUSED_PLAYBACK.getStatus()
+        if (mPlayInfo.playState == PLAY_STATUS.PAUSED_PLAYBACK.getStatus()
                 && null != mDevice && mDevice.isConnected()) {
             AudioInfoCommand audioInfoCommand = new AudioInfoCommand();
             mDevice.sendCommand(audioInfoCommand);
@@ -92,7 +94,7 @@ public class AudioProxy extends BaseProxy {
     }
 
     public void pause() {
-        if (mCurrentPlayInfo.currentPlayState == PLAY_STATUS.PLAYING.getStatus()
+        if (mPlayInfo.playState == PLAY_STATUS.PLAYING.getStatus()
                 && mDevice != null && mDevice.isConnected()) {
             MediaPausePlayingCommand pauseCmd = new MediaPausePlayingCommand();
             mDevice.sendCommand(pauseCmd);
@@ -108,12 +110,12 @@ public class AudioProxy extends BaseProxy {
     }
 
     public void seekTo(final int position) {
-        if (mCurrentPlayInfo.currentPlayState != PLAY_STATUS.STOPPED.getStatus()
+        if (mPlayInfo.playState != PLAY_STATUS.STOPPED.getStatus()
                 && null != mDevice && mDevice.isConnected()) {
             SeekToCommand seekToCmd = new SeekToCommand();
             seekToCmd.position = position;
             mDevice.sendCommand(seekToCmd);
-            mCurrentPlayInfo.position = position;
+            mPlayInfo.position = position;
         }
     }
 
@@ -122,23 +124,23 @@ public class AudioProxy extends BaseProxy {
     }
 
     public int getPlayState() {
-        int currentPlayState = PlayStatue.INVALIDATE;
-        if (mCurrentPlayInfo != null) {
-            currentPlayState = mCurrentPlayInfo.currentPlayState;
+        int playState = PlayStatue.INVALIDATE;
+        if (mPlayInfo != null) {
+            playState = mPlayInfo.playState;
         }
-        return currentPlayState;
+        return playState;
     }
 
     public int getDuration() {
-        if (mCurrentPlayInfo != null) {
-            return mCurrentPlayInfo.duration;
+        if (mPlayInfo != null) {
+            return mPlayInfo.duration;
         }
         return 0;
     }
 
     public int getCurrentPosition() {
-        if (mCurrentPlayInfo != null) {
-            return mCurrentPlayInfo.position;
+        if (mPlayInfo != null) {
+            return mPlayInfo.position;
         }
         return 0;
     }
@@ -152,7 +154,7 @@ public class AudioProxy extends BaseProxy {
 
     public void playPrevious() {
         if (null != mDevice && mDevice.isConnected()) {
-            if (!mCurrentPlayInfo.isPlayListMode) {
+            if (!mPlayInfo.isPlayListMode) {
                 return;
             }
 
@@ -172,7 +174,7 @@ public class AudioProxy extends BaseProxy {
 
     public void playNext() {
         if (null != mDevice && mDevice.isConnected()) {
-            if (!mCurrentPlayInfo.isPlayListMode) {
+            if (!mPlayInfo.isPlayListMode) {
                 return;
             }
 
@@ -212,7 +214,7 @@ public class AudioProxy extends BaseProxy {
             playListCmd.listInfo = new Gson().toJson(list);
             mDevice.sendCommand(playListCmd);
 
-            mCurrentPlayInfo.isPlayListMode = true;
+            mPlayInfo.isPlayListMode = true;
             scheduleInquiryPlayState(1000);
         }
     }
@@ -227,7 +229,7 @@ public class AudioProxy extends BaseProxy {
 
     public void setPlayIndex(int index) {
         if (null != mDevice && mDevice.isConnected()) {
-            if (!mCurrentPlayInfo.isPlayListMode) {
+            if (!mPlayInfo.isPlayListMode) {
                 return;
             }
             if (index < 0) {
@@ -238,19 +240,6 @@ public class AudioProxy extends BaseProxy {
             mDevice.sendCommand(setPlayIndexCommand);
             resetCurrentPlayInfo();
         }
-    }
-
-    public int getPlayPositionInquiryPeriod() {
-        return mPlayPositionInquiryPeriod;
-    }
-
-    /**
-     * 设置同步remote播放进度时间间隔，在play之前设置有效
-     *
-     * @param inquiryPeriod mill seconds
-     */
-    public void setPlayPositionInquiryPeriod(int inquiryPeriod) {
-        this.mPlayPositionInquiryPeriod = inquiryPeriod;
     }
 
     private void parserMsgAndNotifyIfNeed(String msg) {
@@ -266,25 +255,25 @@ public class AudioProxy extends BaseProxy {
                 switch (cmd) {
                     case IpMessageConst.RESPONSE_SET_PLAYBACK_PROGRESS:
                         int position = Integer.parseInt(split[1]);
-                        if (mCurrentPlayInfo == null || mCurrentPlayInfo.duration <= 0) {
+                        if (mPlayInfo == null || mPlayInfo.duration <= 0) {
                             break;
                         }
-                        mCurrentPlayInfo.position = position;
-                        notifyOnCurrentPositionChanged(mCurrentPlayInfo);
+                        mPlayInfo.position = position;
+                        notifyOnCurrentPositionChanged(mPlayInfo);
                         break;
                     case IpMessageConst.RESPONSE_SET_AUDIO_DURATION:
                         int duration = Integer.parseInt(split[1]);
-                        if (duration <= 0 || mCurrentPlayInfo == null) {
+                        if (duration <= 0 || mPlayInfo == null) {
                             break;
                         }
-                        mCurrentPlayInfo.duration = duration;
+                        mPlayInfo.duration = duration;
                         cancelInquiryDuration();
-                        notifyOnCurrentPositionChanged(mCurrentPlayInfo);
+                        notifyOnCurrentPositionChanged(mPlayInfo);
                         scheduleInquiryCurrentPosition();//获取到总长度后询问当前播放进度
                         break;
                     case IpMessageConst.MEDIA_SET_PLAYER_STATUS:
                         int playerState = Integer.parseInt(split[1]);
-                        int playOldState = mCurrentPlayInfo.currentPlayState;
+                        int playOldState = mPlayInfo.playState;
 
                         if (PlayStatue.PLAYER_EXIT == playerState) {
                             onPlayStopped();
@@ -293,7 +282,7 @@ public class AudioProxy extends BaseProxy {
                         break;
                     case IpMessageConst.MEDIA_SET_PLAYING_STATE:
                         int newState = Integer.parseInt(split[1]);
-                        int oldState = mCurrentPlayInfo.currentPlayState;
+                        int oldState = mPlayInfo.playState;
 
                         if (oldState == newState) {
                             break;
@@ -307,9 +296,10 @@ public class AudioProxy extends BaseProxy {
                         if (PlayStatue.STOPPED == newState) {
                             onPlayStopped();
                         }
-                        if (mCurrentPlayInfo != null) {
-                            mCurrentPlayInfo.currentPlayState = newState;
+                        if (mPlayInfo != null) {
+                            mPlayInfo.playState = newState;
                         }
+                        Logger.d("newState=",newState);//Todo
                         notifyOnPlayStateChanged(oldState, newState);
                         break;
                     case IpMessageConst.RESPONSE_PLAYING_INDEX:
@@ -358,9 +348,9 @@ public class AudioProxy extends BaseProxy {
     }
 
     private void resetCurrentPlayInfo() {
-        mCurrentPlayInfo.duration = 0;
-        mCurrentPlayInfo.position = 0;
-        mCurrentPlayInfo.currentPlayState = PlayStatue.STOPPED;
+        mPlayInfo.duration = 0;
+        mPlayInfo.position = 0;
+        mPlayInfo.playState = PlayStatue.STOPPED;
     }
 
     private void scheduleInquiryPlayState(int period) {
@@ -379,7 +369,7 @@ public class AudioProxy extends BaseProxy {
 
     private void scheduleInquiryDuration() {
         cancelInquiryDuration();
-        mInquiryDurationThread = new InquiryDurationThread(mDevice, mCurrentPlayInfo);
+        mInquiryDurationThread = new InquiryDurationThread(mDevice, mPlayInfo);
         mInquiryDurationThread.start();
     }
 
@@ -428,12 +418,9 @@ public class AudioProxy extends BaseProxy {
 
     private void scheduleInquiryCurrentPosition() {
         cancelInquiryCurrentPosition();
-        int updatePeriod = 1000;
-        if (mPlayPositionInquiryPeriod < updatePeriod) {
-            mPlayPositionInquiryPeriod = updatePeriod;
-        }
+
         mInquiryCurrentPositionThread = new InquiryCurrentPositionThread(
-                mDevice, updatePeriod, mPlayPositionInquiryPeriod, mCurrentPlayInfo);
+                mDevice, PLAY_POSITION_INQUIRY_PERIOD, PLAY_POSITION_INQUIRY_PERIOD, mPlayInfo);
         mInquiryCurrentPositionThread.start();
     }
 
@@ -454,11 +441,11 @@ public class AudioProxy extends BaseProxy {
         private InquiryPlayingPositionCommand positionCommand = new InquiryPlayingPositionCommand();
 
         InquiryCurrentPositionThread(Device device, int updatePeriod, int inquiryPeriod, PlayInfo playInfo) {
-            this.mDevice = device;
-            this.mUpdatePeriod = updatePeriod;
-            this.mInquiryPeriod = inquiryPeriod;
-            this.mPlayInfo = playInfo;
-            this.mNoInquiryMills = inquiryPeriod;
+            mDevice = device;
+            mUpdatePeriod = updatePeriod;
+            mInquiryPeriod = inquiryPeriod;
+            mPlayInfo = playInfo;
+            mNoInquiryMills = inquiryPeriod;
         }
 
         @Override
@@ -499,7 +486,7 @@ public class AudioProxy extends BaseProxy {
         private int period = 2000;
 
         InquiryPlayStateThread(Device device) {
-            this.mDevice = device;
+            mDevice = device;
         }
 
         @Override
@@ -508,6 +495,7 @@ public class AudioProxy extends BaseProxy {
                 if (isInterrupted() || mDevice == null || !mDevice.isConnected()) {
                     break;
                 }
+
                 InquiryPlayStateCommand inquiryPlayStateCmd = new InquiryPlayStateCommand();
                 mDevice.sendCommand(inquiryPlayStateCmd);
                 InquiryPlayerStatusCommand inquiryPlayStatusCmd = new InquiryPlayerStatusCommand();
@@ -531,7 +519,7 @@ public class AudioProxy extends BaseProxy {
     private static class PlayInfo {
         int duration;
         int position;
-        int currentPlayState;
+        int playState;
         boolean isPlayListMode;
     }
 
@@ -550,15 +538,6 @@ public class AudioProxy extends BaseProxy {
         private int getStatus() {
             return status;
         }
-
-        public static PLAYER_STATUS getEnumByValue(int value) {
-            for (PLAYER_STATUS status : PLAYER_STATUS.values()) {
-                if (value == status.status) {
-                    return status;
-                }
-            }
-            return null;
-        }
     }
 
     //  播放状态
@@ -576,15 +555,6 @@ public class AudioProxy extends BaseProxy {
 
         private int getStatus() {
             return status;
-        }
-
-        public static PLAY_STATUS getEnumByValue(int value) {
-            for (PLAY_STATUS status : PLAY_STATUS.values()) {
-                if (value == status.status) {
-                    return status;
-                }
-            }
-            return null;
         }
     }
 
@@ -606,17 +576,17 @@ public class AudioProxy extends BaseProxy {
     public void onDeviceDisconnected(Device device) {
         super.onDeviceDisconnected(device);
         int playerState = PlayStatue.DISCONNECT;
-        int playOldState = mCurrentPlayInfo.currentPlayState;
+        int playOldState = mPlayInfo.playState;
         onPlayStopped();
         notifyOnPlayStateChanged(playOldState, playerState);
     }
 
     public interface PlayStatue {
         int INVALIDATE = -1;
-        int STOPPED = 1;
-        int TRANSITIONING = 2;
-        int PLAYING = 3;
-        int PAUSED = 4;
+        int STOPPED = PlaybackState.STATE_STOPPED;
+        int TRANSITIONING = PlaybackState.STATE_BUFFERING;
+        int PLAYING = PlaybackState.STATE_PLAYING;
+        int PAUSED = PlaybackState.STATE_PAUSED;
 
         int OK = 10;
         int PLAYER_EXIT = 11;

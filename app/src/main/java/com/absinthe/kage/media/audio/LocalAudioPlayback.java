@@ -60,10 +60,8 @@ public class LocalAudioPlayback implements Playback {
             } else {
                 mAudioSession = mMediaPlayer.getAudioSessionId();
             }
-            Log.d(TAG, "setDataSource: " + media.getFilePath());
 
             mPlayState = PlaybackState.STATE_BUFFERING;
-            Log.d(TAG, "PlayState: STATE_BUFFERING");
 
             if (mCallback != null) {
                 mCallback.onPlaybackStateChanged(mPlayState);
@@ -90,18 +88,24 @@ public class LocalAudioPlayback implements Playback {
         }
     }
 
+    @Override
     public void play() {
-        Log.d(TAG, "play");
-        tryToGetAudioFocus();
+        if (mPlayOnFocusGain) {
+            tryToGetAudioFocus();
+        }
+
         mPlayState = PlaybackState.STATE_PLAYING;
         handlePlayState();
     }
 
+    @Override
     public void pause() {
+        mPlayOnFocusGain = true;
         mPlayState = PlaybackState.STATE_PAUSED;
         handlePlayState();
     }
 
+    @Override
     public void seekTo(int position) {
         Log.d(TAG, "SeekTo: " + position);
         if (position < 0) {
@@ -116,10 +120,12 @@ public class LocalAudioPlayback implements Playback {
         }
     }
 
+    @Override
     public int getState() {
         return mPlayState;
     }
 
+    @Override
     public void stop(boolean fromUser) {
         Log.d(TAG, "stop");
         mPlayState = PlaybackState.STATE_STOPPED;
@@ -137,9 +143,10 @@ public class LocalAudioPlayback implements Playback {
             mMediaPlayer.release();
             mMediaPlayer = null;
         }
-        giveUpAudioFocus();
+        abandonAudioFocus();
     }
 
+    @Override
     public int getDuration() {
         if (mMediaPlayer == null || !isPlayOrPause()) {
             return 0;
@@ -147,6 +154,7 @@ public class LocalAudioPlayback implements Playback {
         return mMediaPlayer.getDuration();
     }
 
+    @Override
     public int getBufferPosition() {
         if (isPlayOrPause()) {
             return getDuration();
@@ -154,6 +162,7 @@ public class LocalAudioPlayback implements Playback {
         return 0;
     }
 
+    @Override
     public int getCurrentPosition() {
         if (mMediaPlayer == null || !isPlayOrPause()) {
             return 0;
@@ -161,23 +170,12 @@ public class LocalAudioPlayback implements Playback {
         return mMediaPlayer.getCurrentPosition();
     }
 
+    @Override
     public void setCallback(Callback callback) {
         mCallback = callback;
     }
 
-    private void play(boolean onAudioFocusGain) {
-        if (!onAudioFocusGain || mPlayOnFocusGain) {
-            play();
-        }
-    }
-
-    private void pause(boolean onAudioFocusLost) {
-        mPlayOnFocusGain = onAudioFocusLost;
-        pause();
-    }
-
     private void handlePlayState() {
-        Log.d(TAG, "handlePlayState");
         if (mMediaPlayer != null) {
             if (mPlayState == PlaybackState.STATE_PLAYING && !mMediaPlayer.isPlaying()) {
                 mMediaPlayer.start();
@@ -201,7 +199,7 @@ public class LocalAudioPlayback implements Playback {
             if (focusChange == AudioManager.AUDIOFOCUS_GAIN) {
                 mAudioFocus = AUDIO_FOCUSED;
                 if (mPlayState == PlaybackState.STATE_PAUSED) {
-                    play(true);
+                    play();
                 }
             } else if (focusChange == AudioManager.AUDIOFOCUS_LOSS
                     || focusChange == AudioManager.AUDIOFOCUS_LOSS_TRANSIENT
@@ -210,7 +208,7 @@ public class LocalAudioPlayback implements Playback {
                     mAudioFocus = AUDIO_NO_FOCUS_CAN_DUCK;
                 }
                 if (mPlayState == PlaybackState.STATE_PLAYING) {
-                    pause(true);
+                    pause();
                 }
             } else {
                 Log.d(TAG, "onAudioFocusChange: Ignoring unsupported focusChange: " + focusChange);
@@ -247,8 +245,8 @@ public class LocalAudioPlayback implements Playback {
         }
     }
 
-    private void giveUpAudioFocus() {
-        Log.d(TAG, "giveUpAudioFocus");
+    private void abandonAudioFocus() {
+        Log.d(TAG, "abandonAudioFocus");
         if (mAudioFocus == AUDIO_FOCUSED) {
             int result;
 
@@ -271,7 +269,7 @@ public class LocalAudioPlayback implements Playback {
 
             if (result == AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
                 mAudioFocus = AUDIO_NO_FOCUS_NO_DUCK;
-                Log.d(TAG, "giveUpAudioFocus success");
+                Log.d(TAG, "abandonAudioFocus success");
             }
         }
     }

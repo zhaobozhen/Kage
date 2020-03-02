@@ -11,6 +11,8 @@ import android.os.Looper;
 import android.os.PowerManager;
 import android.util.Log;
 
+import com.absinthe.kage.device.DeviceManager;
+import com.absinthe.kage.device.cmd.ResumePlayCommand;
 import com.absinthe.kage.media.LocalMedia;
 import com.absinthe.kage.media.PlayList;
 import com.absinthe.kage.media.Playback;
@@ -19,9 +21,10 @@ import java.util.Observable;
 
 public class AudioPlayer extends Observable implements Playback.Callback {
     public static final String TAG = AudioPlayer.class.getSimpleName();
-    public static final String EXTRA_PLAY_MODE = "EXTRA_PLAY_MODE";
     public static final int TYPE_LOCAL = 1;
     public static final int TYPE_REMOTE = 2;
+
+    private static final String EXTRA_PLAY_MODE = "EXTRA_PLAY_MODE";
 
     private static final int NOT_REPEATING = 0;
     private static final int REPEAT_ONE = 1;
@@ -36,10 +39,10 @@ public class AudioPlayer extends Observable implements Playback.Callback {
     private PlayList mPlaylist;
     private PowerManager.WakeLock mWakeLock;
     private WifiManager.WifiLock mWifiLock;
-    private int mBeforePosition = 0;
+    private int mPosition = 0;
     private int mPlayMode = REPEAT_ALL;
+    private int mPlayType = TYPE_LOCAL;
     private int mPlayState = PlaybackState.STATE_NONE;
-    private int mPlayType;
 
     public static AudioPlayer getInstance(Context context) {
         if (sInstance == null) {
@@ -67,6 +70,7 @@ public class AudioPlayer extends Observable implements Playback.Callback {
             mPlayback.stop(false);
         }
         deleteObservers();
+        
         if (mWakeLock != null && mWakeLock.isHeld()) {
             mWakeLock.release();
         }
@@ -75,6 +79,7 @@ public class AudioPlayer extends Observable implements Playback.Callback {
             mWifiLock.release();
         }
         mWifiLock = null;
+        
         sInstance = null;
         mContext = null;
     }
@@ -83,7 +88,7 @@ public class AudioPlayer extends Observable implements Playback.Callback {
         mPlayType = type;
 
         if (mPlayback != null) {
-            mBeforePosition = mPlayback.getCurrentPosition();
+            mPosition = mPlayback.getCurrentPosition();
             mPlayback.stop(true);
         }
 
@@ -104,14 +109,8 @@ public class AudioPlayer extends Observable implements Playback.Callback {
         }
     }
 
-    public void clearPlayList() {
-        if (mPlaylist != null) {
-            mPlaylist.clearPlaylist();
-        }
-    }
-
     public void playMediaList(PlayList playList) {
-        mBeforePosition = 0;
+        mPosition = 0;
         if (mWakeLock != null && mWakeLock.isHeld()) {
             mWakeLock.acquire(10 * 60 * 1000L /*10 minutes*/);
         }
@@ -142,6 +141,14 @@ public class AudioPlayer extends Observable implements Playback.Callback {
         mPlayback.pause();
         if (mWakeLock != null && mWakeLock.isHeld()) {
             mWakeLock.release();
+        }
+    }
+
+    public void resumePlay() {
+        DeviceManager deviceManager = DeviceManager.Singleton.INSTANCE.getInstance();
+
+        if (deviceManager.isConnected()) {
+            deviceManager.sendCommandToCurrentDevice(new ResumePlayCommand());
         }
     }
 
@@ -233,7 +240,7 @@ public class AudioPlayer extends Observable implements Playback.Callback {
         if (mPlayState == PlaybackState.STATE_PLAYING) {
             playNext();
         } else {
-            Log.w(TAG, "mPlayState is not playing");
+            Log.w(TAG, "PlayState is not playing");
         }
     }
 
@@ -242,10 +249,10 @@ public class AudioPlayer extends Observable implements Playback.Callback {
         if (mPlayback != null
                 && mPlayState == PlaybackState.STATE_BUFFERING
                 && state == PlaybackState.STATE_PLAYING
-                && mBeforePosition > 0) {
-            Log.d(TAG, "seekTo: " + mBeforePosition);
-            mPlayback.seekTo(mBeforePosition);
-            mBeforePosition = 0;
+                && mPosition > 0) {
+            Log.d(TAG, "Seek to: " + mPosition);
+            mPlayback.seekTo(mPosition);
+            mPosition = 0;
         }
         if (mPlayState != state) {
             updateMediaPlayState();
@@ -312,7 +319,7 @@ public class AudioPlayer extends Observable implements Playback.Callback {
     }
 
     private synchronized void playMedia(LocalMedia media) {
-        mBeforePosition = 0;
+        mPosition = 0;
         mPlayback.playMedia(media);
     }
 }

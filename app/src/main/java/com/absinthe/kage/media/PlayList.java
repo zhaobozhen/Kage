@@ -120,6 +120,7 @@ public class PlayList implements Parcelable {
         if (mList == null) {
             mList = list;
         } else {
+            mList.clear();
             mList.addAll(list);
         }
         setCurrentIndex(index);

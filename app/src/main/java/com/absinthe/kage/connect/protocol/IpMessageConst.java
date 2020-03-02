@@ -33,5 +33,6 @@ public class IpMessageConst {
     public static final int MEDIA_PLAY_AUDIO_LIST = 0x00000017;
     public static final int MEDIA_SET_AUDIO_MODE = 0x00000018;
     public static final int MEDIA_SET_PLAY_INDEX = 0x00000019;
+    public static final int MEDIA_RESUME_PLAY = 0x0000001A;
 
 }

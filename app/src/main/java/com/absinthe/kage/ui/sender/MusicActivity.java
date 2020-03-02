@@ -109,6 +109,21 @@ public class MusicActivity extends BaseActivity implements Observer {
         super.onDestroy();
     }
 
+    @Override
+    public void update(Observable o, Object arg) {
+        if (arg instanceof PlaybackState) {
+            updatePlayState((PlaybackState) arg, true);
+        } else if (arg instanceof LocalMedia) {
+            updateMediaInfo((LocalMedia) arg, true);
+        }
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        processIntent(intent);
+    }
+
     private void processIntent(Intent intent) {
         if (intent != null) {
             getMusicInfo(intent);
@@ -117,12 +132,6 @@ public class MusicActivity extends BaseActivity implements Observer {
         } else {
             finish();
         }
-    }
-
-    @Override
-    protected void onNewIntent(Intent intent) {
-        super.onNewIntent(intent);
-        processIntent(intent);
     }
 
     private void getMusicInfo(@NonNull Intent intent) {
@@ -214,12 +223,12 @@ public class MusicActivity extends BaseActivity implements Observer {
         mBinding.btnCast.setOnClickListener(v -> mAudioPlayer.setPlayerType(AudioPlayer.TYPE_REMOTE));
         mBinding.layoutControls.btnPlay.setOnClickListener(v -> {
             int state = mAudioPlayer.getPlayState();
-            if (state == PlaybackState.STATE_PLAYING) {
+            if (state == PlaybackState.STATE_PLAYING || state == PlaybackState.STATE_BUFFERING) {
                 mBinding.layoutControls.btnPlay.setIconResource(R.drawable.ic_play_arrow);
                 mAudioPlayer.pause();
-            } else if (state == PlaybackState.STATE_PAUSED || state == PlaybackState.STATE_BUFFERING) {
+            } else if (state == PlaybackState.STATE_PAUSED) {
                 mBinding.layoutControls.btnPlay.setIconResource(R.drawable.ic_pause);
-                mAudioPlayer.play();
+                mAudioPlayer.resumePlay();
             }
         });
         mBinding.layoutControls.btnPrevious.setOnClickListener(v -> {
@@ -237,19 +246,10 @@ public class MusicActivity extends BaseActivity implements Observer {
     private void initPlayer() {
         mAudioPlayer = AudioPlayer.getInstance(this);
         mAudioPlayer.setPlayerType(AudioPlayer.TYPE_LOCAL);
-        mAudioPlayer.clearPlayList();
         PlayList playList = new PlayList();
         playList.addMedia(mLocalMusic);
+        playList.setCurrentIndex(0);
         mAudioPlayer.playMediaList(playList);
-    }
-
-    @Override
-    public void update(Observable o, Object arg) {
-        if (arg instanceof PlaybackState) {
-            updatePlayState((PlaybackState) arg, true);
-        } else if (arg instanceof LocalMedia) {
-            updateMediaInfo((LocalMedia) arg, true);
-        }
     }
 
     private int updatePlayPosition() {
@@ -277,7 +277,7 @@ public class MusicActivity extends BaseActivity implements Observer {
         int state = playbackState.getState();
         Logger.d("state:",state);
         if (state == PlaybackState.STATE_BUFFERING) {
-            mBinding.layoutControls.btnPlay.setIconResource(R.drawable.ic_play_arrow);
+            mBinding.layoutControls.btnPlay.setIconResource(R.drawable.ic_pause);
         } else if (state == PlaybackState.STATE_PLAYING) {
             mHandler.post(mShowProgressTask);
             startAnimation();
@@ -317,7 +317,11 @@ public class MusicActivity extends BaseActivity implements Observer {
             if (media instanceof LocalMusic) {
                 mBinding.toolbar.tvMusicName.setText(media.getTitle());
                 mBinding.toolbar.tvArtist.setText(((LocalMusic) media).getArtist());
-                applyRouletteAndBlurBackground(MusicHelper.getAlbumArt(this, ((LocalMusic) media).getAlbumId()));
+                if (type == TYPE_SENDER) {
+                    applyRouletteAndBlurBackground(MusicHelper.getAlbumArt(this, ((LocalMusic) media).getAlbumId()));
+                } else if (type == TYPE_RECEIVER) {
+                    applyRouletteAndBlurBackground(Uri.parse(mLocalMusic.getCoverPath()));
+                }
                 mHandler.post(mShowProgressTask);
             }
             mBinding.layoutSeekBar.tvCurrentTime.setText("00:00");

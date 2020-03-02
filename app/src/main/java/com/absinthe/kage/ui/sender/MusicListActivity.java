@@ -10,7 +10,6 @@ import com.absinthe.kage.BaseActivity;
 import com.absinthe.kage.adapter.MusicListAdapter;
 import com.absinthe.kage.databinding.ActivityMusicListBinding;
 import com.absinthe.kage.media.audio.LocalMusic;
-import com.absinthe.kage.utils.Logger;
 import com.absinthe.kage.viewmodel.MusicViewModel;
 
 import java.util.ArrayList;
@@ -45,7 +44,6 @@ public class MusicListActivity extends BaseActivity {
                 Intent intent = new Intent(MusicListActivity.this, MusicActivity.class);
                 intent.putExtra(MusicActivity.EXTRA_MUSIC_INFO, localMusic);
                 intent.putExtra(MusicActivity.EXTRA_DEVICE_TYPE, MusicActivity.TYPE_SENDER);
-                Logger.d(localMusic.getAlbumId());
                 startActivity(intent);
             }
         });

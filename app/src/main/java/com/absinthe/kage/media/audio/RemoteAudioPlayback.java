@@ -67,22 +67,6 @@ public class RemoteAudioPlayback implements Playback {
         });
     }
 
-    public void playMedia(LocalMedia localMedia) {
-        if (localMedia != null) {
-            int index = mPlayList.queryMediaIndex(localMedia);
-            if (index >= 0) {
-                mAudioProxy.setPlayIndex(index);
-            }
-
-            mPlayState = PlaybackState.STATE_BUFFERING;
-
-            if (mCallback != null) {
-                mCallback.onMediaMetadataChanged(localMedia);
-                mCallback.onPlaybackStateChanged(mPlayState);
-            }
-        }
-    }
-
     public void playListMedia(PlayList playlist) {
         mPlayList = playlist;
         List<AudioInfo> audioInfos = new ArrayList<>();
@@ -107,40 +91,66 @@ public class RemoteAudioPlayback implements Playback {
         }
     }
 
+    @Override
+    public void playMedia(LocalMedia localMedia) {
+        if (localMedia != null) {
+            int index = mPlayList.queryMediaIndex(localMedia);
+            if (index >= 0) {
+                mAudioProxy.setPlayIndex(index);
+            }
+
+            mPlayState = PlaybackState.STATE_BUFFERING;
+
+            if (mCallback != null) {
+                mCallback.onMediaMetadataChanged(localMedia);
+                mCallback.onPlaybackStateChanged(mPlayState);
+            }
+        }
+    }
+
+    @Override
     public void play() {
         mPlayState = PlaybackState.STATE_PLAYING;
         handlePlayState(true);
     }
 
+    @Override
     public void pause() {
         mPlayState = PlaybackState.STATE_PAUSED;
         handlePlayState(true);
     }
 
+    @Override
     public void seekTo(int position) {
         mAudioProxy.seekTo(position);
     }
 
+    @Override
     public int getState() {
         return mPlayState;
     }
 
+    @Override
     public int getDuration() {
         return mAudioProxy.getDuration();
     }
 
+    @Override
     public int getBufferPosition() {
         return mAudioProxy.getDuration();
     }
 
+    @Override
     public int getCurrentPosition() {
         return mAudioProxy.getCurrentPosition();
     }
 
+    @Override
     public void setCallback(Callback callback) {
         mCallback = callback;
     }
 
+    @Override
     public void stop(boolean fromUser) {
         mPlayState = PlaybackState.STATE_STOPPED;
 
