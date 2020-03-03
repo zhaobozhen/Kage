@@ -16,6 +16,7 @@ import com.absinthe.kage.device.cmd.ResumePlayCommand;
 import com.absinthe.kage.media.LocalMedia;
 import com.absinthe.kage.media.PlayList;
 import com.absinthe.kage.media.Playback;
+import com.absinthe.kage.utils.Logger;
 
 import java.util.Observable;
 
@@ -325,6 +326,8 @@ public class AudioPlayer extends Observable implements Playback.Callback {
     }
 
     private synchronized void playMedia(LocalMedia media) {
+        Logger.d("localmusic:", media.getTitle());
+
         mPosition = 0;
         mPlayback.playMedia(media);
     }

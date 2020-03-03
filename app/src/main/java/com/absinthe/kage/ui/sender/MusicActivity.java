@@ -247,8 +247,12 @@ public class MusicActivity extends BaseActivity implements Observer {
         mAudioPlayer = AudioPlayer.getInstance(this);
         mAudioPlayer.setPlayerType(AudioPlayer.TYPE_LOCAL);
         PlayList playList = new PlayList();
-        playList.addMedia(mLocalMusic);
-        playList.setCurrentIndex(0);
+
+        for (LocalMedia localMedia : MusicListActivity.sMusicList) {
+            playList.addMedia(localMedia);
+        }
+        playList.setCurrentIndex(MusicListActivity.sMusicList.indexOf(mLocalMusic));
+
         mAudioPlayer.playMediaList(playList);
     }
 
@@ -299,9 +303,6 @@ public class MusicActivity extends BaseActivity implements Observer {
         } else {
             mBinding.layoutControls.btnNext.setEnabled(false);
         }
-        //Todo Will be deleted
-        mBinding.layoutControls.btnNext.setEnabled(false);
-        mBinding.layoutControls.btnPrevious.setEnabled(false);
 
         if (isNotify && state == PlaybackState.STATE_STOPPED) {
             finish();
@@ -312,7 +313,7 @@ public class MusicActivity extends BaseActivity implements Observer {
     private void updateMediaInfo(LocalMedia media, boolean isNotify) {
         if (media != null) {
             if (isNotify) {
-                stopAnimation();
+//                stopAnimation();
             }
             if (media instanceof LocalMusic) {
                 mBinding.toolbar.tvMusicName.setText(media.getTitle());
