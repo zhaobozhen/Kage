@@ -7,7 +7,6 @@ import android.provider.MediaStore;
 import android.text.TextUtils;
 
 import com.absinthe.kage.media.LocalMedia;
-import com.absinthe.kage.utils.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,7 +27,6 @@ public class MusicHelper {
                 int artistId = cursor.getInt(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ARTIST_ID));
 
                 if (!(TextUtils.isEmpty(title))) {
-                    Logger.d("Title: ", title, "path: ", path);
                     LocalMusic music = new LocalMusic();
                     music.setTitle(title);
                     music.setAlbum(album);
