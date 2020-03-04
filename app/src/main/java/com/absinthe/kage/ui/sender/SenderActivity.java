@@ -10,6 +10,7 @@ import androidx.annotation.Nullable;
 import com.absinthe.kage.BaseActivity;
 import com.absinthe.kage.R;
 import com.absinthe.kage.connect.proxy.ImageProxy;
+import com.absinthe.kage.connect.proxy.VideoProxy;
 import com.absinthe.kage.databinding.ActivitySenderBinding;
 import com.absinthe.kage.device.DeviceManager;
 import com.absinthe.kage.ui.connect.ConnectActivity;
@@ -25,7 +26,7 @@ public class SenderActivity extends BaseActivity {
     private static final String TAG = SenderActivity.class.getSimpleName();
     private static final int REQUEST_CODE_CHOOSE = 1001;
     private ActivitySenderBinding binding;
-    private OnChooseItemListener mListener;
+    private OnChooseItemListener mImageListener, mVideoListener;
     private final RxPermissions rxPermissions = new RxPermissions(this);
 
     @Override
@@ -44,7 +45,7 @@ public class SenderActivity extends BaseActivity {
     }
 
     private void initView() {
-        mListener = new OnChooseItemListener() {
+        mImageListener = new OnChooseItemListener() {
             @Override
             public void onChoose(String itemUri) {
                 if (DeviceManager.Singleton.INSTANCE.getInstance().isConnected()) {
@@ -76,6 +77,38 @@ public class SenderActivity extends BaseActivity {
             }
         };
 
+        mVideoListener = new OnChooseItemListener() {
+            @Override
+            public void onChoose(String itemUri) {
+                if (DeviceManager.Singleton.INSTANCE.getInstance().isConnected()) {
+                    VideoProxy.getInstance().play(null);
+                } else {
+                    startActivity(new Intent(SenderActivity.this, ConnectActivity.class));
+                    finish();
+                }
+            }
+
+            @Override
+            public void onStop() {
+                if (DeviceManager.Singleton.INSTANCE.getInstance().isConnected()) {
+                    VideoProxy.getInstance().stop();
+                } else {
+                    startActivity(new Intent(SenderActivity.this, ConnectActivity.class));
+                    finish();
+                }
+            }
+
+            @Override
+            public void onPreview() {
+                Log.d(TAG, "onPreview()");
+            }
+
+            @Override
+            public void onNext() {
+                Log.d(TAG, "onNext()");
+            }
+        };
+
         binding.btnCastImage.setOnClickListener(v ->
                 rxPermissions.request(Manifest.permission.READ_EXTERNAL_STORAGE)
                         .subscribe(grant -> {
@@ -85,7 +118,23 @@ public class SenderActivity extends BaseActivity {
                                         .countable(false)
                                         .maxSelectable(1)
                                         .theme(com.zhihu.matisse.R.style.Matisse_Dracula)
-                                        .setOnChooseItemListener(mListener)
+                                        .setOnChooseItemListener(mImageListener)
+                                        .imageEngine(new GlideEngine())
+                                        .forResult(REQUEST_CODE_CHOOSE);
+                            } else {
+                                ToastUtil.makeText(R.string.toast_grant_storage_perm);
+                            }
+                        }));
+        binding.btnCastVideo.setOnClickListener(v ->
+                rxPermissions.request(Manifest.permission.READ_EXTERNAL_STORAGE)
+                        .subscribe(grant -> {
+                            if (grant) {
+                                Matisse.from(SenderActivity.this)
+                                        .choose(MimeType.ofVideo())
+                                        .countable(false)
+                                        .maxSelectable(1)
+                                        .theme(com.zhihu.matisse.R.style.Matisse_Dracula)
+                                        .setOnChooseItemListener(mVideoListener)
                                         .imageEngine(new GlideEngine())
                                         .forResult(REQUEST_CODE_CHOOSE);
                             } else {

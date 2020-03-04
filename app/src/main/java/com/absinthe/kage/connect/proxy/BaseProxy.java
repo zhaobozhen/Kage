@@ -4,7 +4,8 @@ import com.absinthe.kage.connect.IProxy;
 import com.absinthe.kage.device.Device;
 
 public class BaseProxy implements IProxy {
-    protected Device mDevice;
+
+    Device mDevice;
 
     @Override
     public void onDeviceConnected(Device device) {

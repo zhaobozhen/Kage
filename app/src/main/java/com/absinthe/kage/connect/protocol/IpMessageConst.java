@@ -26,7 +26,7 @@ public class IpMessageConst {
     public static final int MEDIA_SEEK_TO = 0x00000010; //Media seek to position
     public static final int MEDIA_GET_DURATION = 0x00000011;    //Get media duration
     public static final int RESPONSE_SET_PLAYBACK_PROGRESS = 0x00000012; //Set media playback progress
-    public static final int RESPONSE_SET_AUDIO_DURATION = 0x00000013;   //Set audio duration
+    public static final int RESPONSE_SET_MEDIA_DURATION = 0x00000013;   //Set media duration
     public static final int RESPONSE_PLAYING_INDEX = 0x00000014;
     public static final int RESPONSE_SET_AUDIO_MODE = 0x00000015;
     public static final int MEDIA_GET_PLAYING_POSITION = 0x00000016;
@@ -34,5 +34,6 @@ public class IpMessageConst {
     public static final int MEDIA_SET_AUDIO_MODE = 0x00000018;
     public static final int MEDIA_SET_PLAY_INDEX = 0x00000019;
     public static final int MEDIA_RESUME_PLAY = 0x0000001A;
+    public static final int MEDIA_VIDEO_INFO = 0x0000001B;  //Get video info like URI etc.
 
 }

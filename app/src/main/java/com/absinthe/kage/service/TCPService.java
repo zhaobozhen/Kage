@@ -17,6 +17,7 @@ import com.absinthe.kage.R;
 import com.absinthe.kage.connect.protocol.Config;
 import com.absinthe.kage.connect.proxy.AudioProxy;
 import com.absinthe.kage.connect.proxy.ImageProxy;
+import com.absinthe.kage.connect.proxy.VideoProxy;
 import com.absinthe.kage.device.DeviceManager;
 import com.absinthe.kage.device.client.Client;
 import com.absinthe.kage.device.server.KageServer;
@@ -101,11 +102,13 @@ public class TCPService extends LifecycleService {
     private void addProxy(DeviceManager deviceManager) {
         deviceManager.addProxy(ImageProxy.getInstance());
         deviceManager.addProxy(AudioProxy.getInstance());
+        deviceManager.addProxy(VideoProxy.getInstance());
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
     private void removeProxy(DeviceManager deviceManager) {
         deviceManager.removeProxy(ImageProxy.getInstance());
         deviceManager.removeProxy(AudioProxy.getInstance());
+        deviceManager.removeProxy(VideoProxy.getInstance());
     }
 }

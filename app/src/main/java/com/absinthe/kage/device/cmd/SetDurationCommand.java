@@ -13,7 +13,7 @@ public class SetDurationCommand extends Command {
     public int duration;
 
     public SetDurationCommand() {
-        cmd = IpMessageConst.RESPONSE_SET_AUDIO_DURATION;
+        cmd = IpMessageConst.RESPONSE_SET_MEDIA_DURATION;
     }
 
     @Override

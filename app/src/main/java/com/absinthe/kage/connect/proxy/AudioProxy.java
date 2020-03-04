@@ -260,7 +260,7 @@ public class AudioProxy extends BaseProxy {
                         mPlayInfo.position = position;
                         notifyOnCurrentPositionChanged(mPlayInfo);
                         break;
-                    case IpMessageConst.RESPONSE_SET_AUDIO_DURATION:
+                    case IpMessageConst.RESPONSE_SET_MEDIA_DURATION:
                         int duration = Integer.parseInt(split[1]);
                         if (duration <= 0 || mPlayInfo == null) {
                             break;
