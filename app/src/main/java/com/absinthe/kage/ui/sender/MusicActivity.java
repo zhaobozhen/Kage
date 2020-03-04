@@ -25,7 +25,6 @@ import androidx.annotation.Nullable;
 
 import com.absinthe.kage.BaseActivity;
 import com.absinthe.kage.R;
-import com.absinthe.kage.connect.Const;
 import com.absinthe.kage.databinding.ActivityMusicBinding;
 import com.absinthe.kage.device.DeviceManager;
 import com.absinthe.kage.device.DeviceObserverImpl;
@@ -41,7 +40,6 @@ import com.absinthe.kage.utils.Logger;
 import com.absinthe.kage.utils.StorageUtils;
 import com.blankj.utilcode.util.ImageUtils;
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.target.CustomTarget;
 import com.bumptech.glide.request.transition.Transition;
 
@@ -82,6 +80,7 @@ public class MusicActivity extends BaseActivity implements Observer {
         setContentView(mBinding.getRoot());
 
         initListener();
+        initView();
 
         processIntent(getIntent());
     }
@@ -89,7 +88,7 @@ public class MusicActivity extends BaseActivity implements Observer {
     @Override
     protected void onResume() {
         super.onResume();
-        updateMediaInfo(mAudioPlayer.getCurrentMedia(), false);
+        updateMediaInfo(mAudioPlayer.getCurrentMedia());
         updatePlayState(mAudioPlayer.getPlaybackState(), false);
         mAudioPlayer.addObserver(this);
     }
@@ -114,7 +113,7 @@ public class MusicActivity extends BaseActivity implements Observer {
         if (arg instanceof PlaybackState) {
             updatePlayState((PlaybackState) arg, true);
         } else if (arg instanceof LocalMedia) {
-            updateMediaInfo((LocalMedia) arg, true);
+            updateMediaInfo((LocalMedia) arg);
         }
     }
 
@@ -127,7 +126,6 @@ public class MusicActivity extends BaseActivity implements Observer {
     private void processIntent(Intent intent) {
         if (intent != null) {
             getMusicInfo(intent);
-            initView();
             initPlayer();
         } else {
             finish();
@@ -138,8 +136,6 @@ public class MusicActivity extends BaseActivity implements Observer {
         LocalMusic localMusic = intent.getParcelableExtra(EXTRA_MUSIC_INFO);
         if (localMusic != null) {
             mLocalMusic = localMusic;
-            mBinding.toolbar.tvMusicName.setText(mLocalMusic.getTitle());
-            mBinding.toolbar.tvArtist.setText(mLocalMusic.getArtist());
         }
 
         type = intent.getIntExtra(EXTRA_DEVICE_TYPE, TYPE_NONE);
@@ -168,12 +164,6 @@ public class MusicActivity extends BaseActivity implements Observer {
         window.setStatusBarColor(Color.TRANSPARENT);
         window.setNavigationBarColor(Color.TRANSPARENT);
 
-        if (type == TYPE_SENDER) {
-            applyRouletteAndBlurBackground(MusicHelper.getAlbumArt(this, mLocalMusic.getAlbumId()));
-        } else if (type == TYPE_RECEIVER) {
-            Logger.d(mLocalMusic.getCoverPath());
-            applyRouletteAndBlurBackground(Uri.parse(mLocalMusic.getCoverPath()));
-        }
         mBinding.toolbar.ibConnect.setSelected(mDeviceManager.isConnected());
         initAnimator();
     }
@@ -220,7 +210,13 @@ public class MusicActivity extends BaseActivity implements Observer {
                 }
             }
         });
-        mBinding.btnCast.setOnClickListener(v -> mAudioPlayer.setPlayerType(AudioPlayer.TYPE_REMOTE));
+        mBinding.btnCast.setOnClickListener(v -> {
+            if (DeviceManager.Singleton.INSTANCE.getInstance().isConnected()) {
+                mAudioPlayer.setPlayerType(AudioPlayer.TYPE_REMOTE);
+            } else {
+                startActivity(new Intent(MusicActivity.this, ConnectActivity.class));
+            }
+        });
         mBinding.layoutControls.btnPlay.setOnClickListener(v -> {
             int state = mAudioPlayer.getPlayState();
             if (state == PlaybackState.STATE_PLAYING || state == PlaybackState.STATE_BUFFERING) {
@@ -246,14 +242,18 @@ public class MusicActivity extends BaseActivity implements Observer {
     private void initPlayer() {
         mAudioPlayer = AudioPlayer.getInstance(this);
         mAudioPlayer.setPlayerType(AudioPlayer.TYPE_LOCAL);
-        PlayList playList = new PlayList();
+        mAudioPlayer.playMedia(mLocalMusic);
 
-        for (LocalMedia localMedia : MusicListActivity.sMusicList) {
-            playList.addMedia(localMedia);
+        if (type == TYPE_SENDER) {
+            PlayList playList = new PlayList();
+
+            for (LocalMedia localMedia : MusicListActivity.sMusicList) {
+                playList.addMedia(localMedia);
+            }
+            playList.setCurrentIndex(MusicListActivity.sMusicList.indexOf(mLocalMusic));
+
+            mAudioPlayer.playMediaList(playList);
         }
-        playList.setCurrentIndex(MusicListActivity.sMusicList.indexOf(mLocalMusic));
-
-        mAudioPlayer.playMediaList(playList);
     }
 
     private int updatePlayPosition() {
@@ -310,18 +310,15 @@ public class MusicActivity extends BaseActivity implements Observer {
     }
 
     @SuppressLint("SetTextI18n")
-    private void updateMediaInfo(LocalMedia media, boolean isNotify) {
+    private void updateMediaInfo(LocalMedia media) {
         if (media != null) {
-            if (isNotify) {
-//                stopAnimation();
-            }
             if (media instanceof LocalMusic) {
                 mBinding.toolbar.tvMusicName.setText(media.getTitle());
                 mBinding.toolbar.tvArtist.setText(((LocalMusic) media).getArtist());
                 if (type == TYPE_SENDER) {
-                    applyRouletteAndBlurBackground(MusicHelper.getAlbumArt(this, ((LocalMusic) media).getAlbumId()));
+                    applyRouletteAndBlurBackground(((LocalMusic) media).getAlbumId());
                 } else if (type == TYPE_RECEIVER) {
-                    applyRouletteAndBlurBackground(Uri.parse(mLocalMusic.getCoverPath()));
+                    applyRouletteAndBlurBackground(Uri.parse(((LocalMusic) media).getCoverPath()));
                 }
                 mHandler.post(mShowProgressTask);
             }
@@ -330,11 +327,10 @@ public class MusicActivity extends BaseActivity implements Observer {
         }
     }
 
-    private void applyRouletteAndBlurBackground(Uri uri) {
+    private void applyRouletteAndBlurBackground(int albumId) {
         Glide.with(this)
                 .asBitmap()
-                .load(uri)
-                .diskCacheStrategy(DiskCacheStrategy.NONE)
+                .load(MusicHelper.getAlbumArt(this, albumId))
                 .into(new CustomTarget<Bitmap>() {
                     @Override
                     public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
@@ -357,13 +353,48 @@ public class MusicActivity extends BaseActivity implements Observer {
 
                         mBinding.ivBackground.setImageBitmap(result);
 
-                        if (type == TYPE_SENDER) {
-                            saveAlbumBitmap(resource);
-                        }
+                        saveAlbumBitmap(resource, albumId);
 
                         Glide.with(getApplicationContext())
                                 .load(resource)
-                                .diskCacheStrategy(DiskCacheStrategy.NONE)
+                                .into(mBinding.musicRoulette);
+                    }
+
+                    @Override
+                    public void onLoadCleared(@Nullable Drawable placeholder) {
+
+                    }
+                });
+    }
+
+    private void applyRouletteAndBlurBackground(Uri uri) {
+        Glide.with(this)
+                .asBitmap()
+                .load(uri)
+                .into(new CustomTarget<Bitmap>() {
+                    @Override
+                    public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
+                        Bitmap result = ImageUtils.renderScriptBlur(resource, 25);
+
+                        ColorMatrix cMatrix = new ColorMatrix();
+                        int brightness = -70;
+                        cMatrix.set(new float[] {
+                                1, 0, 0, 0, brightness,
+                                0, 1, 0, 0, brightness,
+                                0, 0, 1, 0, brightness,
+                                0, 0, 0, 1, 0 });
+
+                        Paint paint = new Paint();
+                        paint.setColorFilter(new ColorMatrixColorFilter(cMatrix));
+
+                        Canvas canvas = new Canvas(result);
+                        // 在 Canvas 上绘制一个已经存在的 Bitmap
+                        canvas.drawBitmap(result, 0, 0, paint);
+
+                        mBinding.ivBackground.setImageBitmap(result);
+
+                        Glide.with(getApplicationContext())
+                                .load(resource)
                                 .into(mBinding.musicRoulette);
                     }
 
@@ -414,8 +445,8 @@ public class MusicActivity extends BaseActivity implements Observer {
         }
     }
 
-    private void saveAlbumBitmap(Bitmap bitmap) {
-        File file = new File(getExternalFilesDir(null), Const.albumName);
+    private void saveAlbumBitmap(Bitmap bitmap, int albumId) {
+        File file = new File(getExternalCacheDir(), albumId + ".png");
         StorageUtils.saveBitmap(bitmap, file);
     }
 }

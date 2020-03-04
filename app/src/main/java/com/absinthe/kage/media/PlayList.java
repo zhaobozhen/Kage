@@ -4,8 +4,6 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.Log;
 
-import com.absinthe.kage.utils.Logger;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -64,7 +62,7 @@ public class PlayList implements Parcelable {
     }
 
     public LocalMedia getPreviousMedia(boolean isRepeat, boolean isShuffled) {
-        if (mList == null || !hasPreviousMedia()) {
+        if (mList == null || !hasPreviousMedia() || mCurrentIndex == -1) {
             return null;
         }
 
@@ -72,11 +70,9 @@ public class PlayList implements Parcelable {
             double size = mList.size();
             double random = Math.random();
             mCurrentIndex = (int) (size * random);
-        } else {
+        } else if (mCurrentIndex != 0) {
             mCurrentIndex--;
-        }
-
-        if (!isRepeat) {
+        } else if (!isRepeat) {
             return null;
         } else {
             mCurrentIndex = mList.size() - 1;
@@ -101,8 +97,6 @@ public class PlayList implements Parcelable {
         } else {
             mCurrentIndex = 0;
         }
-
-        Logger.d("mCurrentIndex=", mCurrentIndex);
 
         return mList.get(mCurrentIndex);
     }

@@ -55,7 +55,7 @@ public class PlayAudioListCommand extends Command {
                         localMusic.setAlbum(audioInfo.getAlbum());
                         localMusic.setFilePath(String.format(Const.HTTP_SERVER_FORMAT, ip) + audioInfo.getUrl());
                         localMusic.setCoverPath(String.format(Const.HTTP_SERVER_FORMAT, ip)
-                                + client.getContext().getExternalFilesDir(null) + File.separator + Const.albumName);
+                                + client.getContext().getExternalCacheDir() + File.separator + localMusic.getAlbumId() + ".png");
 
                         Intent intent = new Intent(client.getContext(), MusicActivity.class);
                         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);

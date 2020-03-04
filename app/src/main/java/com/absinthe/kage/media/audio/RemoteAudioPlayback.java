@@ -1,14 +1,19 @@
 package com.absinthe.kage.media.audio;
 
 import android.media.session.PlaybackState;
+import android.text.TextUtils;
 import android.util.Log;
 
+import com.absinthe.kage.KageApplication;
+import com.absinthe.kage.connect.Const;
 import com.absinthe.kage.connect.proxy.AudioProxy;
 import com.absinthe.kage.device.model.AudioInfo;
 import com.absinthe.kage.media.LocalMedia;
 import com.absinthe.kage.media.PlayList;
 import com.absinthe.kage.media.Playback;
+import com.absinthe.kage.utils.NetUtils;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -93,12 +98,21 @@ public class RemoteAudioPlayback implements Playback {
 
     @Override
     public void playMedia(LocalMedia localMedia) {
-        if (localMedia != null) {
-            int index = mPlayList.queryMediaIndex(localMedia);
-            if (index >= 0) {
-                mAudioProxy.setPlayIndex(index);
+        if (localMedia instanceof LocalMusic) {
+            AudioInfo info = new AudioInfo();
+            info.setName(localMedia.getTitle());
+            info.setUrl(localMedia.getUrl());
+            info.setArtist(((LocalMusic) localMedia).getArtist());
+            info.setAlbum(((LocalMusic) localMedia).getAlbum());
+
+            String ip = NetUtils.getLocalAddress();
+            if (!TextUtils.isEmpty(ip)) {
+                info.setCoverPath(String.format(Const.HTTP_SERVER_FORMAT, ip)
+                        + KageApplication.sContext.getExternalCacheDir()
+                        + File.separator + ((LocalMusic) localMedia).getAlbumId() + ".png");
             }
 
+            mAudioProxy.play(info);
             mPlayState = PlaybackState.STATE_BUFFERING;
 
             if (mCallback != null) {

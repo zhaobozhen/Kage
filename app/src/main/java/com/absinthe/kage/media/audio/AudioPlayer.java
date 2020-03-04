@@ -16,7 +16,6 @@ import com.absinthe.kage.device.cmd.ResumePlayCommand;
 import com.absinthe.kage.media.LocalMedia;
 import com.absinthe.kage.media.PlayList;
 import com.absinthe.kage.media.Playback;
-import com.absinthe.kage.utils.Logger;
 
 import java.util.Observable;
 
@@ -96,18 +95,18 @@ public class AudioPlayer extends Observable implements Playback.Callback {
         if (type == TYPE_LOCAL) {
             mPlayback = new LocalAudioPlayback(mContext);
             mPlayback.setCallback(this);
-
-            if (mPlaylist != null) {
-                mPlayback.playMedia(mPlaylist.getCurrentMedia());
-            }
         } else if (type == TYPE_REMOTE) {
             mPlayback = new RemoteAudioPlayback();
             mPlayback.setCallback(this);
-
-            if (mPlaylist != null) {
-                ((RemoteAudioPlayback) mPlayback).playListMedia(mPlaylist);
-            }
         }
+        if (mPlayback != null && mPlaylist != null) {
+            mPlayback.playMedia(mPlaylist.getCurrentMedia());
+        }
+    }
+
+    public synchronized void playMedia(LocalMedia media) {
+        mPosition = 0;
+        mPlayback.playMedia(media);
     }
 
     public void playMediaList(PlayList playList) {
@@ -323,13 +322,6 @@ public class AudioPlayer extends Observable implements Playback.Callback {
             return mPlayState == PlaybackState.STATE_PLAYING || mPlayState == PlaybackState.STATE_PAUSED;
         }
         return false;
-    }
-
-    private synchronized void playMedia(LocalMedia media) {
-        Logger.d("localmusic:", media.getTitle());
-
-        mPosition = 0;
-        mPlayback.playMedia(media);
     }
 }
 
