@@ -11,7 +11,6 @@ import com.absinthe.kage.device.CommandBuilder;
 import com.absinthe.kage.device.client.Client;
 import com.absinthe.kage.media.audio.LocalMusic;
 import com.absinthe.kage.ui.sender.MusicActivity;
-import com.absinthe.kage.utils.Logger;
 
 public class AudioInfoCommand extends Command {
 
@@ -65,7 +64,6 @@ public class AudioInfoCommand extends Command {
     @Override
     public boolean parseReceived(String received) {
         String[] splits = received.split(IpMessageProtocol.DELIMITER);
-        Logger.d("splits.length=",splits.length);
         if (splits.length == LENGTH) {
             url = splits[1];
             name = splits[2];

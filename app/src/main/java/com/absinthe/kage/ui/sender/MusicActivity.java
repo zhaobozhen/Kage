@@ -265,8 +265,6 @@ public class MusicActivity extends BaseActivity implements Observer {
         int buffer = mAudioPlayer.getBufferPosition();
         mBinding.layoutSeekBar.seekBar.setMax(max);
 
-        Logger.d("max=",max);
-
         if (isSeekBarTouch) {
             isSeekBarTouch = false;
         } else {
@@ -314,8 +312,6 @@ public class MusicActivity extends BaseActivity implements Observer {
     @SuppressLint("SetTextI18n")
     private void updateMediaInfo(LocalMedia media) {
         if (media != null) {
-            Logger.d(media.getDuration());
-
             if (media instanceof LocalMusic) {
                 mBinding.toolbar.tvMusicName.setText(media.getTitle());
                 mBinding.toolbar.tvArtist.setText(((LocalMusic) media).getArtist());
