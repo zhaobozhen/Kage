@@ -32,5 +32,5 @@
     <string name="toast_grant_storage_perm">请授权存储权限</string>
     <string name="music_list_label">音乐列表</string>
     <string name="about_label">关于</string>
-    <string name="btn_cast_to_device">tou\'she\'dao\'she\'bei</string>
+    <string name="btn_cast_to_device">投射到设备</string>
 </resources>
