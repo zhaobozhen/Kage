@@ -69,8 +69,7 @@
             android:name=".ui.sender.MusicListActivity"
             android:label="@string/music_list_label"
             android:launchMode="singleTask"
-            android:configChanges="orientation|screenSize"
-            android:parentActivityName=".ui.sender.SenderActivity" />
+            android:configChanges="orientation|screenSize" />
 
         <uses-library
             android:name="org.apache.http.legacy"

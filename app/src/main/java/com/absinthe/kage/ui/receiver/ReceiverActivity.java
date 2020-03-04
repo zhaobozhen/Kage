@@ -5,7 +5,6 @@ import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 
@@ -92,14 +91,5 @@ public class ReceiverActivity extends BaseActivity {
 
     private void hideLoading() {
         AnimationUtil.showAndHiddenAnimation(binding.layoutLoading.getRoot(), AnimationUtil.AnimationState.STATE_GONE, 300);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        if (item.getItemId() == android.R.id.home) {
-            finish();
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
     }
 }

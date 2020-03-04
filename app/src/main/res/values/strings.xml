@@ -5,6 +5,7 @@
     <string name="sender_label">Cast</string>
     <string name="receiver_label">Receiver</string>
     <string name="music_list_label">Music List</string>
+    <string name="about_label">About</string>
 
     <!--  Connect  -->
     <string name="connect_empty_list">Empty List</string>
@@ -31,4 +32,8 @@
     <!--  Toast  -->
     <string name="toast_connected">Connected</string>
     <string name="toast_grant_storage_perm">Please grant Storage permissions</string>
+
+    <!--  Music  -->
+    <string name="btn_cast_to_device">Cast to Device</string>
+
 </resources>

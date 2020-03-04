@@ -2,7 +2,10 @@ package com.absinthe.kage.ui.sender;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.MenuItem;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBar;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
@@ -47,6 +50,11 @@ public class MusicListActivity extends BaseActivity {
                 startActivity(intent);
             }
         });
+
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setDisplayHomeAsUpEnabled(true);
+        }
     }
 
     private void initData() {
@@ -59,5 +67,14 @@ public class MusicListActivity extends BaseActivity {
 
         mBinding.srlContainer.setRefreshing(true);
         mViewModel.loadMusic(this);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {
+            finish();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 }
