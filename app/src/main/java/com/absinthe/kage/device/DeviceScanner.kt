@@ -41,76 +41,79 @@ class DeviceScanner {
             mUDP = UDP(mConfig!!.localHost, mConfig!!.broadcastMonitorPort)
         }
 
-        mUDP?.startReceive { ip: String, port: Int, data: String ->
-            val ipMessage: IpMessageProtocol
-            ipMessage = try {
-                IpMessageProtocol(data)
-            } catch (e: NumberFormatException) {
-                Log.e(TAG, "Parse UDP data error: $e")
-                return@startReceive
-            }
-
-            val cmd = 0x000000FF and ipMessage.cmd
-            var device = mDevices[ip]
-            when (cmd) {
-                IpMessageConst.IP_MSG_BR_EXIT -> if (device != null && !device.isConnected) {
-                    mDevices.remove(ip)
-                    mScanCallback?.onDeviceOffline(device)
+        mUDP?.startReceive(object : UDP.IUDPCallback {
+            override fun onReceive(ip: String, port: Int, data: String) {
+                val ipMessage: IpMessageProtocol
+                ipMessage = try {
+                    IpMessageProtocol(data)
+                } catch (e: NumberFormatException) {
+                    Log.e(TAG, "Parse UDP data error: $e")
+                    return
                 }
-                IpMessageConst.IP_MSG_BR_ENTRY -> {
-                    Log.d(TAG, "IP_MSG_BR_ENTRY")
-                    val ipMsgSend = IpMessageProtocol()
-                    ipMsgSend.version = IpMessageConst.VERSION.toString()
-                    ipMsgSend.senderName = mConfig!!.name
-                    ipMsgSend.cmd = IpMessageConst.IP_MSG_ANS_ENTRY // 回送报文命令
-                    ipMsgSend.additionalSection = mConfig!!.uuid
-                    mUDP?.notify(ipMsgSend, ip, port)
-                }
-                IpMessageConst.IP_MSG_ANS_ENTRY -> {
-                    Log.d(TAG, "IP_MSG_ANS_ENTRY")
-                    if (device == null) {
-                        val protocolVersion = ipMessage.version
-                        device = Device(mConfig, protocolVersion)
-                        device.ip = ip
-                        device.name = ipMessage.senderName
-                        val additionalSection = ipMessage.additionalSection
-                        val userInfo = additionalSection?.split(IpMessageProtocol.DELIMITER)?.toTypedArray()
 
-                        if (userInfo != null) {
-                            if (userInfo.isEmpty()) {
-                                device.name = ipMessage.senderName
-                            }
-                        }
-                        if (userInfo != null) {
-                            if (userInfo.size >= 2) {
-                                device.functionCode = userInfo[1]
-                            }
-                        }
-                        mDevices[ip] = device
-                        mScanCallback?.onDeviceOnline(device)
-                    } else if (isDeviceInfoChanged(ipMessage, device)) {
-                        device.name = ipMessage.senderName
-                        val additionalSection = ipMessage.additionalSection
-                        val userInfo = additionalSection?.split(IpMessageProtocol.DELIMITER)?.toTypedArray()
-                        if (userInfo != null) {
-                            if (userInfo.isEmpty()) {
-                                device.name = ipMessage.senderName
-                            }
-                        }
-                        if (userInfo != null) {
-                            if (userInfo.size >= 2) {
-                                device.functionCode = userInfo[1]
-                            }
-                        }
-                        mScanCallback?.onDeviceInfoChanged(device)
+                val cmd = 0x000000FF and ipMessage.cmd
+                var device = mDevices[ip]
+                when (cmd) {
+                    IpMessageConst.IP_MSG_BR_EXIT -> if (device != null && !device.isConnected) {
+                        mDevices.remove(ip)
+                        mScanCallback?.onDeviceOffline(device)
                     }
-                    mScanCallback?.onDeviceNotice(device)
-                    updateOnlineTime(device)
-                }
-                else -> {
+                    IpMessageConst.IP_MSG_BR_ENTRY -> {
+                        Log.d(TAG, "IP_MSG_BR_ENTRY")
+                        val ipMsgSend = IpMessageProtocol()
+                        ipMsgSend.version = IpMessageConst.VERSION.toString()
+                        ipMsgSend.senderName = mConfig!!.name
+                        ipMsgSend.cmd = IpMessageConst.IP_MSG_ANS_ENTRY // 回送报文命令
+                        ipMsgSend.additionalSection = mConfig!!.uuid
+                        mUDP?.notify(ipMsgSend, ip, port)
+                    }
+                    IpMessageConst.IP_MSG_ANS_ENTRY -> {
+                        Log.d(TAG, "IP_MSG_ANS_ENTRY")
+                        if (device == null) {
+                            val protocolVersion = ipMessage.version
+                            device = Device(mConfig, protocolVersion)
+                            device.ip = ip
+                            device.name = ipMessage.senderName
+                            val additionalSection = ipMessage.additionalSection
+                            val userInfo = additionalSection?.split(IpMessageProtocol.DELIMITER)?.toTypedArray()
+
+                            if (userInfo != null) {
+                                if (userInfo.isEmpty()) {
+                                    device.name = ipMessage.senderName
+                                }
+                            }
+                            if (userInfo != null) {
+                                if (userInfo.size >= 2) {
+                                    device.functionCode = userInfo[1]
+                                }
+                            }
+                            mDevices[ip] = device
+                            mScanCallback?.onDeviceOnline(device)
+                        } else if (isDeviceInfoChanged(ipMessage, device)) {
+                            device.name = ipMessage.senderName
+                            val additionalSection = ipMessage.additionalSection
+                            val userInfo = additionalSection?.split(IpMessageProtocol.DELIMITER)?.toTypedArray()
+                            if (userInfo != null) {
+                                if (userInfo.isEmpty()) {
+                                    device.name = ipMessage.senderName
+                                }
+                            }
+                            if (userInfo != null) {
+                                if (userInfo.size >= 2) {
+                                    device.functionCode = userInfo[1]
+                                }
+                            }
+                            mScanCallback?.onDeviceInfoChanged(device)
+                        }
+                        mScanCallback?.onDeviceNotice(device)
+                        updateOnlineTime(device)
+                    }
+                    else -> {
+                    }
                 }
             }
-        }
+
+        })
         synchronized(LOCK) {
             mNoticeOnlineThread?.isStopped = true
             mNoticeOnlineThread?.interrupt()
