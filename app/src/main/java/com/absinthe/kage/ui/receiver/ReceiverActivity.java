@@ -11,7 +11,7 @@ import android.view.Window;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.absinthe.anywhere_.utils.AnimationUtil;
+import com.absinthe.kage.utils.AnimationUtil;
 import com.absinthe.kage.BaseActivity;
 import com.absinthe.kage.databinding.ActivityReceiverBinding;
 import com.bumptech.glide.Glide;

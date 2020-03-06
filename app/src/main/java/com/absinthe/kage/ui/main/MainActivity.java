@@ -45,7 +45,7 @@ public class MainActivity extends BaseActivity {
 
     private void initView() {
         binding.btnSend.setOnClickListener(v -> {
-            if (DeviceManager.Singleton.INSTANCE.getInstance().isConnected() || !Settings.isDeviceNecessary()) {
+            if (DeviceManager.Singleton.INSTANCE.getInstance().isConnected() || !Settings.getDeviceNecessary()) {
                 startActivity(new Intent(MainActivity.this, SenderActivity.class));
             } else {
                 startActivity(new Intent(MainActivity.this, ConnectActivity.class));
