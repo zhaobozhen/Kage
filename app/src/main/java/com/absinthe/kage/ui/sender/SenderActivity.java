@@ -5,14 +5,13 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 
-import androidx.annotation.Nullable;
-
 import com.absinthe.kage.BaseActivity;
 import com.absinthe.kage.R;
 import com.absinthe.kage.connect.proxy.ImageProxy;
 import com.absinthe.kage.databinding.ActivitySenderBinding;
 import com.absinthe.kage.device.DeviceManager;
 import com.absinthe.kage.ui.connect.ConnectActivity;
+import com.absinthe.kage.ui.media.VideoActivity;
 import com.absinthe.kage.utils.ToastUtil;
 import com.tbruyelle.rxpermissions2.RxPermissions;
 import com.zhihu.matisse.Matisse;
@@ -25,7 +24,7 @@ public class SenderActivity extends BaseActivity {
     private static final String TAG = SenderActivity.class.getSimpleName();
     private static final int REQUEST_CODE_CHOOSE = 1001;
     private ActivitySenderBinding binding;
-    private OnChooseItemListener mListener;
+    private OnChooseItemListener mImageListener, mVideoListener;
     private final RxPermissions rxPermissions = new RxPermissions(this);
 
     @Override
@@ -44,7 +43,7 @@ public class SenderActivity extends BaseActivity {
     }
 
     private void initView() {
-        mListener = new OnChooseItemListener() {
+        mImageListener = new OnChooseItemListener() {
             @Override
             public void onChoose(String itemUri) {
                 if (DeviceManager.Singleton.INSTANCE.getInstance().isConnected()) {
@@ -76,6 +75,28 @@ public class SenderActivity extends BaseActivity {
             }
         };
 
+        mVideoListener = new OnChooseItemListener() {
+            @Override
+            public void onChoose(String itemUri) {
+                startActivity(new Intent(SenderActivity.this, VideoActivity.class));
+            }
+
+            @Override
+            public void onStop() {
+
+            }
+
+            @Override
+            public void onPreview() {
+
+            }
+
+            @Override
+            public void onNext() {
+
+            }
+        };
+
         binding.btnCastImage.setOnClickListener(v ->
                 rxPermissions.request(Manifest.permission.READ_EXTERNAL_STORAGE)
                         .subscribe(grant -> {
@@ -83,9 +104,10 @@ public class SenderActivity extends BaseActivity {
                                 Matisse.from(SenderActivity.this)
                                         .choose(MimeType.ofImage())
                                         .countable(false)
+                                        .showSingleMediaType(true)
                                         .maxSelectable(1)
                                         .theme(com.zhihu.matisse.R.style.Matisse_Dracula)
-                                        .setOnChooseItemListener(mListener)
+                                        .setOnChooseItemListener(mImageListener)
                                         .imageEngine(new GlideEngine())
                                         .forResult(REQUEST_CODE_CHOOSE);
                             } else {
@@ -98,10 +120,11 @@ public class SenderActivity extends BaseActivity {
                             if (grant) {
                                 Matisse.from(SenderActivity.this)
                                         .choose(MimeType.ofVideo())
+                                        .showSingleMediaType(true)
                                         .countable(false)
                                         .maxSelectable(1)
                                         .theme(com.zhihu.matisse.R.style.Matisse_Dracula)
-                                        .setOnChooseItemListener(mListener)
+                                        .setOnChooseItemListener(mVideoListener)
                                         .imageEngine(new GlideEngine())
                                         .forResult(REQUEST_CODE_CHOOSE);
                             } else {
@@ -117,13 +140,5 @@ public class SenderActivity extends BaseActivity {
                                 ToastUtil.makeText(R.string.toast_grant_storage_perm);
                             }
                         }));
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == REQUEST_CODE_CHOOSE && resultCode == RESULT_OK && data != null) {
-            Log.d(TAG, "mSelected: " + Matisse.obtainPathResult(data));
-        }
     }
 }

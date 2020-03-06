@@ -11,7 +11,7 @@ import com.absinthe.kage.device.CommandBuilder;
 import com.absinthe.kage.device.client.Client;
 import com.absinthe.kage.device.model.AudioInfo;
 import com.absinthe.kage.media.audio.LocalMusic;
-import com.absinthe.kage.ui.sender.MusicActivity;
+import com.absinthe.kage.ui.media.MusicActivity;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 

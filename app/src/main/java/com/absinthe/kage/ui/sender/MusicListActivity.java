@@ -13,6 +13,7 @@ import com.absinthe.kage.BaseActivity;
 import com.absinthe.kage.adapter.MusicListAdapter;
 import com.absinthe.kage.databinding.ActivityMusicListBinding;
 import com.absinthe.kage.media.audio.LocalMusic;
+import com.absinthe.kage.ui.media.MusicActivity;
 import com.absinthe.kage.viewmodel.MusicViewModel;
 
 import java.util.ArrayList;

@@ -1,4 +1,4 @@
-package com.absinthe.kage.ui.sender;
+package com.absinthe.kage.ui.media;
 
 import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
@@ -36,6 +36,7 @@ import com.absinthe.kage.media.audio.AudioPlayer;
 import com.absinthe.kage.media.audio.LocalMusic;
 import com.absinthe.kage.media.audio.MusicHelper;
 import com.absinthe.kage.ui.connect.ConnectActivity;
+import com.absinthe.kage.ui.sender.MusicListActivity;
 import com.absinthe.kage.utils.Logger;
 import com.absinthe.kage.utils.StorageUtils;
 import com.blankj.utilcode.util.ImageUtils;

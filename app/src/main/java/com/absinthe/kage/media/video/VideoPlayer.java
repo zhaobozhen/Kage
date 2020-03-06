@@ -2,8 +2,6 @@ package com.absinthe.kage.media.video;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.media.MediaPlayer;
-import android.media.MediaPlayer.OnErrorListener;
 import android.media.session.PlaybackState;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -81,7 +79,7 @@ public class VideoPlayer extends FrameLayout implements Playback.Callback {
             Log.d(TAG, "mShowProgress run");
             int pos = setProgress();
             if (!mDragging && isPlaying()) {
-                postDelayed(mShowProgress, (long) (1000 - (pos % 1000)));
+                postDelayed(mShowProgress, 1000 - (pos % 1000));
             }
         }
     };
@@ -118,26 +116,22 @@ public class VideoPlayer extends FrameLayout implements Playback.Callback {
         LayoutInflater mInflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         mBinding = ViewVideoPlayerBinding.inflate(mInflater);
         mRoot = mBinding.getRoot();
-        initView(mRoot);
+        initView();
         return mRoot;
     }
 
-    private void initView(View v) {
+    private void initView() {
         mVideoView = mBinding.videoView;
         mIVCover = mBinding.ivCover;
-        mSeekBar = mBinding.sbAvp;
-        mTVDurationTime = mBinding.time;
-        mTVCurrentTime = mBinding.timeCurrent;
-        mIVPause = mBinding.ivPlay;
+        mSeekBar = mBinding.layoutSeekbar.seekbar.seekBar;
+        mTVDurationTime = mBinding.layoutSeekbar.seekbar.tvDuration;
+        mTVCurrentTime = mBinding.layoutSeekbar.seekbar.tvCurrentTime;
+        mIVPause = mBinding.layoutSeekbar.ivPlay;
         mFormatBuilder = new StringBuilder();
         mFormatter = new Formatter(mFormatBuilder, Locale.getDefault());
         mIVPause.setOnClickListener(mPauseListener);
         mSeekBar.setOnSeekBarChangeListener(mOnSeekBarChangeListener);
-        mVideoView.setOnErrorListener(new OnErrorListener() {
-            public boolean onError(MediaPlayer mp, int what, int extra) {
-                return what == Integer.MIN_VALUE || what == -38;
-            }
-        });
+        mVideoView.setOnErrorListener((mp, what, extra) -> what == Integer.MIN_VALUE || what == -38);
     }
 
     public void playMedia(LocalMedia localMedia) {

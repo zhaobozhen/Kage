@@ -15,6 +15,7 @@ public class RemoteVideoPlayback implements Playback {
     private int mPlayState = PlaybackState.STATE_NONE;
 
     public RemoteVideoPlayback() {
+
         mVideoProxy.setOnPlayListener(new VideoProxy.OnPlayListener() {
 
             @Override
