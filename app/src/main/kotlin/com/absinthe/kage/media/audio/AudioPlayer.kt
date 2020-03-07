@@ -118,12 +118,6 @@ object AudioPlayer: Observable(), Playback.Callback {
         }
     }
 
-    fun resumePlay() {
-        if (DeviceManager.isConnected) {
-            DeviceManager.sendCommandToCurrentDevice(ResumePlayCommand())
-        }
-    }
-
     fun playNext() {
         if (mPlaylist != null) {
             playMedia(mPlaylist!!.getNextMedia(

@@ -225,7 +225,7 @@ public class MusicActivity extends BaseActivity implements Observer {
                 mAudioPlayer.pause();
             } else if (state == PlaybackState.STATE_PAUSED) {
                 mBinding.layoutControls.btnPlay.setIconResource(R.drawable.ic_pause);
-                mAudioPlayer.resumePlay();
+                mAudioPlayer.play();
             }
         });
         mBinding.layoutControls.btnPrevious.setOnClickListener(v -> {

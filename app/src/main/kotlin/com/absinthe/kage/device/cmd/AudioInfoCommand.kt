@@ -38,7 +38,7 @@ class AudioInfoCommand : Command() {
         if (parseReceived(received)) {
             if (!TextUtils.isEmpty(url) && client.deviceInfo != null) {
                 val localMusic = LocalMusic()
-                val ip = client.deviceInfo.ip
+                val ip = client.deviceInfo!!.ip
 
                 if (!TextUtils.isEmpty(ip)) {
                     localMusic.filePath = String.format(Const.HTTP_SERVER_FORMAT, ip) + url

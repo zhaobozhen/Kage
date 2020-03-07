@@ -19,6 +19,7 @@ import com.absinthe.kage.device.cmd.MediaPreparePlayCommand;
 import com.absinthe.kage.device.cmd.PlayAudioListCommand;
 import com.absinthe.kage.device.cmd.PlayNextCommand;
 import com.absinthe.kage.device.cmd.PlayPreviousCommand;
+import com.absinthe.kage.device.cmd.ResumePlayCommand;
 import com.absinthe.kage.device.cmd.SeekToCommand;
 import com.absinthe.kage.device.cmd.SetAudioModeCommand;
 import com.absinthe.kage.device.cmd.SetPlayIndexCommand;
@@ -87,8 +88,8 @@ public class AudioProxy extends BaseProxy {
     public void start() {
         if (mPlayInfo.playState == PLAY_STATUS.PAUSED_PLAYBACK.getStatus()
                 && null != mDevice && mDevice.isConnected()) {
-            AudioInfoCommand audioInfoCommand = new AudioInfoCommand();
-            mDevice.sendCommand(audioInfoCommand);
+            ResumePlayCommand resumePlayCommand = new ResumePlayCommand();
+            mDevice.sendCommand(resumePlayCommand);
         }
 
     }
