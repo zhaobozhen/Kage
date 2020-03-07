@@ -1,5 +1,6 @@
 package com.absinthe.kage.connect.proxy;
 
+import androidx.annotation.NonNull;
 import android.media.session.PlaybackState;
 import android.os.Handler;
 import android.os.Looper;
@@ -558,7 +559,7 @@ public class AudioProxy extends BaseProxy {
 
 
     @Override
-    public void onDeviceConnected(Device device) {
+    public void onDeviceConnected(@NonNull Device device) {
         if (this.mDevice != device) {
             if (this.mDevice != null) {
                 mDevice.unregisterOnReceiveMsgListener(mOnReceiveMsgListener);
@@ -571,7 +572,7 @@ public class AudioProxy extends BaseProxy {
     }
 
     @Override
-    public void onDeviceDisconnected(Device device) {
+    public void onDeviceDisconnected(@NonNull Device device) {
         super.onDeviceDisconnected(device);
         int playerState = PlayStatue.DISCONNECT;
         int playOldState = mPlayInfo.playState;

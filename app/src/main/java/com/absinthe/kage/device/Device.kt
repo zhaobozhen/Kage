@@ -17,16 +17,17 @@ import java.util.*
 class Device(config: DeviceConfig?, protocolVersionString: String?) {
 
     private lateinit var mSocket: KageSocket
+    private var mProtocolHandler: IProtocolHandler
     private val mOnReceiveMsgListeners: MutableList<OnReceiveMsgListener> = ArrayList()
     private var mConnectCallback: IConnectCallback? = null
-    private val mProtocolHandler: IProtocolHandler?
-    private val mHeartbeatSender: HeartbeatSender?
-    val deviceInfo: DeviceInfo?
+    private var mHeartbeatSender: HeartbeatSender
+
+    val deviceInfo: DeviceInfo = DeviceInfo()
     var onlineTime: Long = 0
 
     init {
-        deviceInfo = DeviceInfo()
         deviceInfo.protocolVersion = protocolVersionString
+
         val mProtocolHandlerCallback: IProtocolHandleCallback = object : IProtocolHandleCallback {
             override fun onProtocolConnected() {
                 Log.d(TAG, "onProtocolConnected")
@@ -51,13 +52,15 @@ class Device(config: DeviceConfig?, protocolVersionString: String?) {
             }
 
             override fun onProtocolSendOrReceiveError() {
-                mSocket.disConnect()
+                mSocket.disconnect()
             }
         }
 
         mProtocolHandler = ProtocolHandler(this, config, mProtocolHandlerCallback)
+
         mSocket = KageSocket()
         mSocket.setSocketCallback(object : ISocketCallback {
+
             override fun onConnected() {
                 mProtocolHandler.handleSocketConnectedEvent()
             }
@@ -97,15 +100,10 @@ class Device(config: DeviceConfig?, protocolVersionString: String?) {
     }
 
     fun connect(timeout: Int): Boolean {
-        val isConnect = deviceInfo!!.isConnected
-        val isInit = mProtocolHandler != null
-        val b = !isConnect && isInit
-        return if (b) {
-            mHeartbeatSender!!.init()
+        return if (!deviceInfo.isConnected) {
+            mHeartbeatSender.init()
             deviceInfo.setStateConnecting()
-            val ip = deviceInfo.ip
-            val port = Config.PORT
-            mSocket.connect(ip, port, timeout)
+            mSocket.connect(deviceInfo.ip, Config.PORT, timeout)
             true
         } else {
             false
@@ -138,13 +136,14 @@ class Device(config: DeviceConfig?, protocolVersionString: String?) {
     }
 
     fun disConnect() {
-        mHeartbeatSender?.release()
-        mSocket.disConnect()
+        mHeartbeatSender.release()
+        mSocket.disconnect()
     }
 
     private fun heartbeat() {
         val heartbeatId = System.currentTimeMillis().toString()
-        mHeartbeatSender!!.beat(heartbeatId, HEARTBEAT_DEFAULT_TIMEOUT, object : IHeartbeatCallback {
+        mHeartbeatSender.beat(heartbeatId, HEARTBEAT_DEFAULT_TIMEOUT, object : IHeartbeatCallback {
+
             override fun onBeatSuccess(heartbeatId: String) {
                 Log.v(TAG, "onBeatSuccess,heartbeatId = $heartbeatId")
             }
@@ -167,30 +166,30 @@ class Device(config: DeviceConfig?, protocolVersionString: String?) {
     }
 
     val isConnected: Boolean
-        get() = deviceInfo!!.isConnected
+        get() = deviceInfo.isConnected
 
     val state: Int
-        get() = deviceInfo!!.state
+        get() = deviceInfo.state
 
-    var ip: String?
-        get() = deviceInfo!!.ip
+    var ip: String
+        get() = deviceInfo.ip
         set(ip) {
-            deviceInfo!!.ip = ip
+            deviceInfo.ip = ip
         }
 
-    var name: String?
-        get() = deviceInfo!!.name
+    var name: String
+        get() = deviceInfo.name
         set(name) {
-            deviceInfo!!.name = name
+            deviceInfo.name = name
         }
 
     val protocolVersion: String?
-        get() = deviceInfo!!.protocolVersion
+        get() = deviceInfo.protocolVersion
 
     var functionCode: String?
-        get() = deviceInfo!!.functionCode
+        get() = deviceInfo.functionCode
         set(functionCode) {
-            deviceInfo!!.functionCode = functionCode
+            deviceInfo.functionCode = functionCode
         }
 
     interface IConnectCallback {
@@ -200,7 +199,7 @@ class Device(config: DeviceConfig?, protocolVersionString: String?) {
     }
 
     interface OnReceiveMsgListener {
-        fun onReceiveMsg(msg: String?)
+        fun onReceiveMsg(msg: String)
     }
 
     companion object {

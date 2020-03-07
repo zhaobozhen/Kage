@@ -16,12 +16,12 @@ class DeviceScanner {
     private var mScanCallback: IScanCallback? = null
     private var mNoticeOnlineThread: NoticeOnlineThread? = null
     private val mDevices: MutableMap<String?, Device> = ConcurrentHashMap()
-    private var mConfig: DeviceConfig? = null
+    private var mConfig: DeviceConfig = DeviceConfig()
 
     val devices: Map<String?, Device>
         get() = mDevices
 
-    fun setConfig(config: DeviceConfig?) {
+    fun setConfig(config: DeviceConfig) {
         synchronized(LOCK) { mConfig = config }
     }
 
@@ -29,19 +29,16 @@ class DeviceScanner {
         return mDevices[key]
     }
 
-    fun startScan(period: Int, scanCallback: IScanCallback?): Boolean {
+    fun startScan(period: Int, scanCallback: IScanCallback): Boolean {
         mScanCallback = scanCallback
 
         synchronized(LOCK) {
-            if (mConfig == null) {
-                return false
-            }
-
             mUDP?.stopReceive()
-            mUDP = UDP(mConfig!!.localHost, mConfig!!.broadcastMonitorPort)
+            mUDP = UDP(mConfig.localHost, mConfig.broadcastMonitorPort)
         }
 
         mUDP?.startReceive(object : UDP.IUDPCallback {
+
             override fun onReceive(ip: String, port: Int, data: String) {
                 val ipMessage: IpMessageProtocol
                 ipMessage = try {
@@ -62,9 +59,9 @@ class DeviceScanner {
                         Log.d(TAG, "IP_MSG_BR_ENTRY")
                         val ipMsgSend = IpMessageProtocol()
                         ipMsgSend.version = IpMessageConst.VERSION.toString()
-                        ipMsgSend.senderName = mConfig!!.name
+                        ipMsgSend.senderName = mConfig.name
                         ipMsgSend.cmd = IpMessageConst.IP_MSG_ANS_ENTRY // 回送报文命令
-                        ipMsgSend.additionalSection = mConfig!!.uuid
+                        ipMsgSend.additionalSection = mConfig.uuid
                         mUDP?.notify(ipMsgSend, ip, port)
                     }
                     IpMessageConst.IP_MSG_ANS_ENTRY -> {
@@ -125,16 +122,11 @@ class DeviceScanner {
     }
 
     private fun isDeviceInfoChanged(ipMessage: IpMessageProtocol, device: Device): Boolean {
-        val name = device.name
-        val senderName = ipMessage.senderName
-        if (senderName != null) {
-            return if (name?.isNotEmpty()!!) {
-                name != senderName
-            } else {
-                senderName.isNotEmpty()
-            }
+        return if (device.name.isNotEmpty()) {
+            device.name != ipMessage.senderName
+        } else {
+            ipMessage.senderName.isNotEmpty()
         }
-        return false
     }
 
     fun stopScan() {
@@ -189,7 +181,7 @@ class DeviceScanner {
             return false
         }
         val ip = deviceInfo.ip
-        return if (null != ip && mDevices.containsKey(ip)) {
+        return if (mDevices.containsKey(ip)) {
             val device = mDevices.remove(ip)
             if (null != device) {
                 if (mScanCallback != null) {
@@ -222,12 +214,14 @@ class DeviceScanner {
         override fun run() {
             val ipMsgSend = IpMessageProtocol()
             ipMsgSend.version = IpMessageConst.VERSION.toString()
-            ipMsgSend.senderName = mConfig!!.name
+            ipMsgSend.senderName = mConfig.name
             ipMsgSend.cmd = IpMessageConst.IP_MSG_BR_ENTRY // 上线命令
-            ipMsgSend.additionalSection = mConfig!!.uuid
-            val broadCastHost = mConfig!!.broadcastHostInWifi
-            val broadcastPort = mConfig!!.broadcastPort
-            val broadCastHostInAp = mConfig!!.broadcastHostInAp
+            ipMsgSend.additionalSection = mConfig.uuid
+
+            val broadCastHost = mConfig.broadcastHostInWifi
+            val broadcastPort = mConfig.broadcastPort
+            val broadCastHostInAp = mConfig.broadcastHostInAp
+
             while (!isInterrupted && !isStopped) {
                 checkOffline()
                 if (mUDP == null) {
@@ -253,7 +247,7 @@ class DeviceScanner {
         while (iterator.hasNext()) {
             val device = iterator.next().value
             spaceTime = System.currentTimeMillis() - device.onlineTime
-            Log.d(TAG, "Check Offline IP = " + device.ip + ", State = " + device.state + ", SpaceTime=" + spaceTime)
+            Log.d(TAG, "Check Offline IP = ${device.ip}, State = ${device.state}, SpaceTime = $spaceTime")
             if (spaceTime > TIMEOUT && device.state == DeviceInfo.STATE_IDLE) {
                 iterator.remove()
                 if (mScanCallback != null) {

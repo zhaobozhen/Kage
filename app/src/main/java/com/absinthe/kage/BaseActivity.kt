@@ -17,11 +17,11 @@ open class BaseActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         reference = WeakReference(this)
-        ActivityStackManager.getInstance().addActivity(reference)
+        ActivityStackManager.addActivity(reference)
     }
 
     override fun onDestroy() {
-        ActivityStackManager.getInstance().removeActivity(reference)
+        ActivityStackManager.removeActivity(reference)
         super.onDestroy()
     }
 

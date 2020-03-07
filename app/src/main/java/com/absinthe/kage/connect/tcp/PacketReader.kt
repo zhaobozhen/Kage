@@ -45,8 +45,8 @@ class PacketReader(private val mIn: DataInputStream?, private val mSocketCallbac
         }
     }
 
-    override fun addRequest(request: Request?) {
-        synchronized(PacketReader::class.java) { mRequests.put(request?.id, request) }
+    override fun addRequest(request: Request) {
+        synchronized(PacketReader::class.java) { mRequests.put(request.id, request) }
     }
 
     override fun shutdown() {

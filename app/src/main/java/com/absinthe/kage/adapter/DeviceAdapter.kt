@@ -15,7 +15,6 @@ open class DeviceAdapter : BaseQuickAdapter<DeviceInfo, BaseViewHolder>(R.layout
             DeviceInfo.STATE_IDLE -> helper.setText(R.id.btn_connect, R.string.connect_state_connect)
             DeviceInfo.STATE_CONNECTING -> helper.setText(R.id.btn_connect, R.string.connect_state_connecting)
             DeviceInfo.STATE_CONNECTED -> helper.setText(R.id.btn_connect, R.string.connect_state_connected)
-            else -> { }
         }
     }
 

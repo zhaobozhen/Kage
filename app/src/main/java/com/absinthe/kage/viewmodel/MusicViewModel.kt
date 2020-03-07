@@ -13,7 +13,7 @@ import kotlinx.coroutines.withContext
 
 class MusicViewModel(application: Application) : AndroidViewModel(application) {
 
-    val musicList = MutableLiveData<List<LocalMusic>>()
+    val musicList = MutableLiveData<MutableList<LocalMusic>>()
 
     fun loadMusic(context: Context) {
         GlobalScope.launch(Dispatchers.IO) {

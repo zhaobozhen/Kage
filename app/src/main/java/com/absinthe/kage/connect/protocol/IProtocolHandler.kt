@@ -7,9 +7,9 @@ import android.os.Looper
 interface IProtocolHandler {
 
     fun handleSocketConnectedEvent()
-    fun handleSocketMassage(msg: String?)
+    fun handleSocketMassage(msg: String)
     fun handleSocketDisConnectEvent()
-    fun handleSocketConnectFail(errorCode: Int, e: Exception?)
+    fun handleSocketConnectFail(errorCode: Int, e: Exception)
     fun handleSocketSendOrReceiveError()
 
     /**

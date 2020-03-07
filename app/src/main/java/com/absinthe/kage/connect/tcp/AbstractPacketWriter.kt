@@ -31,7 +31,7 @@ open class AbstractPacketWriter(out: DataOutputStream, socketCallback: ISocketCa
         dos.flush()
     }
 
-    override fun writePacket(packet: Packet?) {
+    override fun writePacket(packet: Packet) {
         try {
             mPacketQueue.put(packet)
         } catch (e: InterruptedException) {

@@ -83,12 +83,6 @@ public class DeviceManager extends KageObservable implements LifecycleObserver {
             config.name = android.os.Build.MODEL;
         }
 
-        config.uuid = UUID.randomUUID().toString();
-        config.localHost = NetUtils.getLocalAddress();
-        config.broadcastHostInWifi = Const.BROADCAST_IP_IN_WIFI;
-        config.broadcastHostInAp = Const.BROADCAST_IP_IN_AP;
-        config.broadcastMonitorPort = Config.PORT;
-        config.broadcastPort = Config.PORT;
         mConfig = config;
         mDeviceScanner.setConfig(mConfig);
     }

@@ -11,6 +11,14 @@ class UDP(private val mLocalIpAddress: String, monitorPort: Int) {
     private var mDatagramSocket: DatagramSocket? = null
     private var mReceivePacketThread: ReceivePacketThread? = null
 
+    init {
+        try {
+            mDatagramSocket = DatagramSocket(monitorPort)
+        } catch (e: SocketException) {
+            Log.e(TAG, "Create DatagramSocket error: $e")
+        }
+    }
+
     fun notify(ipMsgSend: IpMessageProtocol, ip: String, port: Int) {
         Log.i(TAG, "UDP Protocol String: ${ipMsgSend.protocolString}, IP = $ip")
 
@@ -37,7 +45,7 @@ class UDP(private val mLocalIpAddress: String, monitorPort: Int) {
             mReceivePacketThread?.isStop = true
             mReceivePacketThread = null
             if (mDatagramSocket != null && !mDatagramSocket!!.isClosed) {
-                mDatagramSocket!!.close()
+                mDatagramSocket?.close()
             }
         }
     }
@@ -69,7 +77,7 @@ class UDP(private val mLocalIpAddress: String, monitorPort: Int) {
                 try {
                     mDatagramSocket?.receive(packet)
                 } catch (e: IOException) {
-                    Log.e(TAG, "DatagramSocket receive error:" + e.message)
+                    Log.e(TAG, "DatagramSocket receive error: $e")
                     break
                 }
 
@@ -77,13 +85,13 @@ class UDP(private val mLocalIpAddress: String, monitorPort: Int) {
                     break
                 }
                 if (packet.length <= 0) {
-                    Log.w(TAG, "Receive packet.getLength() = " + packet.length)
+                    Log.w(TAG, "Receive packet.getLength() = ${packet.length}")
                     break
                 }
 
                 val data = packet.data
                 val dataStr = String(data, 0, packet.length)
-                Log.d(TAG, "ReceivePacketThread:$dataStr")
+                Log.d(TAG, "ReceivePacketThread: $dataStr")
 
                 val address = packet.address
                 if (address == null) {
@@ -109,14 +117,5 @@ class UDP(private val mLocalIpAddress: String, monitorPort: Int) {
     companion object {
         private val TAG = UDP::class.java.simpleName
         private val DEFAULT_RECEIVED_BUFFER = ByteArray(1024)
-    }
-
-    init {
-        try {
-            mDatagramSocket = DatagramSocket(monitorPort)
-        } catch (e: SocketException) {
-            e.printStackTrace()
-            Log.e(TAG, "Create DatagramSocket error: " + e.message)
-        }
     }
 }

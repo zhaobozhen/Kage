@@ -21,23 +21,19 @@ class ProtocolHandler(
         mDevice.sendCommand(inquiryDeviceInfoCommand)
     }
 
-    override fun handleSocketMassage(msg: String?) {
-        if (msg != null) {
-            val split = msg.split(IpMessageProtocol.DELIMITER).toTypedArray()
-            try {
-                when (split[0].toInt()) {
-                    IpMessageConst.GET_DEVICE_INFO -> {
-                        hasHandShake = true
-                        instance!!.post {
-                            mCallback?.onProtocolConnected()
-                        }
-                    }
-                    else -> {
+    override fun handleSocketMassage(msg: String) {
+        val split = msg.split(IpMessageProtocol.DELIMITER).toTypedArray()
+        try {
+            when (split[0].toInt()) {
+                IpMessageConst.GET_DEVICE_INFO -> {
+                    hasHandShake = true
+                    instance!!.post {
+                        mCallback?.onProtocolConnected()
                     }
                 }
-            } catch (e: Exception) {
-                Log.e(TAG, "protocol invalid:" + e.message)
             }
+        } catch (e: Exception) {
+            Log.e(TAG, "protocol invalid: $e")
         }
     }
 
@@ -55,7 +51,7 @@ class ProtocolHandler(
         }
     }
 
-    override fun handleSocketConnectFail(errorCode: Int, e: Exception?) {
+    override fun handleSocketConnectFail(errorCode: Int, e: Exception) {
         instance!!.post {
             mCallback?.onProtocolConnectedFailed(errorCode, e)
         }

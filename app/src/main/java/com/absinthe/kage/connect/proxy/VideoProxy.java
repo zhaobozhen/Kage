@@ -1,5 +1,6 @@
 package com.absinthe.kage.connect.proxy;
 
+import androidx.annotation.NonNull;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
@@ -432,7 +433,7 @@ public class VideoProxy extends BaseProxy {
 
 
     @Override
-    public void onDeviceConnected(Device device) {
+    public void onDeviceConnected(@NonNull Device device) {
         if (mDevice != device) {
             if (mDevice != null) {
                 mDevice.unregisterOnReceiveMsgListener(mOnReceiveMsgListener);
@@ -444,7 +445,7 @@ public class VideoProxy extends BaseProxy {
     }
 
     @Override
-    public void onDeviceDisconnected(Device device) {
+    public void onDeviceDisconnected(@NonNull Device device) {
         super.onDeviceDisconnected(device);
 
         int playerState = PlayStatue.DISCONNECT;

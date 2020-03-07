@@ -4,9 +4,9 @@ import java.util.*
 
 class IpMessageProtocol {
 
-    var version: String? = null //Version number
+    var version: String = "1" //Version number
     var packetNum: String //Packet number
-    var senderName: String? = null //Sender name
+    var senderName: String = "Unknown" //Sender name
     var cmd: Int = 0 //Command
     var additionalSection: String? = null
 
@@ -24,7 +24,7 @@ class IpMessageProtocol {
         additionalSection = if (args.size >= 5) args[4] else ""
     }
 
-    constructor(senderName: String?, cmd: Int, additionalSection: String?) {
+    constructor(senderName: String, cmd: Int, additionalSection: String = "") {
         packetNum = seconds
         this.senderName = senderName
         this.cmd = cmd

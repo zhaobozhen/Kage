@@ -84,7 +84,7 @@ class KageSocket {
 
     }
 
-    fun disConnect(): Boolean {
+    fun disconnect(): Boolean {
         synchronized(KageSocket::class.java) {
             return if (mSocket != null && mSocket!!.isConnected) {
                 try {
@@ -116,7 +116,7 @@ class KageSocket {
         }
     }
 
-    fun send(packet: Packet?) {
+    fun send(packet: Packet) {
         synchronized(KageSocket::class.java) {
             if (mPacketWriter != null) {
                 if (packet is Request) {
@@ -130,7 +130,7 @@ class KageSocket {
         }
     }
 
-    fun setSocketCallback(socketCallback: ISocketCallback?) {
+    fun setSocketCallback(socketCallback: ISocketCallback) {
         mSocketCallback = socketCallback
     }
 

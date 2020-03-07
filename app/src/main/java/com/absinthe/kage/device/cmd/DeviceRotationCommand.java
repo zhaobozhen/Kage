@@ -3,6 +3,7 @@ package com.absinthe.kage.device.cmd;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 
+import com.absinthe.kage.BaseActivity;
 import com.absinthe.kage.connect.protocol.IpMessageConst;
 import com.absinthe.kage.connect.protocol.IpMessageProtocol;
 import com.absinthe.kage.device.Command;
@@ -33,7 +34,10 @@ public class DeviceRotationCommand extends Command {
     @Override
     public void doWork(Client client, String received) {
         if (parseReceived(received)) {
-            ActivityStackManager.getInstance().getTopActivity().setRequestedOrientation(flag);
+            BaseActivity topActivity = ActivityStackManager.INSTANCE.getTopActivity();
+            if (topActivity != null) {
+                topActivity.setRequestedOrientation(flag);
+            }
         }
     }
 

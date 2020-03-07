@@ -10,7 +10,7 @@ class KageApplication : Application() {
     override fun onCreate() {
         super.onCreate()
         sContext = this
-        Logger.setDebugMode(BuildConfig.DEBUG)
+        Logger.isDebugMode = BuildConfig.DEBUG
         deviceNecessary = false
     }
 
