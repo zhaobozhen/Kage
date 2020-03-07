@@ -5,81 +5,31 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <com.google.android.material.card.MaterialCardView
-        android:id="@+id/cv_image"
+    <com.absinthe.kage.view.CategoryCardView
+        android:id="@+id/card_image"
         android:layout_width="match_parent"
         android:layout_height="@dimen/category_card_height"
         android:layout_margin="@dimen/category_card_margin"
-        app:cardCornerRadius="@dimen/category_card_corner_radius"
-        app:layout_constraintTop_toTopOf="parent">
+        app:categoryImage="@mipmap/pic_image"
+        app:categoryTitle="@string/btn_cast_image"
+        app:layout_constraintTop_toTopOf="parent" />
 
-        <ImageView
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:scaleType="centerCrop"
-            android:src="@mipmap/pic_camera" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="@dimen/category_title_margin"
-            android:text="@string/btn_cast_image"
-            android:textAppearance="?attr/textAppearanceHeadline5"
-            android:textColor="@color/white"
-            android:textStyle="bold" />
-
-    </com.google.android.material.card.MaterialCardView>
-
-    <com.google.android.material.card.MaterialCardView
-        android:id="@+id/cv_video"
+    <com.absinthe.kage.view.CategoryCardView
+        android:id="@+id/card_video"
         android:layout_width="match_parent"
         android:layout_height="@dimen/category_card_height"
         android:layout_margin="@dimen/category_card_margin"
-        app:cardCornerRadius="@dimen/category_card_corner_radius"
-        app:layout_constraintTop_toBottomOf="@id/cv_image">
+        app:categoryImage="@mipmap/pic_video"
+        app:categoryTitle="@string/btn_cast_video"
+        app:layout_constraintTop_toBottomOf="@id/card_image" />
 
-        <ImageView
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:scaleType="centerCrop"
-            android:src="@mipmap/pic_video" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="@dimen/category_title_margin"
-            android:text="@string/btn_cast_video"
-            android:textAppearance="?attr/textAppearanceHeadline5"
-            android:textColor="@color/white"
-            android:textStyle="bold" />
-
-    </com.google.android.material.card.MaterialCardView>
-
-    <com.google.android.material.card.MaterialCardView
-        android:id="@+id/cv_music"
+    <com.absinthe.kage.view.CategoryCardView
+        android:id="@+id/card_music"
         android:layout_width="match_parent"
         android:layout_height="@dimen/category_card_height"
         android:layout_margin="@dimen/category_card_margin"
-        android:clickable="true"
-        android:focusable="true"
-        app:cardCornerRadius="@dimen/category_card_corner_radius"
-        app:layout_constraintTop_toBottomOf="@id/cv_video">
-
-        <ImageView
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:scaleType="centerCrop"
-            android:src="@mipmap/pic_music" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="@dimen/category_title_margin"
-            android:text="@string/btn_cast_music"
-            android:textAppearance="?attr/textAppearanceHeadline5"
-            android:textColor="@color/white"
-            android:textStyle="bold" />
-
-    </com.google.android.material.card.MaterialCardView>
+        app:categoryImage="@mipmap/pic_music"
+        app:categoryTitle="@string/btn_cast_music"
+        app:layout_constraintTop_toBottomOf="@id/card_video" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

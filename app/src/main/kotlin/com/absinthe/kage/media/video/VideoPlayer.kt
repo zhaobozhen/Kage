@@ -105,6 +105,7 @@ open class VideoPlayer : FrameLayout, Playback.Callback {
         ivCover = mBinding.ivCover
 
         ibPlay.setOnClickListener(mPauseListener)
+        seekbar.max = 1000
         seekbar.setOnSeekBarChangeListener(mOnSeekBarChangeListener)
         videoView.setOnErrorListener { _: MediaPlayer?, what: Int, _: Int -> what == Int.MIN_VALUE || what == -38 }
     }

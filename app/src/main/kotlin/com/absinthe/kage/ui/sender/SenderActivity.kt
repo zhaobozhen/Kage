@@ -9,6 +9,7 @@ import com.absinthe.kage.R
 import com.absinthe.kage.connect.proxy.ImageProxy
 import com.absinthe.kage.databinding.ActivitySenderBinding
 import com.absinthe.kage.device.DeviceManager
+import com.absinthe.kage.media.LocalMedia
 import com.absinthe.kage.ui.connect.ConnectActivity
 import com.absinthe.kage.ui.media.VideoActivity
 import com.absinthe.kage.utils.ToastUtil.makeText
@@ -16,13 +17,16 @@ import com.tbruyelle.rxpermissions2.RxPermissions
 import com.zhihu.matisse.Matisse
 import com.zhihu.matisse.MimeType
 import com.zhihu.matisse.engine.impl.GlideEngine
+import com.zhihu.matisse.internal.entity.Album
+import com.zhihu.matisse.internal.entity.Item
+import com.zhihu.matisse.internal.ui.adapter.AlbumMediaAdapter
 import com.zhihu.matisse.listener.OnChooseItemListener
 
 class SenderActivity : BaseActivity() {
 
     private lateinit var mBinding: ActivitySenderBinding
     private lateinit var mImageListener: OnChooseItemListener
-    private lateinit var mVideoListener: OnChooseItemListener
+    private lateinit var mVideoListener: AlbumMediaAdapter.OnMediaClickListener
     private val rxPermissions = RxPermissions(this)
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -67,18 +71,18 @@ class SenderActivity : BaseActivity() {
             }
         }
 
-        mVideoListener = object : OnChooseItemListener {
+        mVideoListener = AlbumMediaAdapter.OnMediaClickListener { album, item, adapterPosition ->
+            val localMedia = LocalMedia()
+            localMedia.type = LocalMedia.TYPE_VIDEO
+            localMedia.title = "Unknown"
+            localMedia.filePath = item?.uri.toString()
 
-            override fun onChoose(itemUri: String) {
-                startActivity(Intent(this@SenderActivity, VideoActivity::class.java))
-            }
-
-            override fun onStop() {}
-            override fun onPreview() {}
-            override fun onNext() {}
+            val intent = Intent(this@SenderActivity, VideoActivity::class.java)
+            intent.putExtra(VideoActivity.EXTRA_MEDIA, localMedia)
+            startActivity(intent)
         }
 
-        mBinding.cvImage.setOnClickListener {
+        mBinding.cardImage.setOnClickListener {
             rxPermissions.request(Manifest.permission.READ_EXTERNAL_STORAGE)
                     .subscribe { grant: Boolean ->
                         if (grant) {
@@ -96,7 +100,7 @@ class SenderActivity : BaseActivity() {
                         }
                     }
         }
-        mBinding.cvVideo.setOnClickListener {
+        mBinding.cardVideo.setOnClickListener {
             rxPermissions.request(Manifest.permission.READ_EXTERNAL_STORAGE)
                     .subscribe { grant: Boolean ->
                         if (grant) {
@@ -106,7 +110,7 @@ class SenderActivity : BaseActivity() {
                                     .countable(false)
                                     .maxSelectable(1)
                                     .theme(com.zhihu.matisse.R.style.Matisse_Dracula)
-                                    .setOnChooseItemListener(mVideoListener)
+                                    .setOnMediaClickListener(mVideoListener)
                                     .imageEngine(GlideEngine())
                                     .forResult(REQUEST_CODE_CHOOSE)
                         } else {
@@ -114,7 +118,7 @@ class SenderActivity : BaseActivity() {
                         }
                     }
         }
-        mBinding.cvMusic.setOnClickListener {
+        mBinding.cardMusic.setOnClickListener {
             rxPermissions.request(Manifest.permission.READ_EXTERNAL_STORAGE)
                     .subscribe { grant: Boolean ->
                         if (grant) {

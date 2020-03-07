@@ -4,4 +4,9 @@
         <attr name="borderWidth" format="dimension" />
         <attr name="borderColor" format="color" />
     </declare-styleable>
+
+    <declare-styleable name="CategoryCardView">
+        <attr name="categoryImage" format="reference" />
+        <attr name="categoryTitle" format="string" />
+    </declare-styleable>
 </resources>

@@ -25,6 +25,7 @@ import com.zhihu.matisse.R;
 import com.zhihu.matisse.engine.ImageEngine;
 import com.zhihu.matisse.engine.impl.GlideEngine;
 import com.zhihu.matisse.filter.Filter;
+import com.zhihu.matisse.internal.ui.adapter.AlbumMediaAdapter;
 import com.zhihu.matisse.listener.OnCheckedListener;
 import com.zhihu.matisse.listener.OnChooseItemListener;
 import com.zhihu.matisse.listener.OnSelectedListener;
@@ -54,6 +55,7 @@ public final class SelectionSpec {
     public boolean hasInited;
     public OnSelectedListener onSelectedListener;
     public OnChooseItemListener onChooseItemListener;
+    public AlbumMediaAdapter.OnMediaClickListener onMediaClickListener;
     public boolean originalable;
     public boolean autoHideToobar;
     public int originalMaxSize;

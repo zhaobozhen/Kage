@@ -48,6 +48,7 @@ public class MediaSelectionFragment extends Fragment implements
     private SelectionProvider mSelectionProvider;
     private AlbumMediaAdapter.CheckStateListener mCheckStateListener;
     private AlbumMediaAdapter.OnMediaClickListener mOnMediaClickListener;
+    private boolean isRegisterListener = false;
 
     public static MediaSelectionFragment newInstance(Album album) {
         MediaSelectionFragment fragment = new MediaSelectionFragment();
@@ -67,9 +68,6 @@ public class MediaSelectionFragment extends Fragment implements
         }
         if (context instanceof AlbumMediaAdapter.CheckStateListener) {
             mCheckStateListener = (AlbumMediaAdapter.CheckStateListener) context;
-        }
-        if (context instanceof AlbumMediaAdapter.OnMediaClickListener) {
-            mOnMediaClickListener = (AlbumMediaAdapter.OnMediaClickListener) context;
         }
     }
 
@@ -94,7 +92,11 @@ public class MediaSelectionFragment extends Fragment implements
         mAdapter = new AlbumMediaAdapter(getContext(),
                 mSelectionProvider.provideSelectedItemCollection(), mRecyclerView);
         mAdapter.registerCheckStateListener(this);
-        mAdapter.registerOnMediaClickListener(this);
+        if (isRegisterListener) {
+            mAdapter.registerOnMediaClickListener(mOnMediaClickListener);
+        } else {
+            mAdapter.registerOnMediaClickListener(this);
+        }
         mRecyclerView.setHasFixedSize(true);
 
         int spanCount;
@@ -151,6 +153,11 @@ public class MediaSelectionFragment extends Fragment implements
             mOnMediaClickListener.onMediaClick((Album) getArguments().getParcelable(EXTRA_ALBUM),
                     item, adapterPosition);
         }
+    }
+
+    public void registerItemClickListener(AlbumMediaAdapter.OnMediaClickListener listener) {
+        mOnMediaClickListener = listener;
+        isRegisterListener = true;
     }
 
     public interface SelectionProvider {
