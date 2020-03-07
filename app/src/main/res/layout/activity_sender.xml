@@ -5,34 +5,81 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <Button
-        android:id="@+id/btn_cast_image"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="20dp"
-        android:text="@string/btn_cast_image"
-        app:layout_constraintBottom_toTopOf="@id/btn_cast_video"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/cv_image"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/category_card_height"
+        android:layout_margin="@dimen/category_card_margin"
+        app:cardCornerRadius="@dimen/category_card_corner_radius"
+        app:layout_constraintTop_toTopOf="parent">
 
-    <Button
-        android:id="@+id/btn_cast_video"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/btn_cast_video"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="centerCrop"
+            android:src="@mipmap/pic_camera" />
 
-    <Button
-        android:id="@+id/btn_cast_music"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:text="@string/btn_cast_music"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/btn_cast_video" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/category_title_margin"
+            android:text="@string/btn_cast_image"
+            android:textAppearance="?attr/textAppearanceHeadline5"
+            android:textColor="@color/white"
+            android:textStyle="bold" />
+
+    </com.google.android.material.card.MaterialCardView>
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/cv_video"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/category_card_height"
+        android:layout_margin="@dimen/category_card_margin"
+        app:cardCornerRadius="@dimen/category_card_corner_radius"
+        app:layout_constraintTop_toBottomOf="@id/cv_image">
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="centerCrop"
+            android:src="@mipmap/pic_video" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/category_title_margin"
+            android:text="@string/btn_cast_video"
+            android:textAppearance="?attr/textAppearanceHeadline5"
+            android:textColor="@color/white"
+            android:textStyle="bold" />
+
+    </com.google.android.material.card.MaterialCardView>
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/cv_music"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/category_card_height"
+        android:layout_margin="@dimen/category_card_margin"
+        android:clickable="true"
+        android:focusable="true"
+        app:cardCornerRadius="@dimen/category_card_corner_radius"
+        app:layout_constraintTop_toBottomOf="@id/cv_video">
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="centerCrop"
+            android:src="@mipmap/pic_music" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/category_title_margin"
+            android:text="@string/btn_cast_music"
+            android:textAppearance="?attr/textAppearanceHeadline5"
+            android:textColor="@color/white"
+            android:textStyle="bold" />
+
+    </com.google.android.material.card.MaterialCardView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

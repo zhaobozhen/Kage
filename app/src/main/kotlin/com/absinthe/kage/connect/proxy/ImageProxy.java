@@ -14,7 +14,6 @@ import com.absinthe.kage.device.cmd.StopCommand;
 
 public class ImageProxy extends BaseProxy {
     private static final String TAG = ImageProxy.class.getSimpleName();
-    private static final byte[] lock = new byte[0];
     private static ImageProxy sInstance;
 
     private Device.OnReceiveMsgListener mOnReceiveMsgListener;
@@ -29,7 +28,7 @@ public class ImageProxy extends BaseProxy {
 
     public static ImageProxy getInstance() {
         if (sInstance == null) {
-            synchronized (lock) {
+            synchronized (ImageProxy.class) {
                 if (sInstance == null) {
                     sInstance = new ImageProxy();
                 }

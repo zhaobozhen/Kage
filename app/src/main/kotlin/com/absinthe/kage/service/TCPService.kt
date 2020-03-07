@@ -98,7 +98,7 @@ class TCPService : LifecycleService() {
     }
 
     companion object {
-        @JvmStatic
+
         @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
         fun start(context: Context) {
             val intent = Intent(context, TCPService::class.java)
@@ -110,7 +110,6 @@ class TCPService : LifecycleService() {
             }
         }
 
-        @JvmStatic
         @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
         fun stop(context: Context) {
             val intent = Intent(context, TCPService::class.java)

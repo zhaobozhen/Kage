@@ -78,7 +78,7 @@ class SenderActivity : BaseActivity() {
             override fun onNext() {}
         }
 
-        mBinding.btnCastImage.setOnClickListener {
+        mBinding.cvImage.setOnClickListener {
             rxPermissions.request(Manifest.permission.READ_EXTERNAL_STORAGE)
                     .subscribe { grant: Boolean ->
                         if (grant) {
@@ -96,7 +96,7 @@ class SenderActivity : BaseActivity() {
                         }
                     }
         }
-        mBinding.btnCastVideo.setOnClickListener {
+        mBinding.cvVideo.setOnClickListener {
             rxPermissions.request(Manifest.permission.READ_EXTERNAL_STORAGE)
                     .subscribe { grant: Boolean ->
                         if (grant) {
@@ -114,7 +114,7 @@ class SenderActivity : BaseActivity() {
                         }
                     }
         }
-        mBinding.btnCastMusic.setOnClickListener {
+        mBinding.cvMusic.setOnClickListener {
             rxPermissions.request(Manifest.permission.READ_EXTERNAL_STORAGE)
                     .subscribe { grant: Boolean ->
                         if (grant) {

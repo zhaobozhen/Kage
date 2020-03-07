@@ -14,6 +14,7 @@ import androidx.appcompat.widget.AppCompatImageView
 import com.absinthe.kage.R
 
 class MusicRouletteView : AppCompatImageView {
+
     private val mBitmapPaint: Paint
     private val mBorderPaint: Paint
     private val mBorderRect: RectF

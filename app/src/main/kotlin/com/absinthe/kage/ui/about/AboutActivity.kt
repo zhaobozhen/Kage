@@ -22,6 +22,7 @@ class AboutActivity : AbsAboutActivity() {
         items.add(Contributor(R.mipmap.pic_rabbit, "Absinthe", "Developer & Designer", "https://www.coolapk.com/u/482045"))
 
         items.add(Category("Open Source Licenses"))
+        items.add(License("kotlin", "JetBrains", License.APACHE_2, "https://github.com/JetBrains/kotlin"))
         items.add(License("MultiType", "drakeet", License.APACHE_2, "https://github.com/drakeet/MultiType"))
         items.add(License("about-page", "drakeet", License.APACHE_2, "https://github.com/drakeet/about-page"))
         items.add(License("BaseRecyclerViewAdapterHelper", "CymChad", License.MIT, "https://github.com/CymChad/BaseRecyclerViewAdapterHelper"))
@@ -35,5 +36,6 @@ class AboutActivity : AbsAboutActivity() {
         items.add(License("glide", "bumptech", License.APACHE_2, "https://github.com/bumptech/glide"))
         items.add(License("gson", "google", License.APACHE_2, "https://github.com/google/gson"))
         items.add(License("AndroidUtilCode", "Blankj", License.APACHE_2, "https://github.com/Blankj/AndroidUtilCode"))
+        items.add(License("lottie-android", "Airbnb", License.APACHE_2, "https://github.com/airbnb/lottie-android"))
     }
 }
