@@ -43,7 +43,7 @@ class MainActivity : BaseActivity() {
 
     private fun initView() {
         binding.btnSend.setOnClickListener {
-            if (DeviceManager.Singleton.INSTANCE.instance.isConnected or !deviceNecessary) {
+            if (DeviceManager.isConnected or !deviceNecessary) {
                 startActivity(Intent(this@MainActivity, SenderActivity::class.java))
             } else {
                 startActivity(Intent(this@MainActivity, ConnectActivity::class.java))

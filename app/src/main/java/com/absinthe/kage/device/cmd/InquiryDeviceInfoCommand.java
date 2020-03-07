@@ -27,7 +27,7 @@ public class InquiryDeviceInfoCommand extends Command {
     @Override
     public void doWork(Client client, String received) {
         try {
-            phoneName = DeviceManager.Singleton.INSTANCE.getInstance().getConfig().name;
+            phoneName = DeviceManager.INSTANCE.getConfig().name;
             client.writeToStream(pack());
         } catch (IOException e) {
             e.printStackTrace();

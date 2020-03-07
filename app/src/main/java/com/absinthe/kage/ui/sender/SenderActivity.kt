@@ -41,7 +41,7 @@ class SenderActivity : BaseActivity() {
         mImageListener = object : OnChooseItemListener {
 
             override fun onChoose(itemUri: String) {
-                if (DeviceManager.Singleton.INSTANCE.instance.isConnected) {
+                if (DeviceManager.isConnected) {
                     ImageProxy.getInstance().cast(itemUri)
                 } else {
                     startActivity(Intent(this@SenderActivity, ConnectActivity::class.java))
@@ -50,7 +50,7 @@ class SenderActivity : BaseActivity() {
             }
 
             override fun onStop() {
-                if (DeviceManager.Singleton.INSTANCE.instance.isConnected) {
+                if (DeviceManager.isConnected) {
                     ImageProxy.getInstance().stop()
                 } else {
                     startActivity(Intent(this@SenderActivity, ConnectActivity::class.java))

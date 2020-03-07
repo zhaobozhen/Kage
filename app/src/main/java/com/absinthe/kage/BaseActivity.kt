@@ -27,11 +27,11 @@ open class BaseActivity : AppCompatActivity() {
 
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
-        val deviceManager = DeviceManager.Singleton.INSTANCE.instance
-        if (deviceManager.isConnected) {
+
+        if (DeviceManager.isConnected) {
             val command = DeviceRotationCommand()
             command.flag = newConfig.orientation
-            deviceManager.sendCommandToCurrentDevice(command)
+            DeviceManager.sendCommandToCurrentDevice(command)
         }
     }
 }

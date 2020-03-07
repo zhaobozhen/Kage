@@ -38,11 +38,11 @@ class TCPService : LifecycleService() {
         super.onCreate()
         startForeground(1, notificationInstance)
 
-        val deviceManager = DeviceManager.Singleton.INSTANCE.instance
-        deviceManager.init()
-        addProxy(deviceManager)
-        deviceManager.startMonitorDevice(2000)
-        lifecycle.addObserver(deviceManager)
+        DeviceManager.init()
+        addProxy(DeviceManager)
+        DeviceManager.scanPeriod = 2000
+        DeviceManager.startMonitorDevice()
+        lifecycle.addObserver(DeviceManager)
 
         GlobalScope.launch(Dispatchers.IO) {
             try {

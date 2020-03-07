@@ -21,7 +21,7 @@ class ConnectActivity : BaseActivity() {
     private lateinit var mBinding: ActivityConnectBinding
     private lateinit var mObserver: IDeviceObserver
     private var mAdapter: DeviceAdapter = DeviceAdapter()
-    private var mDeviceManager: DeviceManager = DeviceManager.Singleton.INSTANCE.instance
+    private var mDeviceManager: DeviceManager = DeviceManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -58,8 +58,8 @@ class ConnectActivity : BaseActivity() {
         mBinding.rvDevices.layoutManager = LinearLayoutManager(this)
 
         val list = mDeviceManager.deviceInfoList
-        if (list.size > 0) {
-            mAdapter.setNewData(list)
+        if (list.isNotEmpty()) {
+            mAdapter.setNewData(list as MutableList<DeviceInfo>)
             switchContainer(VF_DEVICE_LIST)
         }
 

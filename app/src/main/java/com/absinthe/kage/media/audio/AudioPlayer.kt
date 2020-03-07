@@ -119,9 +119,8 @@ object AudioPlayer: Observable(), Playback.Callback {
     }
 
     fun resumePlay() {
-        val deviceManager = DeviceManager.Singleton.INSTANCE.instance
-        if (deviceManager.isConnected) {
-            deviceManager.sendCommandToCurrentDevice(ResumePlayCommand())
+        if (DeviceManager.isConnected) {
+            DeviceManager.sendCommandToCurrentDevice(ResumePlayCommand())
         }
     }
 

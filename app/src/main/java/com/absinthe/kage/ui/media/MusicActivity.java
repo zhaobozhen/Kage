@@ -170,7 +170,7 @@ public class MusicActivity extends BaseActivity implements Observer {
     }
 
     private void initListener() {
-        mDeviceManager = DeviceManager.Singleton.INSTANCE.getInstance();
+        mDeviceManager = DeviceManager.INSTANCE;
         deviceObserver = new DeviceObserverImpl() {
             @Override
             public void onDeviceConnected(DeviceInfo deviceInfo) {
@@ -212,7 +212,7 @@ public class MusicActivity extends BaseActivity implements Observer {
             }
         });
         mBinding.btnCast.setOnClickListener(v -> {
-            if (DeviceManager.Singleton.INSTANCE.getInstance().isConnected()) {
+            if (DeviceManager.INSTANCE.isConnected()) {
                 mAudioPlayer.setPlayerType(AudioPlayer.TYPE_REMOTE);
             } else {
                 startActivity(new Intent(MusicActivity.this, ConnectActivity.class));

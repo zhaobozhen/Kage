@@ -21,6 +21,22 @@ class DeviceScanner {
     val devices: Map<String?, Device>
         get() = mDevices
 
+    var scanPeriod: Int
+        get() {
+            synchronized(LOCK) {
+                return if (mNoticeOnlineThread != null && !mNoticeOnlineThread!!.isStopped) {
+                    mNoticeOnlineThread!!.period
+                } else -1
+            }
+        }
+        set(value) {
+            synchronized(LOCK) {
+                if (mNoticeOnlineThread != null && !mNoticeOnlineThread!!.isStopped) {
+                    mNoticeOnlineThread!!.period = value
+                }
+            }
+        }
+
     fun setConfig(config: DeviceConfig) {
         synchronized(LOCK) { mConfig = config }
     }
@@ -140,15 +156,6 @@ class DeviceScanner {
             mScanCallback = null
         }
     }
-
-    val scanPeriod: Int
-        get() {
-            synchronized(LOCK) {
-                return if (mNoticeOnlineThread != null && !mNoticeOnlineThread!!.isStopped) {
-                    mNoticeOnlineThread!!.period
-                } else -1
-            }
-        }
 
     fun onlineDevice(deviceInfo: DeviceInfo): DeviceInfo? {
         return if (!mDevices.containsKey(deviceInfo.ip)) {
