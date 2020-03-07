@@ -57,6 +57,7 @@ dependencies {
     implementation 'it.sephiroth.android.library.imagezoom:imagezoom:2.3.0'
     implementation 'com.blankj:utilcodex:1.26.0'
     implementation 'com.google.code.gson:gson:2.8.6'
+    implementation 'com.airbnb.android:lottie:3.4.0'
 
     testImplementation 'junit:junit:4.13'
     annotationProcessor 'com.github.bumptech.glide:compiler:4.11.0'
