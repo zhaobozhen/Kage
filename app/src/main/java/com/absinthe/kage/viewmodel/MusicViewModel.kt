@@ -19,7 +19,7 @@ class MusicViewModel(application: Application) : AndroidViewModel(application) {
         GlobalScope.launch(Dispatchers.IO) {
             val list = MusicHelper.getAllLocalMusic(context)
             withContext(Dispatchers.Main) {
-                musicList.setValue(list)
+                musicList.setValue(list as MutableList<LocalMusic>)
             }
         }
     }

@@ -26,7 +26,7 @@ public class InquiryDurationCommand extends Command {
 
     @Override
     public void doWork(Client client, String received) {
-        int duration = AudioPlayer.getInstance(client.getContext()).getDuration();
+        int duration = AudioPlayer.INSTANCE.getDuration();
         SetDurationCommand command = new SetDurationCommand();
         command.duration = duration;
 

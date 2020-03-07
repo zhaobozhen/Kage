@@ -19,13 +19,14 @@ import java.util.*
 class MusicListActivity : BaseActivity() {
 
     private lateinit var mBinding: ActivityMusicListBinding
-    private var mViewModel: MusicViewModel = ViewModelProvider(this).get(MusicViewModel::class.java)
+    private lateinit var mViewModel: MusicViewModel
     private var mAdapter: MusicListAdapter = MusicListAdapter()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         mBinding = ActivityMusicListBinding.inflate(layoutInflater)
+        mViewModel = ViewModelProvider(this).get(MusicViewModel::class.java)
         setContentView(mBinding.root)
         initView()
         initData()

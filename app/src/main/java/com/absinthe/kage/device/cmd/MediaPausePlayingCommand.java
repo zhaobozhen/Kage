@@ -26,9 +26,8 @@ public class MediaPausePlayingCommand extends Command {
 
     @Override
     public void doWork(Client client, String received) {
-        AudioPlayer audioPlayer = AudioPlayer.getInstance(client.getContext());
-        if (audioPlayer.getPlayState() == PlaybackState.STATE_PLAYING) {
-            audioPlayer.pause();
+        if (AudioPlayer.INSTANCE.getPlayState() == PlaybackState.STATE_PLAYING) {
+            AudioPlayer.INSTANCE.pause();
         }
     }
 

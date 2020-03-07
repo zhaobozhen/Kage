@@ -19,7 +19,7 @@ class MusicListAdapter : BaseQuickAdapter<LocalMusic, BaseViewHolder>(R.layout.i
         helper.setText(R.id.tv_artist, item.artist)
         val ivAlbum: ImageView = helper.getView(R.id.iv_album)
         Glide.with(context)
-                .load(MusicHelper.getAlbumArt(context, item.albumId.toLong()))
+                .load(MusicHelper.getAlbumArt(item.albumId.toLong()))
                 .transition(DrawableTransitionOptions.withCrossFade())
                 .apply(RequestOptions.bitmapTransform(RoundedCorners(ConvertUtils.dp2px(3f))))
                 .placeholder(R.drawable.ic_album)

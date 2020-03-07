@@ -241,7 +241,7 @@ public class MusicActivity extends BaseActivity implements Observer {
     }
 
     private void initPlayer() {
-        mAudioPlayer = AudioPlayer.getInstance(this);
+        mAudioPlayer = AudioPlayer.INSTANCE;
         mAudioPlayer.setPlayerType(AudioPlayer.TYPE_LOCAL);
         mAudioPlayer.playMedia(mLocalMusic);
 
@@ -331,7 +331,7 @@ public class MusicActivity extends BaseActivity implements Observer {
     private void applyRouletteAndBlurBackground(int albumId) {
         Glide.with(this)
                 .asBitmap()
-                .load(MusicHelper.getAlbumArt(this, albumId))
+                .load(MusicHelper.getAlbumArt(albumId))
                 .into(new CustomTarget<Bitmap>() {
                     @Override
                     public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {

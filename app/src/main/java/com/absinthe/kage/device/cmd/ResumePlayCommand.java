@@ -21,7 +21,7 @@ public class ResumePlayCommand extends Command {
 
     @Override
     public void doWork(Client client, String received) {
-        AudioPlayer.getInstance(client.getContext()).play();
+        AudioPlayer.INSTANCE.play();
     }
 
     @Override

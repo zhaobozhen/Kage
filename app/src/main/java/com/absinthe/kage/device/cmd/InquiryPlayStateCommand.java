@@ -24,7 +24,7 @@ public class InquiryPlayStateCommand extends Command {
     @Override
     public void doWork(Client client, String received) {
         SetPlayStateCommand command = new SetPlayStateCommand();
-        command.stateCode = AudioPlayer.getInstance(client.getContext()).getPlayState();
+        command.stateCode = AudioPlayer.INSTANCE.getPlayState();
 
         try {
             client.writeToStream(command.pack());

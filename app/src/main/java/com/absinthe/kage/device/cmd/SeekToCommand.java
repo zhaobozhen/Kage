@@ -28,7 +28,7 @@ public class SeekToCommand extends Command {
     @Override
     public void doWork(Client client, String received) {
         if (parseReceived(received)) {
-            AudioPlayer.getInstance(client.getContext()).seekTo(position);
+            AudioPlayer.INSTANCE.seekTo(position);
         }
     }
 

@@ -26,7 +26,7 @@ public class InquiryPlayingPositionCommand extends Command {
 
     @Override
     public void doWork(Client client, String received) {
-        int position = AudioPlayer.getInstance(client.getContext()).getCurrentPosition();
+        int position = AudioPlayer.INSTANCE.getCurrentPosition();
 
         SetPlayingPositionCommand command = new SetPlayingPositionCommand();
         command.position = position;
