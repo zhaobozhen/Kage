@@ -6,11 +6,10 @@ import android.os.*
 import android.os.PowerManager.WakeLock
 import android.util.Log
 import com.absinthe.kage.KageApplication
-import com.absinthe.kage.device.DeviceManager
-import com.absinthe.kage.device.cmd.ResumePlayCommand
 import com.absinthe.kage.media.LocalMedia
 import com.absinthe.kage.media.PlayList
 import com.absinthe.kage.media.Playback
+import com.absinthe.kage.utils.Logger
 import java.util.*
 
 object AudioPlayer: Observable(), Playback.Callback {
@@ -75,11 +74,6 @@ object AudioPlayer: Observable(), Playback.Callback {
     fun playMedia(media: LocalMedia) {
         mPosition = 0
         mPlayback!!.playMedia(media)
-        if (mPlaylist == null) {
-            mPlaylist = PlayList()
-        }
-        mPlaylist!!.addMedia(media)
-        mPlaylist!!.currentIndex = 0
     }
 
     fun playMediaList(playList: PlayList?) {

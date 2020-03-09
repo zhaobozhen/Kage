@@ -4,14 +4,14 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/gray"
     tools:context=".ui.media.MusicActivity">
 
     <ImageView
         android:id="@+id/iv_background"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:scaleType="centerCrop"
-        android:src="@color/gray" />
+        android:scaleType="centerCrop" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -38,6 +38,7 @@
                 android:id="@+id/music_roulette"
                 android:layout_width="@dimen/music_roulette_size"
                 android:layout_height="@dimen/music_roulette_size"
+                android:src="@mipmap/pic_album_placeholder"
                 app:borderColor="@color/musicRouletteBorder"
                 app:borderWidth="25dp" />
 

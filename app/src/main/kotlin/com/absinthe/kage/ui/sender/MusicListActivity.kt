@@ -10,11 +10,11 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.absinthe.kage.BaseActivity
 import com.absinthe.kage.adapter.MusicListAdapter
 import com.absinthe.kage.databinding.ActivityMusicListBinding
+import com.absinthe.kage.media.MusicList
 import com.absinthe.kage.media.audio.LocalMusic
 import com.absinthe.kage.ui.media.MusicActivity
 import com.absinthe.kage.viewmodel.MusicViewModel
 import com.chad.library.adapter.base.BaseQuickAdapter
-import java.util.*
 
 class MusicListActivity : BaseActivity() {
 
@@ -52,7 +52,8 @@ class MusicListActivity : BaseActivity() {
         mViewModel.musicList.observe(this, Observer { localMusics: MutableList<LocalMusic> ->
             mBinding.srlContainer.isRefreshing = false
             mAdapter.setNewData(localMusics)
-            sMusicList = localMusics
+            MusicList.musicList.clear()
+            MusicList.musicList.addAll(localMusics)
             mBinding.srlContainer.isEnabled = false
         })
 
@@ -66,10 +67,5 @@ class MusicListActivity : BaseActivity() {
             return true
         }
         return super.onOptionsItemSelected(item)
-    }
-
-    companion object {
-        @JvmField
-        var sMusicList: List<LocalMusic> = ArrayList()
     }
 }

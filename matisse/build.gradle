@@ -36,12 +36,12 @@ android {
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 
-    implementation "androidx.appcompat:appcompat:" + rootProject.ext.APPCOMPAT
-    implementation 'androidx.lifecycle:lifecycle-extensions:' + rootProject.ext.LIFECYCLE
+    implementation "androidx.appcompat:appcompat:$app_compat_version"
+    implementation "androidx.lifecycle:lifecycle-extensions:$lifecycle_version"
     implementation "androidx.annotation:annotation:1.1.0"
     implementation "androidx.recyclerview:recyclerview:1.1.0"
     implementation 'it.sephiroth.android.library.imagezoom:imagezoom:2.3.0'
-    compileOnly 'com.github.bumptech.glide:glide:' + rootProject.ext.GLIDE
+    compileOnly "com.github.bumptech.glide:glide:$glide_version"
     compileOnly 'com.squareup.picasso:picasso:2.5.2'
 }
 

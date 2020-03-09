@@ -1,5 +1,7 @@
 package com.absinthe.kage.view
 
+import android.animation.ObjectAnimator
+import android.animation.ValueAnimator
 import android.content.Context
 import android.graphics.*
 import android.graphics.Shader.TileMode
@@ -10,8 +12,10 @@ import android.net.Uri
 import android.util.AttributeSet
 import android.view.View
 import android.view.ViewOutlineProvider
+import android.view.animation.LinearInterpolator
 import androidx.appcompat.widget.AppCompatImageView
 import com.absinthe.kage.R
+import com.absinthe.kage.utils.Logger
 
 class MusicRouletteView : AppCompatImageView {
 
@@ -20,14 +24,17 @@ class MusicRouletteView : AppCompatImageView {
     private val mBorderRect: RectF
     private val mDrawableRect: RectF
     private val mShaderMatrix: Matrix
+
     private var mBitmap: Bitmap? = null
     private var mBitmapShader: BitmapShader? = null
+    private var mObjectAnimator: ObjectAnimator = ObjectAnimator()
     private var mBitmapHeight = 0
     private var mBitmapWidth = 0
     private var mBorderWidth: Int
     private var mBorderColor: Int
-    private var mBorderRadius = 0f
-    private var mDrawableRadius = 0f
+    private var mBorderRadius = 0.0f
+    private var mDrawableRadius = 0.0f
+    private var mCurrentRotation = 0.0f
     private var mIsReady = false
     private var mIsSetupPending = false
 
@@ -125,6 +132,26 @@ class MusicRouletteView : AppCompatImageView {
         setup()
     }
 
+    fun startAnimation() {
+        if (!mObjectAnimator.isStarted) {
+            mObjectAnimator.setFloatValues(mCurrentRotation, mCurrentRotation + 360.0f)
+            mObjectAnimator.start()
+        }
+    }
+
+    fun pauseAnimation() {
+        if (mObjectAnimator.isStarted) {
+            mObjectAnimator.cancel()
+        }
+    }
+
+    fun stopAnimation() {
+        if (mObjectAnimator.isStarted || mObjectAnimator.isRunning) {
+            mObjectAnimator.end()
+        }
+        mCurrentRotation = 0.0f
+    }
+
     private fun init() {
         super.setScaleType(SCALE_TYPE)
         mIsReady = true
@@ -156,6 +183,7 @@ class MusicRouletteView : AppCompatImageView {
     }
 
     private fun setup() {
+        Logger.runningHere()
         if (mIsReady) {
             if (mBitmap != null) {
                 mBitmapShader = BitmapShader(mBitmap!!, TileMode.CLAMP, TileMode.CLAMP)
@@ -172,6 +200,7 @@ class MusicRouletteView : AppCompatImageView {
                 mDrawableRect[mBorderWidth.toFloat(), mBorderWidth.toFloat(), mBorderRect.width() - mBorderWidth.toFloat()] = mBorderRect.height() - mBorderWidth.toFloat()
                 mDrawableRadius = (mDrawableRect.height() / 2.0f).coerceAtMost(mDrawableRect.width() / 2.0f)
                 updateShaderMatrix()
+                initAnimator()
                 invalidate()
                 return
             }
@@ -196,6 +225,21 @@ class MusicRouletteView : AppCompatImageView {
         val i = (dx + 0.5f).toInt()
         mShaderMatrix.postTranslate((i + mBorderWidth).toFloat(), ((0.5f + dy).toInt() + mBorderWidth).toFloat())
         mBitmapShader!!.setLocalMatrix(mShaderMatrix)
+    }
+
+    private fun initAnimator() {
+        mCurrentRotation = 0.0f
+        mObjectAnimator.target = this
+        mObjectAnimator.setPropertyName("rotation")
+        mObjectAnimator.duration = 20000
+        mObjectAnimator.interpolator = LinearInterpolator()
+        mObjectAnimator.repeatCount = ValueAnimator.INFINITE
+        mObjectAnimator.repeatMode = ValueAnimator.RESTART
+        mObjectAnimator.addUpdateListener { animation: ValueAnimator -> mCurrentRotation = animation.animatedValue as Float }
+
+        if (mObjectAnimator.isStarted) {
+            mObjectAnimator.cancel()
+        }
     }
 
     private class CustomOutline internal constructor(var width: Int, var height: Int) : ViewOutlineProvider() {
