@@ -17,9 +17,8 @@ import com.tbruyelle.rxpermissions2.RxPermissions
 import com.zhihu.matisse.Matisse
 import com.zhihu.matisse.MimeType
 import com.zhihu.matisse.engine.impl.GlideEngine
-import com.zhihu.matisse.internal.entity.Album
-import com.zhihu.matisse.internal.entity.Item
 import com.zhihu.matisse.internal.ui.adapter.AlbumMediaAdapter
+import com.zhihu.matisse.internal.utils.PathUtils
 import com.zhihu.matisse.listener.OnChooseItemListener
 
 class SenderActivity : BaseActivity() {
@@ -71,11 +70,11 @@ class SenderActivity : BaseActivity() {
             }
         }
 
-        mVideoListener = AlbumMediaAdapter.OnMediaClickListener { album, item, adapterPosition ->
+        mVideoListener = AlbumMediaAdapter.OnMediaClickListener { _, item, _ ->
             val localMedia = LocalMedia()
             localMedia.type = LocalMedia.TYPE_VIDEO
             localMedia.title = "Unknown"
-            localMedia.filePath = item?.uri.toString()
+            localMedia.filePath = PathUtils.getPath(this, item?.uri)
 
             val intent = Intent(this@SenderActivity, VideoActivity::class.java)
             intent.putExtra(VideoActivity.EXTRA_MEDIA, localMedia)

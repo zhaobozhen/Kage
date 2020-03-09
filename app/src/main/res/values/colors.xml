@@ -15,4 +15,5 @@
 
     <color name="aboutHeader">#FFFFC107</color>
     <color name="musicRouletteBorder">#FF232323</color>
+    <color name="videoPlayerBackground">#4C000000</color>
 </resources>

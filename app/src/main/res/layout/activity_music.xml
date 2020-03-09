@@ -53,11 +53,11 @@
 
         <include
             android:id="@+id/layout_seek_bar"
-            layout="@layout/layout_music_seekbar"
+            layout="@layout/layout_music_seek_bar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="30dp"
-            android:layout_marginEnd="30dp"
+            android:layout_marginStart="@dimen/seek_bar_margin_horizontal"
+            android:layout_marginEnd="@dimen/seek_bar_margin_horizontal"
             android:layout_marginBottom="30dp"
             app:layout_constraintBottom_toTopOf="@id/btn_cast" />
 

@@ -10,6 +10,7 @@
     <dimen name="music_roulette_size">300dp</dimen>
     <dimen name="music_control_size">60dp</dimen>
     <dimen name="music_control_inset">5dp</dimen>
+    <dimen name="seek_bar_margin_horizontal">30dp</dimen>
 
     <dimen name="category_card_height">200dp</dimen>
     <dimen name="category_card_corner_radius">3dp</dimen>

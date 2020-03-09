@@ -1,5 +1,7 @@
 package com.absinthe.kage.ui.media
 
+import android.content.Intent
+import android.graphics.Color
 import android.media.session.PlaybackState
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
@@ -10,7 +12,7 @@ import com.absinthe.kage.device.IDeviceObserver
 import com.absinthe.kage.device.model.DeviceInfo
 import com.absinthe.kage.media.LocalMedia
 import com.absinthe.kage.media.video.VideoPlayer
-import com.absinthe.kage.utils.ToastUtil
+import com.absinthe.kage.ui.connect.ConnectActivity
 
 class VideoActivity : AppCompatActivity() {
 
@@ -21,12 +23,12 @@ class VideoActivity : AppCompatActivity() {
 
         override fun onDeviceConnected(deviceInfo: DeviceInfo?) {
             super.onDeviceConnected(deviceInfo)
-            ToastUtil.makeText("Connected")
+            mBinding.toolbar.ibConnect.isSelected = true
         }
 
         override fun onDeviceDisConnect(deviceInfo: DeviceInfo?) {
             super.onDeviceDisConnect(deviceInfo)
-            ToastUtil.makeText("Disconnected")
+            mBinding.toolbar.ibConnect.isSelected = false
         }
     }
     private var mLocalMedia: LocalMedia? = null
@@ -50,6 +52,9 @@ class VideoActivity : AppCompatActivity() {
     }
 
     private fun initView() {
+        window.statusBarColor = Color.BLACK
+        window.navigationBarColor = Color.BLACK
+
         mVideoPlayer = mBinding.videoPlayer
         mVideoPlayer.setVideoPlayCallback(object : VideoPlayer.VideoPlayCallback {
 
@@ -60,6 +65,17 @@ class VideoActivity : AppCompatActivity() {
                 mPlayState = state
             }
         })
+        mBinding.toolbar.ibBack.setOnClickListener { finish() }
+        mBinding.toolbar.ibConnect.setOnClickListener {
+            startActivity(Intent(this, ConnectActivity::class.java))
+        }
+        mBinding.btnCast.setOnClickListener {
+            if (DeviceManager.isConnected) {
+                mVideoPlayer.setPlayerType(VideoPlayer.TYPE_REMOTE)
+            } else {
+                startActivity(Intent(this, ConnectActivity::class.java))
+            }
+        }
     }
 
     private fun getMedia() {
@@ -71,7 +87,7 @@ class VideoActivity : AppCompatActivity() {
 
     private fun initPlayer() {
         mLocalMedia?.let { mVideoPlayer.playMedia(it) }
-        mVideoPlayer.changePlayer(VideoPlayer.TYPE_LOCAL)
+        mVideoPlayer.setPlayerType(VideoPlayer.TYPE_LOCAL)
     }
 
     companion object {

@@ -45,7 +45,7 @@
 
         <include
             android:id="@+id/layout_seek_bar"
-            layout="@layout/layout_music_seekbar"
+            layout="@layout/layout_music_seek_bar"
             android:layout_width="150dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
@@ -58,7 +58,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="40dp"
-            android:text="Cast"
+            android:text="@string/btn_cast_to_device_land"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />

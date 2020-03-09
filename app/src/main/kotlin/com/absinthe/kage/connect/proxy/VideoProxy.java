@@ -48,8 +48,7 @@ public class VideoProxy extends BaseProxy {
     }
 
     public void play(VideoInfo videoInfo) {
-        if (null != videoInfo && null != videoInfo.getUrl()
-                && null != mDevice && mDevice.isConnected()) {
+        if (videoInfo.getUrl() != null && mDevice != null && mDevice.isConnected()) {
             mDevice.unregisterOnReceiveMsgListener(mOnReceiveMsgListener);
             cancelInquiryPlayState();
             cancelInquiryCurrentPosition();

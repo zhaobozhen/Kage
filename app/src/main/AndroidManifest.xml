@@ -73,7 +73,8 @@
         <activity
             android:name=".ui.media.VideoActivity"
             android:configChanges="orientation|screenSize"
-            android:launchMode="singleTask" />
+            android:launchMode="singleTask"
+            android:theme="@style/AppTheme.NoActionBar" />
 
         <uses-library
             android:name="org.apache.http.legacy"

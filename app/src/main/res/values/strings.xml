@@ -35,5 +35,6 @@
 
     <!--  Music  -->
     <string name="btn_cast_to_device">Cast to Device</string>
+    <string name="btn_cast_to_device_land">Cast</string>
 
 </resources>

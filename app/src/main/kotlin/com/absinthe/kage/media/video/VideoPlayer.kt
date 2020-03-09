@@ -119,7 +119,7 @@ open class VideoPlayer : FrameLayout, Playback.Callback {
         }
     }
 
-    fun changePlayer(type: Int) {
+    fun setPlayerType(type: Int) {
         if (mPlayback != null) {
             mBeforePosition = mPlayback!!.currentPosition
             mPlayback!!.stop(true)

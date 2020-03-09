@@ -8,7 +8,6 @@
         android:id="@+id/iv_play"
         android:layout_width="30dp"
         android:layout_height="30dp"
-        android:layout_marginStart="10dp"
         android:background="?attr/selectableItemBackgroundBorderless"
         android:scaleType="center"
         android:src="@drawable/ic_play_arrow"
@@ -18,10 +17,9 @@
 
     <include
         android:id="@+id/seekbar"
-        layout="@layout/layout_music_seekbar"
+        layout="@layout/layout_music_seek_bar"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="10dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@id/iv_play"
