@@ -9,7 +9,6 @@ import com.absinthe.kage.KageApplication
 import com.absinthe.kage.media.LocalMedia
 import com.absinthe.kage.media.PlayList
 import com.absinthe.kage.media.Playback
-import com.absinthe.kage.utils.Logger
 import java.util.*
 
 object AudioPlayer: Observable(), Playback.Callback {
@@ -114,17 +113,23 @@ object AudioPlayer: Observable(), Playback.Callback {
 
     fun playNext() {
         if (mPlaylist != null) {
-            playMedia(mPlaylist!!.getNextMedia(
+            val next: LocalMedia? = mPlaylist?.getNextMedia(
                     mPlayMode == REPEAT_ONE || mPlayMode == REPEAT_ALL,
-                    mPlayMode == SHUFFLED))
+                    mPlayMode == SHUFFLED)
+            if (next != null) {
+                playMedia(next)
+            }
         }
     }
 
     fun playPrevious() {
         if (mPlaylist != null) {
-            playMedia(mPlaylist!!.getPreviousMedia(
+            val previous: LocalMedia? = mPlaylist?.getPreviousMedia(
                     mPlayMode == REPEAT_ONE || mPlayMode == REPEAT_ALL,
-                    mPlayMode == SHUFFLED))
+                    mPlayMode == SHUFFLED)
+            if (previous != null) {
+                playMedia(previous)
+            }
         }
     }
 

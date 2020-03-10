@@ -337,6 +337,7 @@ public final class SelectionCreator {
     @NonNull
     public SelectionCreator setOnChooseItemListener(@Nullable OnChooseItemListener listener) {
         mSelectionSpec.onChooseItemListener = listener;
+        mSelectionSpec.onMediaClickListener = null;
         return this;
     }
 

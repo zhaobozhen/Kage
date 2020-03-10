@@ -50,11 +50,15 @@ public class MediaSelectionFragment extends Fragment implements
     private AlbumMediaAdapter.OnMediaClickListener mOnMediaClickListener;
     private boolean isRegisterListener = false;
 
-    public static MediaSelectionFragment newInstance(Album album) {
+    public static MediaSelectionFragment newInstance(Album album, AlbumMediaAdapter.OnMediaClickListener listener) {
         MediaSelectionFragment fragment = new MediaSelectionFragment();
         Bundle args = new Bundle();
         args.putParcelable(EXTRA_ALBUM, album);
         fragment.setArguments(args);
+        if (listener != null) {
+            fragment.mOnMediaClickListener = listener;
+            fragment.isRegisterListener = true;
+        }
         return fragment;
     }
 
@@ -68,6 +72,11 @@ public class MediaSelectionFragment extends Fragment implements
         }
         if (context instanceof AlbumMediaAdapter.CheckStateListener) {
             mCheckStateListener = (AlbumMediaAdapter.CheckStateListener) context;
+        }
+        if (!isRegisterListener) {
+            if (context instanceof AlbumMediaAdapter.OnMediaClickListener) {
+                mOnMediaClickListener = (AlbumMediaAdapter.OnMediaClickListener) context;
+            }
         }
     }
 

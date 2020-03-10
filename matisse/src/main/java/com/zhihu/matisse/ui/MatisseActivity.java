@@ -399,12 +399,16 @@ public class MatisseActivity extends AppCompatActivity implements
         } else {
             mContainer.setVisibility(View.VISIBLE);
             mEmptyView.setVisibility(View.GONE);
-            MediaSelectionFragment fragment = MediaSelectionFragment.newInstance(album);
+            MediaSelectionFragment fragment;
+            if (mSpec.onMediaClickListener != null) {
+                fragment = MediaSelectionFragment.newInstance(album, mSpec.onMediaClickListener);
+            } else {
+                fragment = MediaSelectionFragment.newInstance(album, null);
+            }
             getSupportFragmentManager()
                     .beginTransaction()
                     .replace(R.id.container, fragment, MediaSelectionFragment.class.getSimpleName())
                     .commitAllowingStateLoss();
-            fragment.registerItemClickListener(mSpec.onMediaClickListener);
         }
     }
 

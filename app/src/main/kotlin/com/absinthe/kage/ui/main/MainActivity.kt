@@ -11,8 +11,6 @@ import com.absinthe.kage.Settings.deviceNecessary
 import com.absinthe.kage.databinding.ActivityMainBinding
 import com.absinthe.kage.device.DeviceManager
 import com.absinthe.kage.service.TCPService
-import com.absinthe.kage.service.TCPService.Companion.start
-import com.absinthe.kage.service.TCPService.Companion.stop
 import com.absinthe.kage.ui.about.AboutActivity
 import com.absinthe.kage.ui.connect.ConnectActivity
 import com.absinthe.kage.ui.sender.SenderActivity
@@ -32,12 +30,12 @@ class MainActivity : BaseActivity() {
         Log.d(TAG, "OnCreate")
 
         if (!ServiceUtils.isServiceRunning(TCPService::class.java)) {
-            start(this)
+            TCPService.start(this)
         }
     }
 
     override fun onDestroy() {
-        stop(this)
+        TCPService.stop(this)
         super.onDestroy()
     }
 
