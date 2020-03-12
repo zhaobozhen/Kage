@@ -65,7 +65,7 @@ object AudioPlayer: Observable(), Playback.Callback {
             (mPlayback as RemoteAudioPlayback).setCallback(this)
         }
         if (mPlayback != null && mPlaylist != null) {
-            mPlayback!!.playMedia(mPlaylist!!.currentMedia)
+            mPlaylist?.currentMedia?.let { mPlayback!!.playMedia(it) }
         }
     }
 
@@ -94,7 +94,7 @@ object AudioPlayer: Observable(), Playback.Callback {
             if (mPlayback is RemoteAudioPlayback) {
                 (mPlayback as RemoteAudioPlayback).playListMedia(mPlaylist!!)
             } else if (mPlayback is LocalAudioPlayback) {
-                (mPlayback as LocalAudioPlayback).playMedia(mPlaylist!!.currentMedia)
+                mPlaylist!!.currentMedia?.let { (mPlayback as LocalAudioPlayback).playMedia(it) }
             }
         }
     }

@@ -11,6 +11,7 @@ import com.absinthe.kage.connect.proxy.ImageProxy
 import com.absinthe.kage.databinding.ActivitySenderBinding
 import com.absinthe.kage.device.DeviceManager
 import com.absinthe.kage.media.LocalMedia
+import com.absinthe.kage.media.TYPE_VIDEO
 import com.absinthe.kage.ui.connect.ConnectActivity
 import com.absinthe.kage.ui.media.VideoActivity
 import com.absinthe.kage.utils.ToastUtil.makeText
@@ -74,7 +75,7 @@ class SenderActivity : BaseActivity() {
 
         mVideoListener = AlbumMediaAdapter.OnMediaClickListener { _, item, _ ->
             val localMedia = LocalMedia()
-            localMedia.type = LocalMedia.TYPE_VIDEO
+            localMedia.type = TYPE_VIDEO
             localMedia.title = "Unknown"
             localMedia.filePath = PathUtils.getPath(this, item?.uri)
 

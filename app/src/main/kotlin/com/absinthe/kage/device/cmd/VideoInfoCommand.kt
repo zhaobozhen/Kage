@@ -9,6 +9,7 @@ import com.absinthe.kage.device.Command
 import com.absinthe.kage.device.CommandBuilder
 import com.absinthe.kage.device.client.Client
 import com.absinthe.kage.media.LocalMedia
+import com.absinthe.kage.media.TYPE_VIDEO
 import com.absinthe.kage.ui.media.VideoActivity
 
 class VideoInfoCommand : Command() {
@@ -35,7 +36,7 @@ class VideoInfoCommand : Command() {
                 if (!TextUtils.isEmpty(ip)) {
                     localMedia.filePath = String.format(Const.HTTP_SERVER_FORMAT, ip) + url
                     localMedia.title = title
-                    localMedia.type = LocalMedia.TYPE_VIDEO
+                    localMedia.type = TYPE_VIDEO
 
                     val intent = Intent(client.context, VideoActivity::class.java)
                     intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)

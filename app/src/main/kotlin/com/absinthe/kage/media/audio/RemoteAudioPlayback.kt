@@ -52,7 +52,7 @@ class RemoteAudioPlayback internal constructor() : Playback {
                 Log.d(TAG, "onPlayIndexChanged: $index")
                 mPlayList!!.currentIndex = index
                 if (mCallback != null) {
-                    mCallback!!.onMediaMetadataChanged(mPlayList!!.currentMedia)
+                    mPlayList!!.currentMedia?.let { mCallback!!.onMediaMetadataChanged(it) }
                 }
             }
         })
@@ -65,7 +65,7 @@ class RemoteAudioPlayback internal constructor() : Playback {
         mPlayList = playlist
         val audioInfos: MutableList<AudioInfo> = ArrayList()
 
-        for (media in playlist.list) {
+        for (media in playlist.list!!) {
             if (media is LocalMusic) {
                 val audioInfo = AudioInfo()
                 audioInfo.name = media.title
@@ -79,7 +79,7 @@ class RemoteAudioPlayback internal constructor() : Playback {
         state = PlaybackState.STATE_BUFFERING
 
         if (mCallback != null) {
-            mCallback?.onMediaMetadataChanged(mPlayList!!.currentMedia)
+            mPlayList!!.currentMedia?.let { mCallback?.onMediaMetadataChanged(it) }
             mCallback?.onPlaybackStateChanged(state)
         }
     }

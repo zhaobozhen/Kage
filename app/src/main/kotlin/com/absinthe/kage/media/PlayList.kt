@@ -83,13 +83,13 @@ class PlayList : Parcelable {
         return mList!![pos]
     }
 
-    fun setList(list: MutableList<LocalMedia?>?) {
+    fun setList(list: List<LocalMedia?>?) {
         setList(list, mCurrentIndex)
     }
 
-    fun setList(list: MutableList<LocalMedia?>?, index: Int) {
+    fun setList(list: List<LocalMedia?>?, index: Int) {
         if (mList == null) {
-            mList = list
+            mList = list as MutableList<LocalMedia?>?
         } else {
             mList!!.clear()
             mList!!.addAll(list!!)

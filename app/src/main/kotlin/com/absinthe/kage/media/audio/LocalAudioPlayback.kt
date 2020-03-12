@@ -9,6 +9,7 @@ import android.media.MediaPlayer
 import android.media.session.PlaybackState
 import android.os.Build
 import android.os.PowerManager
+import android.text.TextUtils
 import android.util.Log
 import com.absinthe.kage.media.LocalMedia
 import com.absinthe.kage.media.Playback
@@ -39,7 +40,7 @@ class LocalAudioPlayback internal constructor(context: Context) : Playback {
         try {
             mMediaPlayer.reset()
 
-            if (localMedia.filePath.isEmpty()) {
+            if (TextUtils.isEmpty(localMedia.filePath)) {
                 state = PlaybackState.STATE_ERROR
                 if (mCallback != null) {
                     mCallback!!.onPlaybackStateChanged(state)

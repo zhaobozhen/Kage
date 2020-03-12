@@ -6,9 +6,8 @@ import android.provider.MediaStore
 import com.blankj.utilcode.util.FileUtils
 
 object VideoHelper {
-    @JvmStatic
-    fun getVideoCoverImage(filePath: String): Bitmap? {
-        return if (FileUtils.isFileExists(filePath)) {
+    fun getVideoCoverImage(filePath: String?): Bitmap? {
+        return if (filePath != null && FileUtils.isFileExists(filePath)) {
             ThumbnailUtils.createVideoThumbnail(filePath, MediaStore.Images.Thumbnails.MINI_KIND)
         } else null
     }

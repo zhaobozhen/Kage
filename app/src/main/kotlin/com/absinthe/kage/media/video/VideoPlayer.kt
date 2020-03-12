@@ -167,7 +167,7 @@ open class VideoPlayer : FrameLayout, Playback.Callback {
     private fun requestCoverImage() {
         if (ivCover.width > 0 && mLocalMedia != null) {
             Log.d(TAG, "mIVCover start load")
-            val bitmap = getVideoCoverImage(mLocalMedia!!.filePath)
+            val bitmap = getVideoCoverImage(mLocalMedia?.filePath)
             isLoaded = true
             ivCover.setImageBitmap(bitmap)
         }

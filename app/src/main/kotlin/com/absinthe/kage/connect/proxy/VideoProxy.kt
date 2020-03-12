@@ -99,7 +99,7 @@ object VideoProxy : BaseProxy() {
     val currentPosition: Int
         get() = mPlayInfo.position
 
-    private fun recycle() {
+    fun recycle() {
         if (mDevice != null) {
             mDevice!!.unregisterOnReceiveMsgListener(mOnReceiveMsgListener)
         }
