@@ -16,7 +16,7 @@ import java.util.*
 class RemoteAudioPlayback internal constructor() : Playback {
 
     private var mCallback: Playback.Callback? = null
-    private val mAudioProxy = AudioProxy.getInstance()
+    private val mAudioProxy = AudioProxy
     private var mPlayList: PlayList? = null
 
     init {
@@ -68,8 +68,8 @@ class RemoteAudioPlayback internal constructor() : Playback {
         for (media in playlist.list) {
             if (media is LocalMusic) {
                 val audioInfo = AudioInfo()
-                audioInfo.name = media.getTitle()
-                audioInfo.url = media.getUrl()
+                audioInfo.name = media.title
+                audioInfo.url = media.url
                 audioInfo.artist = media.artist
                 audioInfo.album = media.album
                 audioInfos.add(audioInfo)
@@ -87,8 +87,8 @@ class RemoteAudioPlayback internal constructor() : Playback {
     override fun playMedia(localMedia: LocalMedia) {
         if (localMedia is LocalMusic) {
             val info = AudioInfo()
-            info.name = localMedia.getTitle()
-            info.url = localMedia.getUrl()
+            info.name = localMedia.title
+            info.url = localMedia.url
             info.artist = localMedia.artist
             info.album = localMedia.album
 

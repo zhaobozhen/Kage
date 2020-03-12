@@ -262,7 +262,7 @@ class MusicActivity : BaseActivity(), Observer {
     private fun updateMediaInfo(media: LocalMedia?) {
         if (media != null) {
             if (media is LocalMusic) {
-                mBinding.toolbar.tvMusicName.text = media.getTitle()
+                mBinding.toolbar.tvMusicName.text = media.title
                 mBinding.toolbar.tvArtist.text = media.artist
                 if (type == TYPE_SENDER) {
                     applyRouletteAndBlurBackground(media.albumId, null)

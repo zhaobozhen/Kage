@@ -9,7 +9,7 @@ import com.absinthe.kage.media.Playback
 
 class RemoteVideoPlayback : Playback {
 
-    private val mVideoProxy = VideoProxy.getInstance()
+    private val mVideoProxy = VideoProxy.instance
     private var mCallback: Playback.Callback? = null
 
     init {

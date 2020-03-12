@@ -3,8 +3,7 @@ package com.absinthe.kage.media.audio
 import android.content.Context
 import android.net.Uri
 import android.provider.MediaStore
-import android.text.TextUtils
-import com.absinthe.kage.media.LocalMedia
+import com.absinthe.kage.media.TYPE_AUDIO
 import java.util.*
 
 object MusicHelper {
@@ -29,7 +28,7 @@ object MusicHelper {
                     music.artist = artist
                     music.artistId = artistId
                     music.filePath = path
-                    music.type = LocalMedia.TYPE_AUDIO
+                    music.type = TYPE_AUDIO
                     result.add(music)
                 }
             } while (cursor.moveToNext())
