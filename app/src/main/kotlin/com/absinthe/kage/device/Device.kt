@@ -18,10 +18,10 @@ class Device(config: DeviceConfig?, protocolVersionString: String?) {
 
     private lateinit var mSocket: KageSocket
     private var mProtocolHandler: IProtocolHandler
-    private val mOnReceiveMsgListeners: MutableList<OnReceiveMsgListener> = ArrayList()
     private var mConnectCallback: IConnectCallback? = null
     private var mHeartbeatSender: HeartbeatSender
 
+    private val mOnReceiveMsgListeners: MutableList<OnReceiveMsgListener> = ArrayList()
     val deviceInfo: DeviceInfo = DeviceInfo()
     var onlineTime: Long = 0
 
@@ -112,7 +112,7 @@ class Device(config: DeviceConfig?, protocolVersionString: String?) {
 
     fun sendCommand(cmd: Command) {
         val data = cmd.pack()
-        data?.let { sendMessage(it) }
+        sendMessage(data)
     }
 
     fun setConnectCallback(connectCallback: IConnectCallback?) {

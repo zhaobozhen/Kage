@@ -41,8 +41,8 @@ class LocalVideoPlayback(private val mVideoView: VideoView) : Playback {
             mVideoView.setVideoPath(localMedia.filePath)
         }
         if (mCallback != null) {
-            mCallback!!.onMediaMetadataChanged(localMedia)
-            mCallback!!.onPlaybackStateChanged(state)
+            mCallback?.onMediaMetadataChanged(localMedia)
+            mCallback?.onPlaybackStateChanged(state)
         }
     }
 

@@ -28,7 +28,6 @@ interface IProtocolHandler {
             private var mHandlerThread: HandlerThread? = null
             private var mHandler: KageProtocolThreadHandler? = null
 
-            @JvmStatic
             val instance: KageProtocolThreadHandler?
                 get() {
                     if (null == mHandler) {

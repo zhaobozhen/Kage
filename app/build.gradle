@@ -4,12 +4,13 @@ apply plugin: 'kotlin-android'
 android {
     compileSdkVersion rootProject.ext.android.compileSdkVersion
     buildToolsVersion rootProject.ext.android.buildToolsVersion
+
     defaultConfig {
         applicationId "com.absinthe.kage"
         minSdkVersion rootProject.ext.android.minSdkVersion
         targetSdkVersion rootProject.ext.android.targetSdkVersion
-        versionCode 302
-        versionName "0.3.2"
+        versionCode 303
+        versionName "0.3.3"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
@@ -63,9 +64,10 @@ dependencies {
     implementation 'com.blankj:utilcodex:1.26.0'
     implementation 'com.google.code.gson:gson:2.8.6'
     implementation 'com.airbnb.android:lottie:3.4.0'
+    implementation 'com.google.android.exoplayer:exoplayer:2.11.3'
 
     testImplementation 'junit:junit:4.13'
-    annotationProcessor 'com.github.bumptech.glide:compiler:4.11.0'
+    annotationProcessor "com.github.bumptech.glide:compiler:$glide_version"
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
 }

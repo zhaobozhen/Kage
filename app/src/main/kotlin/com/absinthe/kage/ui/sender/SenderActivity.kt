@@ -5,6 +5,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import com.absinthe.kage.BaseActivity
+import com.absinthe.kage.BuildConfig
 import com.absinthe.kage.R
 import com.absinthe.kage.connect.proxy.ImageProxy
 import com.absinthe.kage.databinding.ActivitySenderBinding
@@ -36,7 +37,7 @@ class SenderActivity : BaseActivity() {
     }
 
     override fun onDestroy() {
-        ImageProxy.getInstance().close()
+        ImageProxy.close()
         super.onDestroy()
     }
 
@@ -45,7 +46,7 @@ class SenderActivity : BaseActivity() {
 
             override fun onChoose(itemUri: String) {
                 if (DeviceManager.isConnected) {
-                    ImageProxy.getInstance().cast(itemUri)
+                    ImageProxy.cast(itemUri)
                 } else {
                     startActivity(Intent(this@SenderActivity, ConnectActivity::class.java))
                     finish()
@@ -54,7 +55,8 @@ class SenderActivity : BaseActivity() {
 
             override fun onStop() {
                 if (DeviceManager.isConnected) {
-                    ImageProxy.getInstance().stop()
+                    ImageProxy.stop()
+                    ImageProxy.close()
                 } else {
                     startActivity(Intent(this@SenderActivity, ConnectActivity::class.java))
                     finish()
@@ -100,22 +102,26 @@ class SenderActivity : BaseActivity() {
                     }
         }
         mBinding.cardVideo.setOnClickListener {
-            rxPermissions.request(Manifest.permission.READ_EXTERNAL_STORAGE)
-                    .subscribe { grant: Boolean ->
-                        if (grant) {
-                            Matisse.from(this@SenderActivity)
-                                    .choose(MimeType.ofVideo())
-                                    .showSingleMediaType(true)
-                                    .countable(false)
-                                    .maxSelectable(1)
-                                    .theme(com.zhihu.matisse.R.style.Matisse_Dracula)
-                                    .setOnMediaClickListener(mVideoListener)
-                                    .imageEngine(GlideEngine())
-                                    .forResult(REQUEST_CODE_CHOOSE)
-                        } else {
-                            makeText(R.string.toast_grant_storage_perm)
+            if (BuildConfig.DEBUG) {
+                rxPermissions.request(Manifest.permission.READ_EXTERNAL_STORAGE)
+                        .subscribe { grant: Boolean ->
+                            if (grant) {
+                                Matisse.from(this@SenderActivity)
+                                        .choose(MimeType.ofVideo())
+                                        .showSingleMediaType(true)
+                                        .countable(false)
+                                        .maxSelectable(1)
+                                        .theme(com.zhihu.matisse.R.style.Matisse_Dracula)
+                                        .setOnMediaClickListener(mVideoListener)
+                                        .imageEngine(GlideEngine())
+                                        .forResult(REQUEST_CODE_CHOOSE)
+                            } else {
+                                makeText(R.string.toast_grant_storage_perm)
+                            }
                         }
-                    }
+            } else {
+                makeText("制作中")
+            }
         }
         mBinding.cardMusic.setOnClickListener {
             rxPermissions.request(Manifest.permission.READ_EXTERNAL_STORAGE)

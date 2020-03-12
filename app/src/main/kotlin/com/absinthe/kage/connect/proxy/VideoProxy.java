@@ -129,7 +129,9 @@ public class VideoProxy extends BaseProxy {
     }
 
     public void recycle() {
-        mDevice.unregisterOnReceiveMsgListener(mOnReceiveMsgListener);
+        if (mDevice != null) {
+            mDevice.unregisterOnReceiveMsgListener(mOnReceiveMsgListener);
+        }
         cancelInquiryCurrentPosition();
         cancelInquiryPlayState();
     }

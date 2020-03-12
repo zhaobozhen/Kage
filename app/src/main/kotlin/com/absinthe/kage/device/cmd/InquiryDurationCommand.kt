@@ -4,7 +4,7 @@ import com.absinthe.kage.connect.protocol.IpMessageConst
 import com.absinthe.kage.device.Command
 import com.absinthe.kage.device.CommandBuilder
 import com.absinthe.kage.device.client.Client
-import com.absinthe.kage.media.audio.AudioPlayer.duration
+import com.absinthe.kage.media.audio.AudioPlayer
 import java.io.IOException
 
 class InquiryDurationCommand : Command() {
@@ -17,7 +17,7 @@ class InquiryDurationCommand : Command() {
     }
 
     override fun doWork(client: Client, received: String) {
-        val duration = duration
+        val duration = AudioPlayer.duration
         val command = SetDurationCommand()
         command.duration = duration
 

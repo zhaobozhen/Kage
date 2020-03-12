@@ -139,6 +139,10 @@ public class PlayList implements Parcelable {
         addMedia(mList.size(), localMedia, false);
     }
 
+    public void addMediaToTop(LocalMedia localMedia) {
+        addMedia(0, localMedia, true);
+    }
+
     private void addMedia(int position, LocalMedia localMedia, boolean isMulti) {
         if (position > mList.size() || position < mCurrentIndex + 1) {
             Log.e(TAG, "position IndexOutOfBounds");

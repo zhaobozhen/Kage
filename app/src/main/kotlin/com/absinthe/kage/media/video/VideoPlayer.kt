@@ -28,12 +28,13 @@ open class VideoPlayer : FrameLayout, Playback.Callback {
     private lateinit var videoView: VideoView
     private lateinit var ivCover: ImageView
 
-    private var mContext: Context
-    private var mFormatBuilder: StringBuilder = StringBuilder()
-    private var mFormatter: Formatter = Formatter(mFormatBuilder, Locale.getDefault())
     private var mPlayback: Playback? = null
     private var mLocalMedia: LocalMedia? = null
     private var mVideoPlayCallback: VideoPlayCallback? = null
+
+    private var mContext: Context
+    private var mFormatBuilder: StringBuilder = StringBuilder()
+    private var mFormatter: Formatter = Formatter(mFormatBuilder, Locale.getDefault())
     private var mDragging = false
     private var mBeforePosition = 0
     private var mPlayState = 0

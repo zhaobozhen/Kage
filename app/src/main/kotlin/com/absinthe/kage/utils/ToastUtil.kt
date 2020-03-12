@@ -11,7 +11,7 @@ object ToastUtil {
      *
      * @param text a string text
      */
-    fun makeText(text: String?) {
+    fun makeText(text: String) {
         Toast.makeText(KageApplication.sContext, text, Toast.LENGTH_SHORT).show()
     }
 

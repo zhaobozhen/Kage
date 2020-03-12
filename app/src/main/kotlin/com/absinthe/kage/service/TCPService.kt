@@ -85,14 +85,14 @@ class TCPService : LifecycleService() {
         }
 
     private fun addProxy(deviceManager: DeviceManager) {
-        deviceManager.addProxy(ImageProxy.getInstance())
+        deviceManager.addProxy(ImageProxy)
         deviceManager.addProxy(AudioProxy.getInstance())
         deviceManager.addProxy(VideoProxy.getInstance())
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
     private fun removeProxy(deviceManager: DeviceManager) {
-        deviceManager.removeProxy(ImageProxy.getInstance())
+        deviceManager.removeProxy(ImageProxy)
         deviceManager.removeProxy(AudioProxy.getInstance())
         deviceManager.removeProxy(VideoProxy.getInstance())
     }

@@ -20,7 +20,7 @@ class UDP(private val mLocalIpAddress: String, monitorPort: Int) {
     }
 
     fun notify(ipMsgSend: IpMessageProtocol, ip: String, port: Int) {
-        Log.i(TAG, "UDP Protocol String: ${ipMsgSend.protocolString}, IP = $ip")
+        Log.i(TAG, "UDP Device Online Message: ${ipMsgSend.protocolString}, IP = $ip")
 
         val buffer: ByteArray = ipMsgSend.protocolString.toByteArray(StandardCharsets.UTF_8)
         val broadcastAddress: InetAddress
@@ -85,13 +85,12 @@ class UDP(private val mLocalIpAddress: String, monitorPort: Int) {
                     break
                 }
                 if (packet.length <= 0) {
-                    Log.w(TAG, "Receive packet.getLength() = ${packet.length}")
+                    Log.w(TAG, "Received packet length = ${packet.length}")
                     break
                 }
 
                 val data = packet.data
                 val dataStr = String(data, 0, packet.length)
-                Log.d(TAG, "ReceivePacketThread: $dataStr")
 
                 val address = packet.address
                 if (address == null) {

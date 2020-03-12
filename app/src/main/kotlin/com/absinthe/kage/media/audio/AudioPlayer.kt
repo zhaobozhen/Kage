@@ -71,8 +71,14 @@ object AudioPlayer: Observable(), Playback.Callback {
 
     @Synchronized
     fun playMedia(media: LocalMedia) {
+        if (mPlaylist == null) {
+            mPlaylist = PlayList()
+        }
+        mPlaylist?.addMediaToTop(media)
+        mPlaylist?.currentIndex = 0
+
         mPosition = 0
-        mPlayback!!.playMedia(media)
+        mPlayback?.playMedia(media)
     }
 
     fun playMediaList(playList: PlayList?) {
