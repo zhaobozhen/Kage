@@ -13,7 +13,7 @@ class MediaDirectory : Parcelable {
 
     internal constructor()
 
-    private constructor(`in`: Parcel) {
+    constructor(`in`: Parcel) {
         id = `in`.readLong()
         mediaList = `in`.createTypedArrayList(LocalMedia.CREATOR)
         name = `in`.readString()
@@ -76,15 +76,13 @@ class MediaDirectory : Parcelable {
         return result
     }
 
-    companion object {
-        val CREATOR: Parcelable.Creator<MediaDirectory> = object : Parcelable.Creator<MediaDirectory> {
-            override fun createFromParcel(`in`: Parcel): MediaDirectory? {
-                return MediaDirectory(`in`)
-            }
+    companion object CREATOR : Parcelable.Creator<MediaDirectory> {
+        override fun createFromParcel(`in`: Parcel): MediaDirectory {
+            return MediaDirectory(`in`)
+        }
 
-            override fun newArray(size: Int): Array<MediaDirectory?> {
-                return arrayOfNulls(size)
-            }
+        override fun newArray(size: Int): Array<MediaDirectory?> {
+            return arrayOfNulls(size)
         }
     }
 }

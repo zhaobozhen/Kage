@@ -11,7 +11,7 @@ class PlayList : Parcelable {
 
     constructor()
 
-    private constructor(`in`: Parcel) {
+    constructor(`in`: Parcel) {
         mCurrentIndex = `in`.readInt()
         mList = `in`.createTypedArrayList(LocalMedia.CREATOR)
     }
@@ -158,15 +158,13 @@ class PlayList : Parcelable {
         dest.writeTypedList(mList)
     }
 
-    companion object {
-        val CREATOR: Parcelable.Creator<PlayList> = object : Parcelable.Creator<PlayList> {
-            override fun createFromParcel(`in`: Parcel): PlayList? {
-                return PlayList(`in`)
-            }
+    companion object CREATOR : Parcelable.Creator<PlayList> {
+        override fun createFromParcel(`in`: Parcel): PlayList {
+            return PlayList(`in`)
+        }
 
-            override fun newArray(size: Int): Array<PlayList?> {
-                return arrayOfNulls(size)
-            }
+        override fun newArray(size: Int): Array<PlayList?> {
+            return arrayOfNulls(size)
         }
     }
 }

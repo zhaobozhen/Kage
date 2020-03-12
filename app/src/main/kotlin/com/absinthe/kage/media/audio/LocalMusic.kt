@@ -13,7 +13,7 @@ class LocalMusic : LocalMedia, Parcelable {
 
     constructor()
 
-    private constructor(`in`: Parcel) {
+    constructor(`in`: Parcel) {
         title = `in`.readString()
         filePath = `in`.readString()
         date = `in`.readString()
@@ -47,15 +47,14 @@ class LocalMusic : LocalMedia, Parcelable {
         dest.writeString(coverPath)
     }
 
-    companion object {
-        val CREATOR: Parcelable.Creator<LocalMusic> = object : Parcelable.Creator<LocalMusic> {
-            override fun createFromParcel(`in`: Parcel): LocalMusic? {
-                return LocalMusic(`in`)
-            }
+    companion object CREATOR : Parcelable.Creator<LocalMusic> {
+        override fun createFromParcel(`in`: Parcel): LocalMusic {
+            return LocalMusic(`in`)
+        }
 
-            override fun newArray(size: Int): Array<LocalMusic?> {
-                return arrayOfNulls(size)
-            }
+        override fun newArray(size: Int): Array<LocalMusic?> {
+            return arrayOfNulls(size)
         }
     }
+
 }

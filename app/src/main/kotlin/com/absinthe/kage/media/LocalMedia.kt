@@ -5,7 +5,6 @@ import android.os.Parcel
 import android.os.Parcelable
 import android.provider.MediaStore
 import android.text.TextUtils
-import android.util.Log
 import com.blankj.utilcode.util.EncryptUtils
 import java.io.UnsupportedEncodingException
 import java.net.URLEncoder
@@ -78,7 +77,6 @@ open class LocalMedia : Parcelable {
     }
 
     companion object {
-        private val TAG = LocalMedia::class.java.simpleName
 
         fun getMediaDirectory(context: Context, type: Int): List<MediaDirectory>? {
             if (type == TYPE_VIDEO) {
@@ -99,10 +97,6 @@ open class LocalMedia : Parcelable {
                     val dirName = cursor.getString(cursor.getColumnIndex("bucket_display_name"))
                     val path = cursor.getString(cursor.getColumnIndex("_data"))
                     if (!(TextUtils.isEmpty(title) || 0L == dirId || TextUtils.isEmpty(dirName))) {
-                        val info = "Image dir: " + dirId +
-                                ", name: " + dirName +
-                                ", path: " + path
-                        Log.i(TAG, info)
                         val media = LocalMedia()
                         media.title = title
                         media.filePath = path
@@ -139,10 +133,6 @@ open class LocalMedia : Parcelable {
                     val dirName = cursor.getString(cursor.getColumnIndex("bucket_display_name"))
                     val path = cursor.getString(cursor.getColumnIndex("_data"))
                     if (!(TextUtils.isEmpty(title) || 0L == dirId || TextUtils.isEmpty(dirName))) {
-                        val info = "Video dir: " + dirId +
-                                ", name: " + dirName +
-                                ", path: " + path
-                        Log.i(TAG, info)
                         val media = LocalMedia()
                         media.title = title
                         media.type = TYPE_VIDEO
