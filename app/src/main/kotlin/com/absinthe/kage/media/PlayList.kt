@@ -2,7 +2,7 @@ package com.absinthe.kage.media
 
 import android.os.Parcel
 import android.os.Parcelable
-import android.util.Log
+import timber.log.Timber
 import java.util.*
 
 class PlayList : Parcelable {
@@ -115,7 +115,7 @@ class PlayList : Parcelable {
 
     private fun addMedia(position: Int, localMedia: LocalMedia, isMulti: Boolean) {
         if (position > mList!!.size || position < mCurrentIndex + 1) {
-            Log.e(TAG, "position IndexOutOfBounds")
+            Timber.e("position IndexOutOfBounds")
             return
         }
         if (isMulti) {
@@ -159,7 +159,6 @@ class PlayList : Parcelable {
     }
 
     companion object {
-        private val TAG = PlayList::class.java.simpleName
         val CREATOR: Parcelable.Creator<PlayList> = object : Parcelable.Creator<PlayList> {
             override fun createFromParcel(`in`: Parcel): PlayList? {
                 return PlayList(`in`)

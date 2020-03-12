@@ -1,7 +1,6 @@
 package com.absinthe.kage.ui.connect
 
 import android.os.Bundle
-import android.util.Log
 import android.view.MenuItem
 import android.view.View
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -15,6 +14,7 @@ import com.absinthe.kage.device.IDeviceObserver
 import com.absinthe.kage.device.model.DeviceInfo
 import com.absinthe.kage.utils.ToastUtil.makeText
 import com.chad.library.adapter.base.BaseQuickAdapter
+import timber.log.Timber
 
 class ConnectActivity : BaseActivity() {
 
@@ -70,13 +70,13 @@ class ConnectActivity : BaseActivity() {
         mObserver = object : DeviceObserverImpl() {
 
             override fun onFindDevice(deviceInfo: DeviceInfo?) {
-                Log.d(TAG, "onFindDevice: $deviceInfo")
+                Timber.d("onFindDevice: $deviceInfo")
                 mAdapter.addData(deviceInfo!!)
                 switchContainer(VF_DEVICE_LIST)
             }
 
             override fun onLostDevice(deviceInfo: DeviceInfo?) {
-                Log.d(TAG, "onLostDevice: $deviceInfo")
+                Timber.d("onLostDevice: $deviceInfo")
                 mAdapter.remove(deviceInfo!!)
                 if (mAdapter.itemCount == 0) {
                     switchContainer(VF_EMPTY)
@@ -84,24 +84,24 @@ class ConnectActivity : BaseActivity() {
             }
 
             override fun onDeviceConnected(deviceInfo: DeviceInfo?) {
-                Log.d(TAG, "onDeviceConnected")
+                Timber.d("onDeviceConnected")
                 mAdapter.notifyDataSetChanged()
                 finish()
                 makeText(R.string.toast_connected)
             }
 
             override fun onDeviceConnecting(deviceInfo: DeviceInfo?) {
-                Log.d(TAG, "onDeviceConnecting")
+                Timber.d("onDeviceConnecting")
                 mAdapter.notifyDataSetChanged()
             }
 
             override fun onDeviceDisConnect(deviceInfo: DeviceInfo?) {
-                Log.d(TAG, "onDeviceDisConnect")
+                Timber.d("onDeviceDisConnect")
                 mAdapter.notifyDataSetChanged()
             }
 
             override fun onDeviceConnectFailed(deviceInfo: DeviceInfo?, errorCode: Int, errorMessage: String?) {
-                Log.d(TAG, "onDeviceConnectFailed")
+                Timber.d("onDeviceConnectFailed")
             }
         }
 
@@ -133,7 +133,6 @@ class ConnectActivity : BaseActivity() {
     }
 
     companion object {
-        private val TAG = ConnectActivity::class.java.simpleName
         private const val VF_EMPTY = 0
         private const val VF_DEVICE_LIST = 1
     }

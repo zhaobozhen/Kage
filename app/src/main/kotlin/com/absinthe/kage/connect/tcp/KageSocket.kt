@@ -3,9 +3,9 @@ package com.absinthe.kage.connect.tcp
 import android.os.Handler
 import android.os.HandlerThread
 import android.os.Looper
-import android.util.Log
 import com.absinthe.kage.connect.protocol.IProtocolHandler.KageProtocolThreadHandler
 import com.absinthe.kage.connect.tcp.KageSocket.ISocketCallback.KageSocketCallbackThreadHandler
+import timber.log.Timber
 import java.io.DataInputStream
 import java.io.DataOutputStream
 import java.io.IOException
@@ -20,12 +20,19 @@ class KageSocket {
     private var mPacketWriter: IPacketWriter? = null
     private var mPacketReader: IPacketReader? = null
 
+    private val isConnected: Boolean
+        get() = null != mSocket
+                && null != mIn
+                && null != mOut
+                && null != mPacketWriter
+                && null != mPacketReader
+    
     fun connect(ip: String?, port: Int, timeout: Int) {
         synchronized(KageSocket::class.java) {
             if (mSocket == null) {
                 ConnectThread(ip, port, timeout).start()
             } else {
-                Log.e(TAG, "Socket is already exist")
+                Timber.e("Socket is already exist")
             }
         }
     }
@@ -52,7 +59,7 @@ class KageSocket {
                             }
                         }
                     } catch (e: Exception) {
-                        Log.i(TAG, "Socket connection Exception: $e")
+                        Timber.i("Socket connection Exception: $e")
                         mSocket = null
                         when (e) {
                             is SocketTimeoutException -> {
@@ -109,7 +116,7 @@ class KageSocket {
                     }
                     true
                 } catch (e: IOException) {
-                    Log.e(TAG, e.toString())
+                    Timber.e(e.toString())
                     false
                 }
             } else false
@@ -125,7 +132,7 @@ class KageSocket {
                 }
                 mPacketWriter?.writePacket(packet)
             } else {
-                Log.e(TAG, "Send error: PacketWriter == null")
+                Timber.e("Send error: PacketWriter == null")
             }
         }
     }
@@ -174,16 +181,5 @@ class KageSocket {
             const val WRITE_ERROR_CODE_CONNECT_UNKNOWN = 102
             const val READ_ERROR_CODE_RECEIVE_LENGTH_TOO_BIG = 103
         }
-    }
-
-    private val isConnected: Boolean
-        get() = null != mSocket
-                && null != mIn
-                && null != mOut
-                && null != mPacketWriter
-                && null != mPacketReader
-
-    companion object {
-        private val TAG = KageSocket::class.java.simpleName
     }
 }

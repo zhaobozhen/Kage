@@ -2,12 +2,11 @@ package com.absinthe.kage.ui.main
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import com.absinthe.kage.BaseActivity
+import com.absinthe.kage.BuildConfig
 import com.absinthe.kage.R
-import com.absinthe.kage.Settings.deviceNecessary
 import com.absinthe.kage.databinding.ActivityMainBinding
 import com.absinthe.kage.device.DeviceManager
 import com.absinthe.kage.service.TCPService
@@ -25,9 +24,7 @@ class MainActivity : BaseActivity() {
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
         initView()
-        Log.d(TAG, "OnCreate")
 
         if (!ServiceUtils.isServiceRunning(TCPService::class.java)) {
             TCPService.start(this)
@@ -41,7 +38,7 @@ class MainActivity : BaseActivity() {
 
     private fun initView() {
         binding.btnSend.setOnClickListener {
-            if (DeviceManager.isConnected or !deviceNecessary) {
+            if (DeviceManager.isConnected or BuildConfig.DEBUG) {
                 startActivity(Intent(this@MainActivity, SenderActivity::class.java))
             } else {
                 startActivity(Intent(this@MainActivity, ConnectActivity::class.java))
@@ -62,9 +59,5 @@ class MainActivity : BaseActivity() {
             startActivity(Intent(this, AboutActivity::class.java))
         }
         return super.onOptionsItemSelected(item)
-    }
-
-    companion object {
-        private val TAG = MainActivity::class.java.simpleName
     }
 }

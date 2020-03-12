@@ -1,6 +1,6 @@
 package com.absinthe.kage.connect.tcp
 
-import android.util.Log
+import timber.log.Timber
 import java.util.concurrent.ArrayBlockingQueue
 import java.util.concurrent.TimeUnit
 
@@ -13,7 +13,7 @@ open class Request : Packet() {
         try {
             responses.put(response)
         } catch (e: InterruptedException) {
-            Log.e(TAG, e.toString())
+            Timber.e(e)
         }
     }
 
@@ -25,9 +25,5 @@ open class Request : Packet() {
             e.printStackTrace()
         }
         return response
-    }
-
-    companion object {
-        private val TAG = Request::class.java.simpleName
     }
 }

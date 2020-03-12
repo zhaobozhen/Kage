@@ -1,7 +1,7 @@
 package com.absinthe.kage.connect
 
-import android.util.Log
 import com.absinthe.kage.connect.protocol.IpMessageProtocol
+import timber.log.Timber
 import java.io.IOException
 import java.net.*
 import java.nio.charset.StandardCharsets
@@ -15,12 +15,12 @@ class UDP(private val mLocalIpAddress: String, monitorPort: Int) {
         try {
             mDatagramSocket = DatagramSocket(monitorPort)
         } catch (e: SocketException) {
-            Log.e(TAG, "Create DatagramSocket error: $e")
+            Timber.e("Create DatagramSocket error: $e")
         }
     }
 
     fun notify(ipMsgSend: IpMessageProtocol, ip: String, port: Int) {
-        Log.i(TAG, "UDP Device Online Message: ${ipMsgSend.protocolString}, IP = $ip")
+        Timber.i("UDP Device Online Message: ${ipMsgSend.protocolString}, IP = $ip")
 
         val buffer: ByteArray = ipMsgSend.protocolString.toByteArray(StandardCharsets.UTF_8)
         val broadcastAddress: InetAddress
@@ -28,7 +28,7 @@ class UDP(private val mLocalIpAddress: String, monitorPort: Int) {
         broadcastAddress = try {
             InetAddress.getByName(ip)
         } catch (e: UnknownHostException) {
-            Log.e(TAG, "DatagramSocket Send error: $e")
+            Timber.e("DatagramSocket Send error: $e")
             return
         }
 
@@ -36,7 +36,7 @@ class UDP(private val mLocalIpAddress: String, monitorPort: Int) {
         try {
             mDatagramSocket?.send(packet)
         } catch (e: IOException) {
-            Log.e(TAG, "DatagramSocket Send error: $e")
+            Timber.e("DatagramSocket Send error: $e")
         }
     }
 
@@ -77,7 +77,7 @@ class UDP(private val mLocalIpAddress: String, monitorPort: Int) {
                 try {
                     mDatagramSocket?.receive(packet)
                 } catch (e: IOException) {
-                    Log.e(TAG, "DatagramSocket receive error: $e")
+                    Timber.e("DatagramSocket receive error: $e")
                     break
                 }
 
@@ -85,7 +85,7 @@ class UDP(private val mLocalIpAddress: String, monitorPort: Int) {
                     break
                 }
                 if (packet.length <= 0) {
-                    Log.w(TAG, "Received packet length = ${packet.length}")
+                    Timber.w("Received packet length = ${packet.length}")
                     break
                 }
 
@@ -94,7 +94,7 @@ class UDP(private val mLocalIpAddress: String, monitorPort: Int) {
 
                 val address = packet.address
                 if (address == null) {
-                    Log.e(TAG, "Address == null")
+                    Timber.e("Address == null")
                     break
                 }
 
@@ -114,7 +114,6 @@ class UDP(private val mLocalIpAddress: String, monitorPort: Int) {
     }
 
     companion object {
-        private val TAG = UDP::class.java.simpleName
         private val DEFAULT_RECEIVED_BUFFER = ByteArray(1024)
     }
 }

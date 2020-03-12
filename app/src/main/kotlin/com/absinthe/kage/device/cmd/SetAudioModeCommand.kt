@@ -6,7 +6,6 @@ import com.absinthe.kage.device.CommandBuilder
 import com.absinthe.kage.device.client.Client
 
 class SetAudioModeCommand : Command() {
-    @JvmField
     var mode = MODE_
 
     override fun pack(): String {

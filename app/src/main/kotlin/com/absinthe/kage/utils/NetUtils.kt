@@ -1,6 +1,6 @@
 package com.absinthe.kage.utils
 
-import android.util.Log
+import timber.log.Timber
 import java.net.InetAddress
 import java.net.NetworkInterface
 import java.net.SocketException
@@ -9,7 +9,6 @@ import java.util.regex.Pattern
 
 object NetUtils {
 
-    private val TAG = NetUtils::class.java.simpleName
     private const val DEFAULT_IP = "192.168.1.100"
 
     /**
@@ -51,7 +50,7 @@ object NetUtils {
 
                         if (matcher.matches()) {
                             hostIp = hostAddress
-                            Log.i(TAG, "Local IP: $hostIp")
+                            Timber.i("Local IP: $hostIp")
                             return hostIp
                         }
                     }

@@ -11,7 +11,6 @@ import com.absinthe.kage.device.client.Client
 import com.absinthe.kage.ui.receiver.ReceiverActivity
 
 class ImageInfoCommand : Command() {
-    @JvmField
     var info: String
 
     override fun pack(): String {

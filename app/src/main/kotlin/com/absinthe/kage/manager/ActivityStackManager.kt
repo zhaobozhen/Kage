@@ -2,14 +2,12 @@ package com.absinthe.kage.manager
 
 import android.app.Activity
 import android.os.Process
-import android.util.Log
 import com.absinthe.kage.BaseActivity
+import timber.log.Timber
 import java.lang.ref.WeakReference
 import java.util.*
 
 object ActivityStackManager {
-
-    private const val TAG = "ActivityStackManager"
 
     /***
      * Activity Stack
@@ -80,7 +78,7 @@ object ActivityStackManager {
             killActivity(activity)
         } catch (e: Exception) {
             e.printStackTrace()
-            Log.e(TAG, e.toString())
+            Timber.e(e.toString())
         }
     }
 
@@ -105,7 +103,7 @@ object ActivityStackManager {
                 }
             }
         } catch (e: Exception) {
-            Log.e(TAG, e.toString())
+            Timber.e(e.toString())
         }
     }
 
@@ -130,7 +128,7 @@ object ActivityStackManager {
                 }
             }
         } catch (e: Exception) {
-            Log.e(TAG, e.toString())
+            Timber.e(e.toString())
         }
     }
 
@@ -146,7 +144,7 @@ object ActivityStackManager {
                 listIterator.remove()
             }
         } catch (e: Exception) {
-            Log.e(TAG, e.toString())
+            Timber.e(e.toString())
         }
     }
 

@@ -8,7 +8,6 @@ import com.absinthe.kage.device.client.Client
 import com.absinthe.kage.media.audio.AudioPlayer.seekTo
 
 class SeekToCommand : Command() {
-    @JvmField
     var position = 0
 
     override fun pack(): String {

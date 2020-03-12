@@ -4,7 +4,6 @@ import android.bluetooth.BluetoothAdapter
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.OnLifecycleEvent
@@ -15,11 +14,11 @@ import com.absinthe.kage.device.DeviceScanner.IScanCallback
 import com.absinthe.kage.device.cmd.PromptPhoneConnectedCommand
 import com.absinthe.kage.device.model.DeviceConfig
 import com.absinthe.kage.device.model.DeviceInfo
+import timber.log.Timber
 import java.util.*
 
 object DeviceManager : KageObservable(), LifecycleObserver {
 
-    private const val TAG = "DeviceManager"
     private const val DEFAULT_CONNECT_TIMEOUT = 10 * 1000
 
     private val LOCK = ByteArray(0)
@@ -283,7 +282,7 @@ object DeviceManager : KageObservable(), LifecycleObserver {
 
         override fun connect(deviceInfo: DeviceInfo?, timeout: Int) {
             var t = timeout
-            Log.d(TAG, "StateIdle connect")
+            Timber.d("StateIdle connect")
             if (deviceInfo == null) {
                 return
             }
@@ -298,7 +297,7 @@ object DeviceManager : KageObservable(), LifecycleObserver {
             device.setConnectCallback(object : IConnectCallback {
 
                 override fun onConnectedFailed(errorCode: Int, e: Exception?) {
-                    Log.d(TAG, "onConnectedFailed")
+                    Timber.d("onConnectedFailed")
                     synchronized(LOCK) {
                         mCurrentDeviceKey = null
                         setConnectState(StateIdle())
@@ -327,7 +326,7 @@ object DeviceManager : KageObservable(), LifecycleObserver {
                 }
 
                 override fun onConnected() {
-                    Log.d(TAG, "onConnectedSuccess")
+                    Timber.d("onConnectedSuccess")
                     synchronized(LOCK) {
                         val promptPhoneConnectedCommand = PromptPhoneConnectedCommand()
                         promptPhoneConnectedCommand.localIp = config.localHost

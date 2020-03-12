@@ -3,7 +3,6 @@ package com.absinthe.kage.connect.proxy
 import android.media.session.PlaybackState
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
 import com.absinthe.kage.connect.protocol.IpMessageConst
 import com.absinthe.kage.connect.protocol.IpMessageProtocol
 import com.absinthe.kage.device.Device
@@ -11,6 +10,7 @@ import com.absinthe.kage.device.Device.OnReceiveMsgListener
 import com.absinthe.kage.device.cmd.*
 import com.absinthe.kage.device.model.AudioInfo
 import com.google.gson.Gson
+import timber.log.Timber
 
 object AudioProxy : BaseProxy() {
 
@@ -20,7 +20,6 @@ object AudioProxy : BaseProxy() {
     private var mOnPlayListener: OnPlayListener? = null
 
     private const val PLAY_POSITION_INQUIRY_PERIOD = 1000
-    private val TAG = AudioProxy::class.java.simpleName
     private val mOnReceiveMsgListener: OnReceiveMsgListener
     private val mPlayInfo: PlayInfo = PlayInfo()
     private val mHandler = Handler(Looper.getMainLooper())
@@ -202,7 +201,7 @@ object AudioProxy : BaseProxy() {
 
     private fun parserMsgAndNotifyIfNeed(msg: String?) {
         if (msg != null) {
-            Log.d(TAG, "msg = $msg")
+            Timber.d("msg = $msg")
 
             val split = msg.split(IpMessageProtocol.DELIMITER).toTypedArray()
             if (split.size < 2) {
@@ -261,7 +260,7 @@ object AudioProxy : BaseProxy() {
                     }
                 }
             } catch (e: Exception) {
-                Log.e(TAG, "protocol invalid: ${e.message}")
+                Timber.e("protocol invalid: ${e.message}")
             }
         }
     }
@@ -274,7 +273,7 @@ object AudioProxy : BaseProxy() {
     private fun notifyOnCurrentPositionChanged(playInfo: PlayInfo) {
         mHandler.post {
             if (mOnPlayListener != null) {
-                Log.d(TAG, "notifyOnCurrentPositionChanged: duration = ${playInfo.duration}, position = ${playInfo.position}")
+                Timber.d("notifyOnCurrentPositionChanged: duration = ${playInfo.duration}, position = ${playInfo.position}")
                 mOnPlayListener!!.onCurrentPositionChanged(playInfo.duration, playInfo.duration)
             }
         }
@@ -343,7 +342,7 @@ object AudioProxy : BaseProxy() {
                 try {
                     sleep(1000)
                 } catch (e: InterruptedException) {
-                    Log.e(TAG, "InquiryDurationThread is interrupted")
+                    Timber.e("InquiryDurationThread is interrupted")
                     break
                 }
             }
@@ -402,7 +401,7 @@ object AudioProxy : BaseProxy() {
                     sleep(mUpdatePeriod.toLong())
                     mUpdatePeriod
                 } catch (e: InterruptedException) {
-                    Log.e(TAG, "InquiryCurrentPositionThread is interrupted")
+                    Timber.e("InquiryCurrentPositionThread is interrupted")
                     break
                 }
             }
@@ -428,7 +427,7 @@ object AudioProxy : BaseProxy() {
                 try {
                     sleep(inquiryPeriod)
                 } catch (e: InterruptedException) {
-                    Log.e(TAG, "InquiryCurrentPositionThread is interrupted")
+                    Timber.e("InquiryCurrentPositionThread is interrupted")
                     break
                 }
             }

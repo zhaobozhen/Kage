@@ -1,6 +1,5 @@
 package com.absinthe.kage.device
 
-import android.util.Log
 import com.absinthe.kage.connect.protocol.Config
 import com.absinthe.kage.connect.protocol.IProtocolHandler
 import com.absinthe.kage.connect.protocol.IProtocolHandler.IProtocolHandleCallback
@@ -12,6 +11,7 @@ import com.absinthe.kage.device.heartbeat.HeartbeatSender
 import com.absinthe.kage.device.heartbeat.HeartbeatSender.IHeartbeatCallback
 import com.absinthe.kage.device.model.DeviceConfig
 import com.absinthe.kage.device.model.DeviceInfo
+import timber.log.Timber
 import java.util.*
 
 class Device(config: DeviceConfig?, protocolVersionString: String?) {
@@ -30,7 +30,7 @@ class Device(config: DeviceConfig?, protocolVersionString: String?) {
 
         val mProtocolHandlerCallback: IProtocolHandleCallback = object : IProtocolHandleCallback {
             override fun onProtocolConnected() {
-                Log.d(TAG, "onProtocolConnected")
+                Timber.d("onProtocolConnected")
                 deviceInfo.isConnected = true
                 if (null != mConnectCallback) {
                     mConnectCallback!!.onConnected()
@@ -70,7 +70,7 @@ class Device(config: DeviceConfig?, protocolVersionString: String?) {
             }
 
             override fun onReceiveMsg(msg: String) {
-                Log.d(TAG, "onReceiveMsg: $msg")
+                Timber.d("onReceiveMsg: $msg")
                 mProtocolHandler.handleSocketMassage(msg)
                 if (!deviceInfo.isConnected) {
                     return
@@ -123,7 +123,7 @@ class Device(config: DeviceConfig?, protocolVersionString: String?) {
     fun registerOnReceiveMsgListener(listener: OnReceiveMsgListener?) {
         if (null != listener && !mOnReceiveMsgListeners.contains(listener)) {
             mOnReceiveMsgListeners.add(listener)
-            Log.d(TAG, "registerOnReceiveMsgListener")
+            Timber.d("registerOnReceiveMsgListener")
         }
     }
 
@@ -131,7 +131,7 @@ class Device(config: DeviceConfig?, protocolVersionString: String?) {
     fun unregisterOnReceiveMsgListener(listener: OnReceiveMsgListener?) {
         if (null != listener) {
             mOnReceiveMsgListeners.remove(listener)
-            Log.d(TAG, "unregisterOnReceiveMsgListener")
+            Timber.d("unregisterOnReceiveMsgListener")
         }
     }
 
@@ -145,16 +145,16 @@ class Device(config: DeviceConfig?, protocolVersionString: String?) {
         mHeartbeatSender.beat(heartbeatId, HEARTBEAT_DEFAULT_TIMEOUT, object : IHeartbeatCallback {
 
             override fun onBeatSuccess(heartbeatId: String) {
-                Log.v(TAG, "onBeatSuccess,heartbeatId = $heartbeatId")
+                Timber.v("onBeatSuccess,heartbeatId = $heartbeatId")
             }
 
             override fun onBeatTimeout(heartbeatId: String) {
-                Log.d(TAG, "onBeatTimeout,heartbeatId = $heartbeatId")
+                Timber.d("onBeatTimeout,heartbeatId = $heartbeatId")
                 disConnect()
             }
 
             override fun onBeatCancel(heartbeatId: String) {
-                Log.d(TAG, "onBeatCancel,heartbeatId = $heartbeatId")
+                Timber.d("onBeatCancel,heartbeatId = $heartbeatId")
             }
         })
     }
@@ -203,7 +203,6 @@ class Device(config: DeviceConfig?, protocolVersionString: String?) {
     }
 
     companion object {
-        private val TAG = Device::class.java.simpleName
         private const val HEARTBEAT_DEFAULT_TIMEOUT = 20 * 1000
     }
 }

@@ -2,13 +2,13 @@ package com.absinthe.kage.connect.proxy
 
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
 import com.absinthe.kage.connect.protocol.IpMessageConst
 import com.absinthe.kage.connect.protocol.IpMessageProtocol
 import com.absinthe.kage.device.Device
 import com.absinthe.kage.device.Device.OnReceiveMsgListener
 import com.absinthe.kage.device.cmd.*
 import com.absinthe.kage.device.model.VideoInfo
+import timber.log.Timber
 
 object VideoProxy : BaseProxy() {
 
@@ -17,7 +17,6 @@ object VideoProxy : BaseProxy() {
     private var mOnPlayListener: OnPlayListener? = null
     private var mPlayPositionInquiryPeriod = 1000
 
-    private val TAG = VideoProxy::class.java.simpleName
     private val mOnReceiveMsgListener: OnReceiveMsgListener
     private val mPlayInfo: PlayInfo = PlayInfo()
     private val mHandler = Handler(Looper.getMainLooper())
@@ -138,7 +137,7 @@ object VideoProxy : BaseProxy() {
                         val playerState: Int = PLAYER_STATUS.valueOf(split[1]).status
                         val playOldState = mPlayInfo.currentPlayState
                         if (PlayStatue.PLAYER_EXIT == playerState) {
-                            Log.i(TAG, "Receive Exit")
+                            Timber.i("Receive Exit")
                             onPlayStopped()
                         }
                         notifyOnPlayStateChanged(playOldState, playerState)
@@ -147,7 +146,7 @@ object VideoProxy : BaseProxy() {
                         val state = split[1]
                         val newState: Int = PLAY_STATUS.valueOf(state).status
                         val oldState = mPlayInfo.currentPlayState
-                        Log.i(TAG, "newState:$newState-oldState:$oldState")
+                        Timber.i("newState:$newState-oldState:$oldState")
                         if (oldState == newState) {
                             return
                         }
@@ -157,7 +156,7 @@ object VideoProxy : BaseProxy() {
                             cancelInquiryCurrentPosition()
                         }
                         if (PlayStatue.STOPPED == newState) {
-                            Log.i(TAG, "Receive STOP")
+                            Timber.i("Receive STOP")
                             onPlayStopped()
                         }
                         mPlayInfo.currentPlayState = newState
@@ -167,7 +166,7 @@ object VideoProxy : BaseProxy() {
                     }
                 }
             } catch (e: Exception) {
-                Log.e(TAG, "protocol invalid:" + e.message)
+                Timber.e("protocol invalid:" + e.message)
             }
         }
     }
@@ -274,7 +273,7 @@ object VideoProxy : BaseProxy() {
                 try {
                     sleep(updatePeriodMillis.toLong())
                 } catch (e: InterruptedException) {
-                    Log.e(TAG, "InquiryCurrentPositionThread is interrupted")
+                    Timber.e("InquiryCurrentPositionThread is interrupted")
                     break
                 }
             }
@@ -306,7 +305,7 @@ object VideoProxy : BaseProxy() {
                 try {
                     sleep(inquiryPeriod)
                 } catch (e: InterruptedException) {
-                    Log.e(TAG, "InquiryCurrentPositionThread is interrupted")
+                    Timber.e("InquiryCurrentPositionThread is interrupted")
                     break
                 }
             }

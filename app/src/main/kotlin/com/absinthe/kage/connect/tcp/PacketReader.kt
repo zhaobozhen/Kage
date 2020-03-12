@@ -1,11 +1,11 @@
 package com.absinthe.kage.connect.tcp
 
-import android.util.Log
 import com.absinthe.kage.connect.tcp.KageSocket.ISocketCallback
 import com.absinthe.kage.device.cmd.HeartbeatCommand
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import java.io.DataInputStream
 import java.io.IOException
 import java.nio.charset.StandardCharsets
@@ -68,7 +68,7 @@ class PacketReader(private val mIn: DataInputStream?, private val mSocketCallbac
                         readFromStream(mIn)
                     } catch (e: IllegalArgumentException) {
                         e.printStackTrace()
-                        Log.d(TAG, "PacketReader error")
+                        Timber.d("PacketReader error")
                         mSocketCallback?.onReadAndWriteError(ISocketCallback.READ_ERROR_CODE_RECEIVE_LENGTH_TOO_BIG)
                         return
                     }
@@ -78,7 +78,7 @@ class PacketReader(private val mIn: DataInputStream?, private val mSocketCallbac
                             return
                         }
                         if (data == null) {
-                            Log.e(TAG, "ReceiveDataThread receive data == null" + ", thread :" + currentThread().name)
+                            Timber.e("ReceiveDataThread receive data == null")
                             ISocketCallback.KageSocketCallbackThreadHandler.instance?.post {
                                 mSocketCallback?.onReadAndWriteError(ISocketCallback.READ_ERROR_CODE_CONNECT_UNKNOWN)
                             }
@@ -87,7 +87,7 @@ class PacketReader(private val mIn: DataInputStream?, private val mSocketCallbac
                         if (data.isEmpty()) {
                             return@synchronized
                         }
-                        Log.d(TAG, "Receive Data: $data")
+                        Timber.d("Receive Data: $data")
 
                         mExecutorService.submit {
                             val packet = Packet()
@@ -149,7 +149,7 @@ class PacketReader(private val mIn: DataInputStream?, private val mSocketCallbac
             dis.readInt()
         } catch (e: IOException) {
             e.printStackTrace()
-            Log.d(TAG, "readNextPacket IO : " + e.message)
+            Timber.d("readNextPacket IO: ${e.message}")
             return null
         }
         require(receiveLength < MAX_READ_LENGTH) { "receiveLength too big, receiveLength = $receiveLength" }
@@ -173,7 +173,6 @@ class PacketReader(private val mIn: DataInputStream?, private val mSocketCallbac
     }
 
     companion object {
-        private val TAG = PacketReader::class.java.simpleName
         private const val DEFAULT_TIMEOUT = 5 * 1000.toLong()
         private const val MAX_READ_LENGTH = 223 * 10000.toLong() //一次性最大读取指令的长度，超出将可能OOM
     }

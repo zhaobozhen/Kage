@@ -4,7 +4,6 @@ import android.content.Context
 import android.media.MediaPlayer
 import android.media.session.PlaybackState
 import android.util.AttributeSet
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.View.OnClickListener
@@ -16,7 +15,10 @@ import com.absinthe.kage.R
 import com.absinthe.kage.databinding.ViewVideoPlayerBinding
 import com.absinthe.kage.media.LocalMedia
 import com.absinthe.kage.media.Playback
+import com.absinthe.kage.media.TYPE_LOCAL
+import com.absinthe.kage.media.TYPE_REMOTE
 import com.absinthe.kage.media.video.VideoHelper.getVideoCoverImage
+import timber.log.Timber
 import java.util.*
 
 open class VideoPlayer : FrameLayout, Playback.Callback {
@@ -145,7 +147,7 @@ open class VideoPlayer : FrameLayout, Playback.Callback {
     }
 
     fun release() {
-        Log.d(TAG, "release")
+        Timber.d("release")
         mPlayState = 0
         mPlayback?.stop(false)
     }
@@ -166,7 +168,7 @@ open class VideoPlayer : FrameLayout, Playback.Callback {
 
     private fun requestCoverImage() {
         if (ivCover.width > 0 && mLocalMedia != null) {
-            Log.d(TAG, "mIVCover start load")
+            Timber.d("mIVCover start load")
             val bitmap = getVideoCoverImage(mLocalMedia?.filePath)
             isLoaded = true
             ivCover.setImageBitmap(bitmap)
@@ -181,7 +183,7 @@ open class VideoPlayer : FrameLayout, Playback.Callback {
     }
 
     override fun onCompletion() {
-        Log.d(TAG, "onCompletion")
+        Timber.d("onCompletion")
         seekbar.progress = seekbar.max
         updatePausePlay()
     }
@@ -191,7 +193,7 @@ open class VideoPlayer : FrameLayout, Playback.Callback {
                 && mPlayState == PlaybackState.STATE_BUFFERING
                 && state == PlaybackState.STATE_PLAYING
                 && mBeforePosition > 0) {
-            Log.d(TAG, "Seek to: $mBeforePosition")
+            Timber.d("Seek to: $mBeforePosition")
             mPlayback!!.seekTo(mBeforePosition)
         }
         if (mPlayState != state) {
@@ -252,11 +254,5 @@ open class VideoPlayer : FrameLayout, Playback.Callback {
 
     interface VideoPlayCallback {
         fun changeState(state: Int)
-    }
-
-    companion object {
-        const val TYPE_LOCAL = 1
-        const val TYPE_REMOTE = 2
-        private val TAG = VideoPlayer::class.java.simpleName
     }
 }

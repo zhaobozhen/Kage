@@ -7,7 +7,6 @@ import com.absinthe.kage.device.CommandBuilder
 import com.absinthe.kage.device.client.Client
 
 class MediaPreparePlayCommand : Command() {
-    @JvmField
     var type = "UNKNOWN"
 
     override fun pack(): String {

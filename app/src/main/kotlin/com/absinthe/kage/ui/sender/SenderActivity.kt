@@ -3,7 +3,6 @@ package com.absinthe.kage.ui.sender
 import android.Manifest
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import com.absinthe.kage.BaseActivity
 import com.absinthe.kage.BuildConfig
 import com.absinthe.kage.R
@@ -65,11 +64,9 @@ class SenderActivity : BaseActivity() {
             }
 
             override fun onPreview() {
-                Log.d(TAG, "onPreview()")
             }
 
             override fun onNext() {
-                Log.d(TAG, "onNext()")
             }
         }
 
@@ -137,7 +134,6 @@ class SenderActivity : BaseActivity() {
     }
 
     companion object {
-        private val TAG = SenderActivity::class.java.simpleName
         private const val REQUEST_CODE_CHOOSE = 1001
     }
 }

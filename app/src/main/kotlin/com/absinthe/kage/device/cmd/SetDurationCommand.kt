@@ -7,7 +7,6 @@ import com.absinthe.kage.device.CommandBuilder
 import com.absinthe.kage.device.client.Client
 
 class SetDurationCommand : Command() {
-    @JvmField
     var duration = 0
 
     override fun pack(): String {

@@ -1,11 +1,11 @@
 package com.absinthe.kage.device.client
 
 import android.content.Context
-import android.util.Log
 import com.absinthe.kage.connect.protocol.IpMessageConst
 import com.absinthe.kage.connect.protocol.IpMessageProtocol
 import com.absinthe.kage.device.cmd.*
 import com.absinthe.kage.device.model.DeviceInfo
+import timber.log.Timber
 import java.io.DataInputStream
 import java.io.DataOutputStream
 import java.io.IOException
@@ -22,7 +22,7 @@ class Client(val context: Context,
     override fun run() {
         while (true) {
             val command = readToStream(dis)
-            Log.i(TAG, "Received command: $command")
+            Timber.i("Received command: $command")
 
             if (command == null) {
                 offline(mSocket, dis, dos)
@@ -118,7 +118,7 @@ class Client(val context: Context,
     @Synchronized
     @Throws(IOException::class)
     private fun writeToStream(dos: DataOutputStream, str: String) {
-        Log.i(TAG, "writeToStream sendStr: $str")
+        Timber.i("writeToStream sendStr: $str")
 
         val bArray = str.toByteArray(StandardCharsets.UTF_8)
         val sendLen = bArray.size
@@ -128,7 +128,7 @@ class Client(val context: Context,
     }
 
     private fun offline(socket: Socket, dis: DataInputStream?, dos: DataOutputStream?) {
-        Log.i(TAG, "Offline: " + socket.inetAddress)
+        Timber.i("Offline: " + socket.inetAddress)
 
         synchronized(Client::class.java) {
             try {
@@ -140,9 +140,4 @@ class Client(val context: Context,
             }
         }
     }
-
-    companion object {
-        private val TAG = Client::class.java.simpleName
-    }
-
 }

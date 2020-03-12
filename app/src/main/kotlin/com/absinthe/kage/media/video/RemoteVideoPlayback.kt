@@ -1,11 +1,11 @@
 package com.absinthe.kage.media.video
 
 import android.media.session.PlaybackState
-import android.util.Log
 import com.absinthe.kage.connect.proxy.VideoProxy
 import com.absinthe.kage.device.model.VideoInfo
 import com.absinthe.kage.media.LocalMedia
 import com.absinthe.kage.media.Playback
+import timber.log.Timber
 
 class RemoteVideoPlayback : Playback {
 
@@ -59,7 +59,7 @@ class RemoteVideoPlayback : Playback {
         mediaInfo.url = localMedia.url
         mediaInfo.title = localMedia.title
         mVideoProxy.play(mediaInfo)
-        Log.i(TAG, "playMedia")
+        Timber.i("playMedia")
 
         state = PlaybackState.STATE_BUFFERING
         if (mCallback != null) {
@@ -105,9 +105,5 @@ class RemoteVideoPlayback : Playback {
         if (mCallback != null) {
             mCallback!!.onPlaybackStateChanged(state)
         }
-    }
-
-    companion object {
-        private val TAG = RemoteVideoPlayback::class.java.simpleName
     }
 }

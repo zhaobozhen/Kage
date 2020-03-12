@@ -11,6 +11,8 @@ import com.absinthe.kage.device.DeviceObserverImpl
 import com.absinthe.kage.device.IDeviceObserver
 import com.absinthe.kage.device.model.DeviceInfo
 import com.absinthe.kage.media.LocalMedia
+import com.absinthe.kage.media.TYPE_LOCAL
+import com.absinthe.kage.media.TYPE_REMOTE
 import com.absinthe.kage.media.video.VideoPlayer
 import com.absinthe.kage.ui.connect.ConnectActivity
 
@@ -71,7 +73,7 @@ class VideoActivity : AppCompatActivity() {
         }
         mBinding.btnCast.setOnClickListener {
             if (DeviceManager.isConnected) {
-                mVideoPlayer.setPlayerType(VideoPlayer.TYPE_REMOTE)
+                mVideoPlayer.setPlayerType(TYPE_REMOTE)
             } else {
                 startActivity(Intent(this, ConnectActivity::class.java))
             }
@@ -87,7 +89,7 @@ class VideoActivity : AppCompatActivity() {
 
     private fun initPlayer() {
         mLocalMedia?.let { mVideoPlayer.playMedia(it) }
-        mVideoPlayer.setPlayerType(VideoPlayer.TYPE_LOCAL)
+        mVideoPlayer.setPlayerType(TYPE_LOCAL)
     }
 
     companion object {

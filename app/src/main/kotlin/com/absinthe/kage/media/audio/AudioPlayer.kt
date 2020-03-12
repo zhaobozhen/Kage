@@ -4,18 +4,12 @@ import android.content.Context
 import android.media.session.PlaybackState
 import android.os.*
 import android.os.PowerManager.WakeLock
-import android.util.Log
 import com.absinthe.kage.KageApplication
-import com.absinthe.kage.media.LocalMedia
-import com.absinthe.kage.media.PlayList
-import com.absinthe.kage.media.Playback
+import com.absinthe.kage.media.*
+import timber.log.Timber
 import java.util.*
 
 object AudioPlayer: Observable(), Playback.Callback {
-
-    const val TAG = "AudioPlayer"
-    const val TYPE_LOCAL = 1
-    const val TYPE_REMOTE = 2
 
     private const val EXTRA_PLAY_MODE = "EXTRA_PLAY_MODE"
     private const val NOT_REPEATING = 0
@@ -37,7 +31,7 @@ object AudioPlayer: Observable(), Playback.Callback {
 
     init {
         val pm = KageApplication.sContext.getSystemService(Context.POWER_SERVICE) as PowerManager
-        mWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "$TAG:WakeLock")
+        mWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "AudioPlayer:WakeLock")
     }
 
     fun release() {
@@ -202,13 +196,13 @@ object AudioPlayer: Observable(), Playback.Callback {
         if (playState == PlaybackState.STATE_PLAYING) {
             playNext()
         } else {
-            Log.w(TAG, "PlayState is not playing")
+            Timber.w("PlayState is not playing")
         }
     }
 
     override fun onPlaybackStateChanged(state: Int) {
         if (mPlayback != null && playState == PlaybackState.STATE_BUFFERING && state == PlaybackState.STATE_PLAYING && mPosition > 0) {
-            Log.d(TAG, "Seek to: $mPosition")
+            Timber.d("Seek to: $mPosition")
             mPlayback!!.seekTo(mPosition)
             mPosition = 0
         }

@@ -1,12 +1,12 @@
 package com.absinthe.kage.device
 
 import android.text.TextUtils
-import android.util.Log
 import com.absinthe.kage.connect.UDP
 import com.absinthe.kage.connect.protocol.IpMessageConst
 import com.absinthe.kage.connect.protocol.IpMessageProtocol
 import com.absinthe.kage.device.model.DeviceConfig
 import com.absinthe.kage.device.model.DeviceInfo
+import timber.log.Timber
 import java.util.concurrent.ConcurrentHashMap
 
 class DeviceScanner {
@@ -60,7 +60,7 @@ class DeviceScanner {
                 ipMessage = try {
                     IpMessageProtocol(data)
                 } catch (e: NumberFormatException) {
-                    Log.e(TAG, "Parse UDP data error: $e")
+                    Timber.e("Parse UDP data error: $e")
                     return
                 }
 
@@ -72,7 +72,7 @@ class DeviceScanner {
                         mScanCallback?.onDeviceOffline(device)
                     }
                     IpMessageConst.IP_MSG_BR_ENTRY -> {
-                        Log.d(TAG, "IP_MSG_BR_ENTRY")
+                        Timber.d("IP_MSG_BR_ENTRY")
                         val ipMsgSend = IpMessageProtocol()
                         ipMsgSend.version = IpMessageConst.VERSION.toString()
                         ipMsgSend.senderName = mConfig.name
@@ -81,7 +81,7 @@ class DeviceScanner {
                         mUDP?.notify(ipMsgSend, ip, port)
                     }
                     IpMessageConst.IP_MSG_ANS_ENTRY -> {
-                        Log.d(TAG, "IP_MSG_ANS_ENTRY")
+                        Timber.d("IP_MSG_ANS_ENTRY")
                         if (device == null) {
                             val protocolVersion = ipMessage.version
                             device = Device(mConfig, protocolVersion)
@@ -239,7 +239,7 @@ class DeviceScanner {
                 try {
                     sleep(mPeriod.toLong())
                 } catch (e: InterruptedException) {
-                    Log.e(TAG, "NoticeOnlineThread InterruptedException,")
+                    Timber.e("NoticeOnlineThread InterruptedException,")
                 }
                 if (isStopped) {
                     break
@@ -254,7 +254,7 @@ class DeviceScanner {
         while (iterator.hasNext()) {
             val device = iterator.next().value
             spaceTime = System.currentTimeMillis() - device.onlineTime
-            Log.d(TAG, "Check Offline IP = ${device.ip}, State = ${device.state}, SpaceTime = $spaceTime")
+            Timber.d("Check Offline IP = ${device.ip}, State = ${device.state}, SpaceTime = $spaceTime")
             if (spaceTime > TIMEOUT && device.state == DeviceInfo.STATE_IDLE) {
                 iterator.remove()
                 if (mScanCallback != null) {
@@ -287,7 +287,6 @@ class DeviceScanner {
     }
 
     companion object {
-        private val TAG = DeviceScanner::class.java.simpleName
         private const val TIMEOUT = 5000 //5 秒间隔询问无回复则判定为无响应
     }
 }

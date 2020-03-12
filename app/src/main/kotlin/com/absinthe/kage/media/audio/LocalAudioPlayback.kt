@@ -10,9 +10,9 @@ import android.media.session.PlaybackState
 import android.os.Build
 import android.os.PowerManager
 import android.text.TextUtils
-import android.util.Log
 import com.absinthe.kage.media.LocalMedia
 import com.absinthe.kage.media.Playback
+import timber.log.Timber
 
 class LocalAudioPlayback internal constructor(context: Context) : Playback {
 
@@ -100,7 +100,7 @@ class LocalAudioPlayback internal constructor(context: Context) : Playback {
 
     override fun seekTo(position: Int) {
         var pos = position
-        Log.d(TAG, "SeekTo: $pos")
+        Timber.d("SeekTo: $pos")
         if (position < 0) {
             pos = 0
         }
@@ -114,7 +114,7 @@ class LocalAudioPlayback internal constructor(context: Context) : Playback {
     }
 
     override fun stop(isStop: Boolean) {
-        Log.d(TAG, "stop")
+        Timber.d("stop")
         state = PlaybackState.STATE_STOPPED
 
         if (isStop) {
@@ -167,7 +167,7 @@ class LocalAudioPlayback internal constructor(context: Context) : Playback {
 
     private fun createAudioFocusChangeListener() {
         mFocusChangeListener = OnAudioFocusChangeListener { focusChange: Int ->
-            Log.d(TAG, "onAudioFocusChange: $focusChange")
+            Timber.d("onAudioFocusChange: $focusChange")
             if (focusChange == AudioManager.AUDIOFOCUS_GAIN) {
                 mAudioFocus = AUDIO_FOCUSED
                 if (state == PlaybackState.STATE_PAUSED) {
@@ -181,13 +181,13 @@ class LocalAudioPlayback internal constructor(context: Context) : Playback {
                     pause()
                 }
             } else {
-                Log.d(TAG, "onAudioFocusChange: Ignoring unsupported focusChange: $focusChange")
+                Timber.d("onAudioFocusChange: Ignoring unsupported focusChange: $focusChange")
             }
         }
     }
 
     private fun tryToGetAudioFocus() {
-        Log.d(TAG, "Try to get AudioFocus")
+        Timber.d("Try to get AudioFocus")
         if (mAudioFocus != AUDIO_FOCUSED) {
             val result: Int
             result = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -206,13 +206,13 @@ class LocalAudioPlayback internal constructor(context: Context) : Playback {
             }
             if (result == AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
                 mAudioFocus = AUDIO_FOCUSED
-                Log.d(TAG, "Try to get AudioFocus success")
+                Timber.d("Try to get AudioFocus success")
             }
         }
     }
 
     private fun abandonAudioFocus() {
-        Log.d(TAG, "abandonAudioFocus")
+        Timber.d("abandonAudioFocus")
         if (mAudioFocus == AUDIO_FOCUSED) {
             val result: Int
             result = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -231,35 +231,34 @@ class LocalAudioPlayback internal constructor(context: Context) : Playback {
             }
             if (result == AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
                 mAudioFocus = AUDIO_NO_FOCUS_NO_DUCK
-                Log.d(TAG, "abandonAudioFocus success")
+                Timber.d("abandonAudioFocus success")
             }
         }
     }
 
     private fun setMediaPlayerListener() {
         mMediaPlayer.setOnErrorListener { _: MediaPlayer?, what: Int, extra: Int ->
-            Log.d(TAG, "SetOnErrorListener, what: $what, extra: $extra")
+            Timber.d("SetOnErrorListener, what: $what, extra: $extra")
             state = PlaybackState.STATE_ERROR
             false
         }
         mMediaPlayer.setOnCompletionListener {
-            Log.d(TAG, "MediaPlayer#onCompletion")
+            Timber.d("MediaPlayer#onCompletion")
             if (mCallback != null) {
                 mCallback!!.onCompletion()
             }
         }
         mMediaPlayer.setOnPreparedListener {
-            Log.d(TAG, "SetOnPreparedListener")
+            Timber.d("SetOnPreparedListener")
             play()
         }
         mMediaPlayer.setOnInfoListener { _: MediaPlayer?, what: Int, extra: Int ->
-            Log.d(TAG, "SetOnInfoListener, what: $what, extra: $extra")
+            Timber.d("SetOnInfoListener, what: $what, extra: $extra")
             false
         }
     }
 
     companion object {
-        private val TAG = LocalAudioPlayback::class.java.simpleName
         private const val AUDIO_NO_FOCUS_NO_DUCK = 0
         private const val AUDIO_NO_FOCUS_CAN_DUCK = 1
         private const val AUDIO_FOCUSED = 2

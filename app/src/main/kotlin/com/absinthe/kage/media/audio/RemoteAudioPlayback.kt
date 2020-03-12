@@ -1,7 +1,6 @@
 package com.absinthe.kage.media.audio
 
 import android.media.session.PlaybackState
-import android.util.Log
 import com.absinthe.kage.KageApplication
 import com.absinthe.kage.connect.Const
 import com.absinthe.kage.connect.proxy.AudioProxy
@@ -10,6 +9,7 @@ import com.absinthe.kage.media.LocalMedia
 import com.absinthe.kage.media.PlayList
 import com.absinthe.kage.media.Playback
 import com.absinthe.kage.utils.NetUtils.localAddress
+import timber.log.Timber
 import java.io.File
 import java.util.*
 
@@ -25,7 +25,7 @@ class RemoteAudioPlayback internal constructor() : Playback {
             override fun onCurrentPositionChanged(duration: Int, position: Int) {}
 
             override fun onPlayStateChanged(oldState: Int, newState: Int) {
-                Log.d(TAG, "onPlayStateChanged: $newState")
+                Timber.d("onPlayStateChanged: $newState")
                 when {
                     newState == AudioProxy.PlayStatue.INVALIDATE -> {
                         state = PlaybackState.STATE_NONE
@@ -49,7 +49,7 @@ class RemoteAudioPlayback internal constructor() : Playback {
             }
 
             override fun onPlayIndexChanged(index: Int) {
-                Log.d(TAG, "onPlayIndexChanged: $index")
+                Timber.d("onPlayIndexChanged: $index")
                 mPlayList!!.currentIndex = index
                 if (mCallback != null) {
                     mPlayList!!.currentMedia?.let { mCallback!!.onMediaMetadataChanged(it) }
@@ -153,9 +153,5 @@ class RemoteAudioPlayback internal constructor() : Playback {
         if (mCallback != null) {
             mCallback!!.onPlaybackStateChanged(state)
         }
-    }
-
-    companion object {
-        private val TAG = RemoteAudioPlayback::class.java.simpleName
     }
 }

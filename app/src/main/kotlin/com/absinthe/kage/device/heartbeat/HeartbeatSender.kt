@@ -93,9 +93,4 @@ class HeartbeatSender(private val mSocket: KageSocket) {
         fun onBeatTimeout(heartbeatId: String)
         fun onBeatCancel(heartbeatId: String)
     }
-
-    companion object {
-        private val TAG = HeartbeatSender::class.java.simpleName
-    }
-
 }

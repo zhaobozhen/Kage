@@ -15,7 +15,6 @@ import android.view.ViewOutlineProvider
 import android.view.animation.LinearInterpolator
 import androidx.appcompat.widget.AppCompatImageView
 import com.absinthe.kage.R
-import com.absinthe.kage.utils.Logger
 
 class MusicRouletteView : AppCompatImageView {
 
@@ -183,7 +182,6 @@ class MusicRouletteView : AppCompatImageView {
     }
 
     private fun setup() {
-        Logger.runningHere()
         if (mIsReady) {
             if (mBitmap != null) {
                 mBitmapShader = BitmapShader(mBitmap!!, TileMode.CLAMP, TileMode.CLAMP)

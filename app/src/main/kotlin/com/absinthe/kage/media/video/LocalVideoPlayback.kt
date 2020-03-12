@@ -1,11 +1,11 @@
 package com.absinthe.kage.media.video
 
 import android.media.session.PlaybackState
-import android.util.Log
 import android.view.View
 import android.widget.VideoView
 import com.absinthe.kage.media.LocalMedia
 import com.absinthe.kage.media.Playback
+import timber.log.Timber
 
 class LocalVideoPlayback(private val mVideoView: VideoView) : Playback {
 
@@ -14,7 +14,7 @@ class LocalVideoPlayback(private val mVideoView: VideoView) : Playback {
     init {
         mVideoView.setOnPreparedListener { play() }
         mVideoView.setOnCompletionListener {
-            Log.i(TAG, "complete")
+            Timber.i("complete")
             state = PlaybackState.STATE_PAUSED
             if (mCallback != null) {
                 mCallback!!.onCompletion()
@@ -73,7 +73,7 @@ class LocalVideoPlayback(private val mVideoView: VideoView) : Playback {
     }
 
     private fun handlePlayState() {
-        Log.i(TAG, "handlePlayState")
+        Timber.i("handlePlayState")
         if (state == PlaybackState.STATE_PLAYING && !mVideoView.isPlaying) {
             mVideoView.start()
         } else if (state == PlaybackState.STATE_PAUSED && mVideoView.isPlaying) {
@@ -82,9 +82,5 @@ class LocalVideoPlayback(private val mVideoView: VideoView) : Playback {
         if (mCallback != null) {
             mCallback!!.onPlaybackStateChanged(state)
         }
-    }
-
-    companion object {
-        private val TAG = LocalVideoPlayback::class.java.simpleName
     }
 }

@@ -21,19 +21,17 @@ import com.absinthe.kage.device.DeviceManager.isConnected
 import com.absinthe.kage.device.DeviceObserverImpl
 import com.absinthe.kage.device.IDeviceObserver
 import com.absinthe.kage.device.model.DeviceInfo
-import com.absinthe.kage.media.LocalMedia
-import com.absinthe.kage.media.MusicList
-import com.absinthe.kage.media.PlayList
+import com.absinthe.kage.media.*
 import com.absinthe.kage.media.audio.AudioPlayer
 import com.absinthe.kage.media.audio.LocalMusic
 import com.absinthe.kage.media.audio.MusicHelper.getAlbumArt
 import com.absinthe.kage.ui.connect.ConnectActivity
-import com.absinthe.kage.utils.Logger.d
 import com.absinthe.kage.utils.StorageUtils.saveBitmap
 import com.blankj.utilcode.util.ImageUtils
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.target.CustomTarget
 import com.bumptech.glide.request.transition.Transition
+import timber.log.Timber
 import java.io.File
 import java.util.*
 
@@ -172,7 +170,7 @@ class MusicActivity : BaseActivity(), Observer {
         })
         mBinding.btnCast.setOnClickListener {
             if (isConnected) {
-                mAudioPlayer.setPlayerType(AudioPlayer.TYPE_REMOTE)
+                mAudioPlayer.setPlayerType(TYPE_REMOTE)
             } else {
                 startActivity(Intent(this@MusicActivity, ConnectActivity::class.java))
             }
@@ -196,7 +194,7 @@ class MusicActivity : BaseActivity(), Observer {
     }
 
     private fun initPlayer() {
-        mAudioPlayer.setPlayerType(AudioPlayer.TYPE_LOCAL)
+        mAudioPlayer.setPlayerType(TYPE_LOCAL)
 
         if (type == TYPE_SENDER) {
             val playList = PlayList()
@@ -231,7 +229,7 @@ class MusicActivity : BaseActivity(), Observer {
 
     private fun updatePlayState(playbackState: PlaybackState, isNotify: Boolean) {
         val state = playbackState.state
-        d("state:", state)
+        Timber.d("state: $state")
 
         when (state) {
             PlaybackState.STATE_BUFFERING -> {

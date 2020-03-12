@@ -12,15 +12,10 @@ import com.absinthe.kage.media.audio.LocalMusic
 import com.absinthe.kage.ui.media.MusicActivity
 
 class AudioInfoCommand : Command() {
-    @JvmField
     var url: String? = null //播放地址
-    @JvmField
     var name: String? = null //歌曲名
-    @JvmField
     var artist: String? = null //演唱者
-    @JvmField
     var album: String? = null //专辑
-    @JvmField
     var coverPath: String? = null //封面地址
 
     override fun pack(): String {

@@ -1,5 +1,8 @@
 package com.absinthe.kage.media
 
+const val TYPE_LOCAL = 1
+const val TYPE_REMOTE = 2
+
 interface Playback {
     interface Callback {
         fun onCompletion()

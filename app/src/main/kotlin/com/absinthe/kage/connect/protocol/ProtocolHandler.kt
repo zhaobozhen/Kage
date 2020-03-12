@@ -1,12 +1,12 @@
 package com.absinthe.kage.connect.protocol
 
-import android.util.Log
 import com.absinthe.kage.connect.protocol.IProtocolHandler.IProtocolHandleCallback
 import com.absinthe.kage.connect.protocol.IProtocolHandler.KageProtocolThreadHandler.Companion.instance
 import com.absinthe.kage.connect.tcp.KageSocket
 import com.absinthe.kage.device.Device
 import com.absinthe.kage.device.cmd.InquiryDeviceInfoCommand
 import com.absinthe.kage.device.model.DeviceConfig
+import timber.log.Timber
 
 class ProtocolHandler(
         private val mDevice: Device,
@@ -33,7 +33,7 @@ class ProtocolHandler(
                 }
             }
         } catch (e: Exception) {
-            Log.e(TAG, "protocol invalid: $e")
+            Timber.e("protocol invalid: $e")
         }
     }
 
@@ -62,9 +62,4 @@ class ProtocolHandler(
             mCallback?.onProtocolSendOrReceiveError()
         }
     }
-
-    companion object {
-        private val TAG = ProtocolHandler::class.java.simpleName
-    }
-
 }

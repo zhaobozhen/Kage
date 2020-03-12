@@ -1,9 +1,9 @@
 package com.absinthe.kage.device.server
 
 import android.os.Environment
-import android.util.Log
 import com.absinthe.kage.connect.protocol.Config
 import fi.iki.elonen.NanoHTTPD
+import timber.log.Timber
 import java.io.File
 import java.io.FileInputStream
 import java.io.IOException
@@ -15,7 +15,7 @@ class KageServer : NanoHTTPD(Config.HTTP_SERVER_PORT) {
         val rootDir = Environment.getExternalStorageDirectory()
         val filesList: Array<File>?
 
-        Log.d(TAG, "Session Uri = $filepath")
+        Timber.d("Session Uri = $filepath")
         if (filepath.trim { it <= ' ' }.isEmpty() || filepath.trim { it <= ' ' } == ROOT_DIR) {
             filepath = rootDir.absolutePath
         }
@@ -64,7 +64,6 @@ class KageServer : NanoHTTPD(Config.HTTP_SERVER_PORT) {
     }
 
     companion object {
-        private val TAG = KageServer::class.java.simpleName
         private const val ROOT_DIR = "/"
     }
 }

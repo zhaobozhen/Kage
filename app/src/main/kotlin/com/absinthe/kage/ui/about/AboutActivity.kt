@@ -25,6 +25,7 @@ class AboutActivity : AbsAboutActivity() {
         items.add(License("kotlin", "JetBrains", License.APACHE_2, "https://github.com/JetBrains/kotlin"))
         items.add(License("MultiType", "drakeet", License.APACHE_2, "https://github.com/drakeet/MultiType"))
         items.add(License("about-page", "drakeet", License.APACHE_2, "https://github.com/drakeet/about-page"))
+        items.add(License("NanoHttpd", "NanoHttpd", "BSD-3-Clause", "https://github.com/NanoHttpd/nanohttpd"))
         items.add(License("BaseRecyclerViewAdapterHelper", "CymChad", License.MIT, "https://github.com/CymChad/BaseRecyclerViewAdapterHelper"))
         items.add(License("Matisse", "zhihu", License.APACHE_2, "https://github.com/zhihu/Matisse"))
         items.add(License("AndroidX", "Google", License.APACHE_2, "https://source.google.com"))
@@ -37,5 +38,6 @@ class AboutActivity : AbsAboutActivity() {
         items.add(License("gson", "google", License.APACHE_2, "https://github.com/google/gson"))
         items.add(License("AndroidUtilCode", "Blankj", License.APACHE_2, "https://github.com/Blankj/AndroidUtilCode"))
         items.add(License("lottie-android", "Airbnb", License.APACHE_2, "https://github.com/airbnb/lottie-android"))
+        items.add(License("timber", "JakeWharton", License.APACHE_2, "https://github.com/JakeWharton/timber"))
     }
 }

@@ -6,7 +6,6 @@ import com.absinthe.kage.device.CommandBuilder
 import com.absinthe.kage.device.client.Client
 
 class SetPlayIndexCommand : Command() {
-    @JvmField
     var index = 0
 
     override fun pack(): String {

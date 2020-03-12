@@ -6,7 +6,6 @@ import com.absinthe.kage.device.CommandBuilder
 import com.absinthe.kage.device.client.Client
 
 class SetPlayStateCommand : Command() {
-    @JvmField
     var stateCode = 0
 
     override fun pack(): String {

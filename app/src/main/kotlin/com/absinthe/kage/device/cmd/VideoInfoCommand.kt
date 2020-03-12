@@ -14,9 +14,7 @@ import com.absinthe.kage.ui.media.VideoActivity
 
 class VideoInfoCommand : Command() {
 
-    @JvmField
     var title: String? = null
-    @JvmField
     var url: String? = null
 
     override fun pack(): String {

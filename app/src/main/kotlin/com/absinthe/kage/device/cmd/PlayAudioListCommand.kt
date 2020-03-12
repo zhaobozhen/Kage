@@ -16,11 +16,8 @@ import com.google.gson.reflect.TypeToken
 import java.io.File
 
 class PlayAudioListCommand : Command() {
-    @JvmField
     var index = 0
-    @JvmField
     var size = 0
-    @JvmField
     var listInfo: String? = null
 
     override fun pack(): String {

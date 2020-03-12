@@ -2,7 +2,6 @@ package com.absinthe.kage.connect.proxy
 
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
 import com.absinthe.kage.connect.protocol.IpMessageConst
 import com.absinthe.kage.connect.protocol.IpMessageProtocol
 import com.absinthe.kage.device.Device
@@ -10,6 +9,7 @@ import com.absinthe.kage.device.Device.OnReceiveMsgListener
 import com.absinthe.kage.device.cmd.ImageInfoCommand
 import com.absinthe.kage.device.cmd.MediaPreparePlayCommand
 import com.absinthe.kage.device.cmd.StopCommand
+import timber.log.Timber
 
 object ImageProxy : BaseProxy() {
 
@@ -17,7 +17,6 @@ object ImageProxy : BaseProxy() {
     private var mOnPlayListener: OnPlayListener? = null
     private var mInquiryPlayStateThread: InquiryPlayStateThread? = null
 
-    private val TAG = ImageProxy::class.java.simpleName
     private val mHandler = Handler(Looper.getMainLooper())
     private val mPlayInfo = PlayInfo()
 
@@ -30,7 +29,7 @@ object ImageProxy : BaseProxy() {
     }
 
     private fun parserMsgAndNotifyIfNeed(msg: String) {
-        Log.d(TAG, "msg = $msg")
+        Timber.d("msg = $msg")
 
         val split = msg.split(IpMessageProtocol.DELIMITER).toTypedArray()
         if (split.size < 2) {
@@ -95,7 +94,7 @@ object ImageProxy : BaseProxy() {
                 }
             }
         } catch (e: Exception) {
-            Log.e(TAG, "Protocol invalid: " + e.message)
+            Timber.e("Protocol invalid: " + e.message)
         }
     }
 
@@ -202,7 +201,7 @@ object ImageProxy : BaseProxy() {
                 try {
                     sleep(inquiryPeriod)
                 } catch (e: InterruptedException) {
-                    Log.e(TAG, "InquiryCurrentPositionThread is interrupted")
+                    Timber.e("InquiryCurrentPositionThread is interrupted")
                     break
                 }
             }
