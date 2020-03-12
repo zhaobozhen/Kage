@@ -100,5 +100,4 @@
    public *;
 }
 
-# HokoBlur
--keep class com.hoko.blur.opengl.functor.** { *; }
+-dontwarn org.jetbrains.annotations.**

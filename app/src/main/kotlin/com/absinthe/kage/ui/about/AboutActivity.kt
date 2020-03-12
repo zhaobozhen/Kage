@@ -30,6 +30,7 @@ class AboutActivity : AbsAboutActivity() {
         items.add(License("Matisse", "zhihu", License.APACHE_2, "https://github.com/zhihu/Matisse"))
         items.add(License("AndroidX", "Google", License.APACHE_2, "https://source.google.com"))
         items.add(License("Android Jetpack", "Google", License.APACHE_2, "https://source.google.com"))
+        items.add(License("timber", "JakeWharton", License.APACHE_2, "https://github.com/JakeWharton/timber"))
         items.add(License("RxAndroid", "JakeWharton", License.APACHE_2, "https://github.com/ReactiveX/RxAndroid"))
         items.add(License("RxJava", "ReactiveX", License.APACHE_2, "https://github.com/ReactiveX/RxJava"))
         items.add(License("RxPermission", "tbruyelle", License.APACHE_2, "https://github.com/tbruyelle/RxPermissions"))
@@ -38,6 +39,5 @@ class AboutActivity : AbsAboutActivity() {
         items.add(License("gson", "google", License.APACHE_2, "https://github.com/google/gson"))
         items.add(License("AndroidUtilCode", "Blankj", License.APACHE_2, "https://github.com/Blankj/AndroidUtilCode"))
         items.add(License("lottie-android", "Airbnb", License.APACHE_2, "https://github.com/airbnb/lottie-android"))
-        items.add(License("timber", "JakeWharton", License.APACHE_2, "https://github.com/JakeWharton/timber"))
     }
 }
