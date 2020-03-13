@@ -1,45 +1,65 @@
 package com.absinthe.kage.media.video
 
 import android.media.session.PlaybackState
-import android.view.View
-import android.widget.VideoView
+import android.net.Uri
+import com.absinthe.kage.manager.ActivityStackManager
 import com.absinthe.kage.media.LocalMedia
 import com.absinthe.kage.media.Playback
+import com.google.android.exoplayer2.ExoPlayer
+import com.google.android.exoplayer2.Player
+import com.google.android.exoplayer2.SimpleExoPlayer
+import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory
+import com.google.android.exoplayer2.source.ExtractorMediaSource
+import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 import timber.log.Timber
 
-class LocalVideoPlayback(private val mVideoView: VideoView) : Playback {
+class LocalVideoPlayback(private val exoPlayer: SimpleExoPlayer) : Playback {
 
     private var mCallback: Playback.Callback? = null
 
     init {
-        mVideoView.setOnPreparedListener { play() }
-        mVideoView.setOnCompletionListener {
-            Timber.i("complete")
-            state = PlaybackState.STATE_PAUSED
-            if (mCallback != null) {
-                mCallback!!.onCompletion()
+        exoPlayer.addListener(object : Player.EventListener {
+            override fun onPlayerStateChanged(playWhenReady: Boolean, playbackState: Int) {
+                Timber.d("ExoPlayer state = $playbackState")
+                when (playbackState) {
+                    ExoPlayer.STATE_READY -> {
+                        play()
+                    }
+                    ExoPlayer.STATE_ENDED -> {
+                        Timber.i("complete")
+                        state = PlaybackState.STATE_PAUSED
+                        if (mCallback != null) {
+                            mCallback!!.onCompletion()
+                        }
+                    }
+                    Player.STATE_BUFFERING -> {
+                        Timber.d("Buffering")
+                    }
+                    Player.STATE_IDLE -> {
+                        Timber.d("Idle")
+                    }
+                }
             }
-        }
+        })
     }
 
     override var state = PlaybackState.STATE_NONE
         private set
 
     override val duration: Int
-        get() = mVideoView.duration
+        get() = exoPlayer.duration.toInt()
 
     override val bufferPosition: Int
-        get() = mVideoView.bufferPercentage
+        get() = exoPlayer.bufferedPosition.toInt()
 
     override val currentPosition: Int
-        get() = mVideoView.currentPosition
+        get() = exoPlayer.currentPosition.toInt()
 
     override fun playMedia(localMedia: LocalMedia) {
         state = PlaybackState.STATE_BUFFERING
 
-        if (mVideoView.visibility == View.VISIBLE) {
-            mVideoView.setVideoPath(localMedia.filePath)
-        }
+        setVideo(Uri.parse(localMedia.filePath))
+
         if (mCallback != null) {
             mCallback?.onMediaMetadataChanged(localMedia)
             mCallback?.onPlaybackStateChanged(state)
@@ -57,7 +77,7 @@ class LocalVideoPlayback(private val mVideoView: VideoView) : Playback {
     }
 
     override fun seekTo(position: Int) {
-        mVideoView.seekTo(position)
+        exoPlayer.seekTo(position.toLong())
     }
 
     override fun setCallback(callback: Playback.Callback) {
@@ -74,13 +94,26 @@ class LocalVideoPlayback(private val mVideoView: VideoView) : Playback {
 
     private fun handlePlayState() {
         Timber.i("handlePlayState")
-        if (state == PlaybackState.STATE_PLAYING && !mVideoView.isPlaying) {
-            mVideoView.start()
-        } else if (state == PlaybackState.STATE_PAUSED && mVideoView.isPlaying) {
-            mVideoView.pause()
+        if (state == PlaybackState.STATE_PLAYING && !exoPlayer.isPlaying) {
+            exoPlayer.playWhenReady = true
+        } else if (state == PlaybackState.STATE_PAUSED && exoPlayer.isPlaying) {
+            exoPlayer.playWhenReady = false
         }
         if (mCallback != null) {
             mCallback!!.onPlaybackStateChanged(state)
         }
+    }
+
+    private fun setVideo(playerUri : Uri) {
+        // 生成加载媒体数据的DataSource实例。
+        val dataSourceFactory = DefaultDataSourceFactory(ActivityStackManager.topActivity, "kage-exoplayer")
+        // 生成用于解析媒体数据的Extractor实例。
+        val extractorsFactory = DefaultExtractorsFactory()
+
+        // MediaSource代表要播放的媒体。
+        val videoSource = ExtractorMediaSource(playerUri, dataSourceFactory, extractorsFactory,
+                null, null)
+        //Prepare the player with the source.
+        exoPlayer.prepare(videoSource)
     }
 }

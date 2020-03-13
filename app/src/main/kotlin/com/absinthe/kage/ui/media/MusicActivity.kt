@@ -221,8 +221,8 @@ class MusicActivity : BaseActivity(), Observer {
         }
 
         mBinding.layoutSeekBar.seekBar.secondaryProgress = buffer
-        mBinding.layoutSeekBar.tvCurrentTime.text = LocalMedia.millisecondToTimeString(current)
-        mBinding.layoutSeekBar.tvDuration.text = LocalMedia.millisecondToTimeString(max)
+        mBinding.layoutSeekBar.tvCurrentTime.text = MediaHelper.millisecondToTimeString(current)
+        mBinding.layoutSeekBar.tvDuration.text = MediaHelper.millisecondToTimeString(max)
 
         return current
     }
@@ -270,7 +270,7 @@ class MusicActivity : BaseActivity(), Observer {
                 mHandler.post(mShowProgressTask)
             }
             mBinding.layoutSeekBar.tvCurrentTime.text = "00:00"
-            mBinding.layoutSeekBar.tvDuration.text = LocalMedia.millisecondToTimeString(media.duration.toInt())
+            mBinding.layoutSeekBar.tvDuration.text = MediaHelper.millisecondToTimeString(media.duration.toInt())
         }
     }
 

@@ -1,14 +1,16 @@
 package com.absinthe.kage.media.video
 
 import android.content.Context
-import android.media.MediaPlayer
 import android.media.session.PlaybackState
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.view.View
 import android.view.View.OnClickListener
 import android.view.ViewGroup
-import android.widget.*
+import android.widget.FrameLayout
+import android.widget.ImageButton
+import android.widget.ImageView
+import android.widget.SeekBar
 import android.widget.SeekBar.OnSeekBarChangeListener
 import androidx.annotation.AttrRes
 import com.absinthe.kage.R
@@ -18,6 +20,13 @@ import com.absinthe.kage.media.Playback
 import com.absinthe.kage.media.TYPE_LOCAL
 import com.absinthe.kage.media.TYPE_REMOTE
 import com.absinthe.kage.media.video.VideoHelper.getVideoCoverImage
+import com.google.android.exoplayer2.DefaultLoadControl
+import com.google.android.exoplayer2.ExoPlayerFactory
+import com.google.android.exoplayer2.SimpleExoPlayer
+import com.google.android.exoplayer2.trackselection.AdaptiveTrackSelection
+import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
+import com.google.android.exoplayer2.ui.PlayerView
+import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter
 import timber.log.Timber
 import java.util.*
 
@@ -27,8 +36,9 @@ open class VideoPlayer : FrameLayout, Playback.Callback {
     private lateinit var mRoot: View
     private lateinit var ibPlay: ImageButton
     private lateinit var seekbar: SeekBar
-    private lateinit var videoView: VideoView
+    private lateinit var videoView: PlayerView
     private lateinit var ivCover: ImageView
+    private lateinit var simpleExoPlayer: SimpleExoPlayer
 
     private var mPlayback: Playback? = null
     private var mLocalMedia: LocalMedia? = null
@@ -110,7 +120,16 @@ open class VideoPlayer : FrameLayout, Playback.Callback {
         ibPlay.setOnClickListener(mPauseListener)
         seekbar.max = 1000
         seekbar.setOnSeekBarChangeListener(mOnSeekBarChangeListener)
-        videoView.setOnErrorListener { _: MediaPlayer?, what: Int, _: Int -> what == Int.MIN_VALUE || what == -38 }
+        initExoPlayer()
+    }
+
+    private fun initExoPlayer() {
+        val bandwidthMeter = DefaultBandwidthMeter()
+        val videoTackSelectionFactory = AdaptiveTrackSelection.Factory(bandwidthMeter)
+        val trackSelector = DefaultTrackSelector(videoTackSelectionFactory)
+        val loadControl = DefaultLoadControl()
+        simpleExoPlayer = ExoPlayerFactory.newSimpleInstance(mContext, trackSelector, loadControl)
+        videoView.player = simpleExoPlayer
     }
 
     fun playMedia(localMedia: LocalMedia) {
@@ -131,7 +150,7 @@ open class VideoPlayer : FrameLayout, Playback.Callback {
         if (type == TYPE_LOCAL) {
             ivCover.visibility = View.GONE
             videoView.visibility = View.VISIBLE
-            mPlayback = LocalVideoPlayback(videoView)
+            mPlayback = LocalVideoPlayback(simpleExoPlayer)
             (mPlayback as LocalVideoPlayback).setCallback(this)
         } else if (type == TYPE_REMOTE) {
             ivCover.visibility = View.VISIBLE

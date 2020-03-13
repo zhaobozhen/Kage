@@ -1,14 +1,9 @@
 package com.absinthe.kage.media
 
-import android.content.Context
 import android.os.Parcel
 import android.os.Parcelable
-import android.provider.MediaStore
-import android.text.TextUtils
+import com.absinthe.kage.media.MediaHelper.encodePath
 import com.blankj.utilcode.util.EncryptUtils
-import java.io.UnsupportedEncodingException
-import java.net.URLEncoder
-import java.util.*
 
 const val TYPE_IMAGE = 1
 const val TYPE_VIDEO = 2
@@ -76,137 +71,14 @@ open class LocalMedia : Parcelable {
         return result
     }
 
-    companion object {
+    companion object CREATOR : Parcelable.Creator<LocalMedia> {
 
-        fun getMediaDirectory(context: Context, type: Int): List<MediaDirectory>? {
-            if (type == TYPE_VIDEO) {
-                return getVideoDirectory(context)
-            } else if (type == TYPE_IMAGE) {
-                return getImageDirectory(context)
-            }
-            return null
+        override fun createFromParcel(`in`: Parcel): LocalMedia {
+            return LocalMedia(`in`)
         }
 
-        private fun getImageDirectory(context: Context): List<MediaDirectory> {
-            val result: MutableList<MediaDirectory> = ArrayList()
-            val cursor = context.contentResolver.query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, null, null, null, null)
-            if (cursor != null && cursor.moveToFirst()) {
-                do {
-                    val title = cursor.getString(cursor.getColumnIndex("title"))
-                    val dirId = cursor.getLong(cursor.getColumnIndex("bucket_id"))
-                    val dirName = cursor.getString(cursor.getColumnIndex("bucket_display_name"))
-                    val path = cursor.getString(cursor.getColumnIndex("_data"))
-                    if (!(TextUtils.isEmpty(title) || 0L == dirId || TextUtils.isEmpty(dirName))) {
-                        val media = LocalMedia()
-                        media.title = title
-                        media.filePath = path
-                        media.type = TYPE_IMAGE
-                        var flag = false
-                        for (directory in result) {
-                            if (directory.id == dirId && directory.name == dirName) {
-                                directory.addMedia(media)
-                                flag = true
-                            }
-                        }
-                        if (!flag) {
-                            val directory = MediaDirectory()
-                            directory.id = dirId
-                            directory.name = dirName
-                            directory.type = TYPE_IMAGE
-                            directory.addMedia(media)
-                            result.add(directory)
-                        }
-                    }
-                } while (cursor.moveToNext())
-                cursor.close()
-            }
-            return result
-        }
-
-        private fun getVideoDirectory(context: Context): List<MediaDirectory> {
-            val result: MutableList<MediaDirectory> = ArrayList()
-            val cursor = context.contentResolver.query(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, null, null, null, null)
-            if (cursor != null && cursor.moveToFirst()) {
-                do {
-                    val title = cursor.getString(cursor.getColumnIndex("title"))
-                    val dirId = cursor.getLong(cursor.getColumnIndex("bucket_id"))
-                    val dirName = cursor.getString(cursor.getColumnIndex("bucket_display_name"))
-                    val path = cursor.getString(cursor.getColumnIndex("_data"))
-                    if (!(TextUtils.isEmpty(title) || 0L == dirId || TextUtils.isEmpty(dirName))) {
-                        val media = LocalMedia()
-                        media.title = title
-                        media.type = TYPE_VIDEO
-                        media.filePath = path
-                        var flag = false
-                        for (directory in result) {
-                            if (directory.id == dirId && directory.name == dirName) {
-                                directory.addMedia(media)
-                                flag = true
-                            }
-                        }
-                        if (!flag) {
-                            val directory = MediaDirectory()
-                            directory.id = dirId
-                            directory.name = dirName
-                            directory.type = TYPE_VIDEO
-                            directory.addMedia(media)
-                            result.add(directory)
-                        }
-                    }
-                } while (cursor.moveToNext())
-                cursor.close()
-            }
-            return result
-        }
-
-        fun millisecondToTimeString(time: Int): String {
-            var thisTime = time
-            thisTime /= 1000
-            if (thisTime.toLong() == 0L) {
-                return "00:00"
-            }
-            val hours = thisTime / 3600.toLong()
-            val remainder = thisTime % 3600.toLong()
-            val minutes = remainder / 60
-            val secs = remainder % 60
-            val stringBuilder = StringBuilder()
-            if (hours != 0L) {
-                stringBuilder.append(if (hours < 10) "0" else "")
-                stringBuilder.append(hours)
-                stringBuilder.append(":")
-            }
-            stringBuilder.append(if (minutes < 10) "0" else "")
-            stringBuilder.append(minutes)
-            stringBuilder.append(":")
-            stringBuilder.append(if (secs < 10) "0" else "")
-            stringBuilder.append(secs)
-            return stringBuilder.toString()
-        }
-
-        private fun encodePath(path: String?): String {
-            val strs = path!!.split("/").toTypedArray()
-            val builder = StringBuilder()
-            try {
-                for (str in strs) {
-                    if (!TextUtils.isEmpty(str)) {
-                        builder.append("/")
-                        builder.append(URLEncoder.encode(str, "utf-8"))
-                    }
-                }
-            } catch (e: UnsupportedEncodingException) {
-                e.printStackTrace()
-            }
-            return builder.toString()
-        }
-
-        val CREATOR: Parcelable.Creator<LocalMedia> = object : Parcelable.Creator<LocalMedia> {
-            override fun createFromParcel(`in`: Parcel): LocalMedia? {
-                return LocalMedia(`in`)
-            }
-
-            override fun newArray(size: Int): Array<LocalMedia?> {
-                return arrayOfNulls(size)
-            }
+        override fun newArray(size: Int): Array<LocalMedia?> {
+            return arrayOfNulls(size)
         }
     }
 }

@@ -14,6 +14,9 @@ import com.absinthe.kage.ui.about.AboutActivity
 import com.absinthe.kage.ui.connect.ConnectActivity
 import com.absinthe.kage.ui.sender.SenderActivity
 import com.blankj.utilcode.util.ServiceUtils
+import com.microsoft.appcenter.AppCenter
+import com.microsoft.appcenter.analytics.Analytics
+import com.microsoft.appcenter.crashes.Crashes
 
 class MainActivity : BaseActivity() {
 
@@ -25,6 +28,9 @@ class MainActivity : BaseActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         initView()
+
+        AppCenter.start(application, "4b4faea6-9eed-4c30-a734-3fb9330da2cc",
+                Analytics::class.java, Crashes::class.java)
 
         if (!ServiceUtils.isServiceRunning(TCPService::class.java)) {
             TCPService.start(this)
