@@ -5,18 +5,13 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import com.absinthe.kage.BaseActivity
-import com.absinthe.kage.BuildConfig
 import com.absinthe.kage.R
 import com.absinthe.kage.databinding.ActivityMainBinding
-import com.absinthe.kage.device.DeviceManager
 import com.absinthe.kage.service.TCPService
 import com.absinthe.kage.ui.about.AboutActivity
 import com.absinthe.kage.ui.connect.ConnectActivity
 import com.absinthe.kage.ui.sender.SenderActivity
 import com.blankj.utilcode.util.ServiceUtils
-import com.microsoft.appcenter.AppCenter
-import com.microsoft.appcenter.analytics.Analytics
-import com.microsoft.appcenter.crashes.Crashes
 
 class MainActivity : BaseActivity() {
 
@@ -28,9 +23,6 @@ class MainActivity : BaseActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         initView()
-
-        AppCenter.start(application, "4b4faea6-9eed-4c30-a734-3fb9330da2cc",
-                Analytics::class.java, Crashes::class.java)
 
         if (!ServiceUtils.isServiceRunning(TCPService::class.java)) {
             TCPService.start(this)
@@ -44,11 +36,7 @@ class MainActivity : BaseActivity() {
 
     private fun initView() {
         binding.btnSend.setOnClickListener {
-            if (DeviceManager.isConnected or BuildConfig.DEBUG) {
-                startActivity(Intent(this@MainActivity, SenderActivity::class.java))
-            } else {
-                startActivity(Intent(this@MainActivity, ConnectActivity::class.java))
-            }
+            startActivity(Intent(this@MainActivity, SenderActivity::class.java))
         }
         binding.btnConnect.setOnClickListener {
             startActivity(Intent(this@MainActivity, ConnectActivity::class.java))

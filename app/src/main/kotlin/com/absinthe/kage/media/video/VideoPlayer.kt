@@ -36,11 +36,11 @@ open class VideoPlayer : FrameLayout, Playback.Callback {
     private lateinit var mRoot: View
     private lateinit var ibPlay: ImageButton
     private lateinit var seekbar: SeekBar
-    private lateinit var videoView: PlayerView
+    private lateinit var playerView: PlayerView
     private lateinit var ivCover: ImageView
     private lateinit var simpleExoPlayer: SimpleExoPlayer
+    private lateinit var mPlayback: Playback
 
-    private var mPlayback: Playback? = null
     private var mLocalMedia: LocalMedia? = null
     private var mVideoPlayCallback: VideoPlayCallback? = null
 
@@ -71,9 +71,9 @@ open class VideoPlayer : FrameLayout, Playback.Callback {
         }
 
         override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
-            if (fromUser && mPlayback != null) {
-                val newPosition = progress.toLong() * mPlayback!!.duration.toLong() / 1000
-                mPlayback!!.seekTo(newPosition.toInt())
+            if (fromUser) {
+                val newPosition = progress.toLong() * mPlayback.duration.toLong() / 1000
+                mPlayback.seekTo(newPosition.toInt())
                 mBinding.layoutSeekbar.seekbar.tvCurrentTime.text = stringForTime(newPosition.toInt())
             }
         }
@@ -114,7 +114,7 @@ open class VideoPlayer : FrameLayout, Playback.Callback {
     private fun initView() {
         ibPlay = mBinding.layoutSeekbar.ivPlay
         seekbar = mBinding.layoutSeekbar.seekbar.seekBar
-        videoView = mBinding.videoView
+        playerView = mBinding.videoView
         ivCover = mBinding.ivCover
 
         ibPlay.setOnClickListener(mPauseListener)
@@ -129,46 +129,43 @@ open class VideoPlayer : FrameLayout, Playback.Callback {
         val trackSelector = DefaultTrackSelector(videoTackSelectionFactory)
         val loadControl = DefaultLoadControl()
         simpleExoPlayer = ExoPlayerFactory.newSimpleInstance(mContext, trackSelector, loadControl)
-        videoView.player = simpleExoPlayer
+        playerView.player = simpleExoPlayer
+        playerView.useController = false
+        mPlayback = LocalVideoPlayback(simpleExoPlayer)
     }
 
     fun playMedia(localMedia: LocalMedia) {
         removeCallbacks(mShowProgress)
         mBeforePosition = 0
         mLocalMedia = localMedia
-        if (mPlayback != null) {
-            mPlayback!!.playMedia(localMedia)
-        }
+        mPlayback.playMedia(localMedia)
     }
 
     fun setPlayerType(type: Int) {
-        if (mPlayback != null) {
-            mBeforePosition = mPlayback!!.currentPosition
-            mPlayback!!.stop(true)
-            mPlayback = null
-        }
+        mBeforePosition = mPlayback.currentPosition
+        mPlayback.stop(true)
+
         if (type == TYPE_LOCAL) {
             ivCover.visibility = View.GONE
-            videoView.visibility = View.VISIBLE
+            playerView.visibility = View.VISIBLE
             mPlayback = LocalVideoPlayback(simpleExoPlayer)
             (mPlayback as LocalVideoPlayback).setCallback(this)
         } else if (type == TYPE_REMOTE) {
             ivCover.visibility = View.VISIBLE
-            videoView.visibility = View.GONE
+            playerView.visibility = View.GONE
             mPlayback = RemoteVideoPlayback()
             (mPlayback as RemoteVideoPlayback).setCallback(this)
         }
-        if (mPlayback != null) {
-            if (mLocalMedia != null) {
-                mPlayback!!.playMedia(mLocalMedia!!)
-            }
+        if (mLocalMedia != null) {
+            mPlayback.playMedia(mLocalMedia!!)
         }
     }
 
     fun release() {
         Timber.d("release")
         mPlayState = 0
-        mPlayback?.stop(false)
+        mPlayback.stop(false)
+        simpleExoPlayer.release()
     }
 
     fun setVideoPlayCallback(callback: VideoPlayCallback?) {
@@ -208,12 +205,9 @@ open class VideoPlayer : FrameLayout, Playback.Callback {
     }
 
     override fun onPlaybackStateChanged(state: Int) {
-        if (mPlayback != null
-                && mPlayState == PlaybackState.STATE_BUFFERING
-                && state == PlaybackState.STATE_PLAYING
-                && mBeforePosition > 0) {
+        if (mPlayState == PlaybackState.STATE_BUFFERING && state == PlaybackState.STATE_PLAYING && mBeforePosition > 0) {
             Timber.d("Seek to: $mBeforePosition")
-            mPlayback!!.seekTo(mBeforePosition)
+            mPlayback.seekTo(mBeforePosition)
         }
         if (mPlayState != state) {
             updatePausePlay()
@@ -230,31 +224,29 @@ open class VideoPlayer : FrameLayout, Playback.Callback {
     }
 
     private fun setProgress(): Int {
-        val position = mPlayback!!.currentPosition
+        val position = mPlayback.currentPosition
         if (position == 0) {
             return 0
         }
 
-        val duration = mPlayback!!.duration
+        val duration = mPlayback.duration
         if (duration > 0) {
             seekbar.progress = (position.toLong() * 1000 / duration.toLong()).toInt()
         }
-        seekbar.secondaryProgress = mPlayback!!.bufferPosition * 10
+        seekbar.secondaryProgress = mPlayback.bufferPosition * 10
         mBinding.layoutSeekbar.seekbar.tvDuration.text = stringForTime(duration)
         mBinding.layoutSeekbar.seekbar.tvCurrentTime.text = stringForTime(position)
         return position
     }
 
     private fun doPauseResume() {
-        if (mPlayback != null) {
-            if (isPlaying) {
-                mPlayback!!.pause()
-            } else {
-                mPlayback!!.play()
-            }
-            updatePausePlay()
-            post(mShowProgress)
+        if (isPlaying) {
+            mPlayback.pause()
+        } else {
+            mPlayback.play()
         }
+        updatePausePlay()
+        post(mShowProgress)
     }
 
     private fun stringForTime(timeMs: Int): String {
@@ -269,7 +261,7 @@ open class VideoPlayer : FrameLayout, Playback.Callback {
     }
 
     private val isPlaying: Boolean
-        get() = mPlayback != null && mPlayback!!.state == PlaybackState.STATE_PLAYING
+        get() = mPlayback.state == PlaybackState.STATE_PLAYING
 
     interface VideoPlayCallback {
         fun changeState(state: Int)

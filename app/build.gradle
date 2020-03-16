@@ -72,6 +72,7 @@ dependencies {
     implementation 'com.jakewharton.timber:timber:4.7.1'
 
     testImplementation 'junit:junit:4.13'
+    debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.1'
     annotationProcessor "com.github.bumptech.glide:compiler:$glide_version"
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'

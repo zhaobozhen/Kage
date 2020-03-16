@@ -11,12 +11,19 @@ import java.io.IOException
 class KageServer : NanoHTTPD(Config.HTTP_SERVER_PORT) {
 
     override fun serve(session: IHTTPSession): Response {
-        var filepath = session.uri.trim { it <= ' ' }
         val rootDir = Environment.getExternalStorageDirectory()
         val filesList: Array<File>?
+        val userAgent = session.headers["user-agent"] ?: ""
+        var filepath = session.uri.trim { it <= ' ' }
 
         Timber.d("Session Uri = $filepath")
-        if (filepath.trim { it <= ' ' }.isEmpty() || filepath.trim { it <= ' ' } == ROOT_DIR) {
+        Timber.d("header = $userAgent")
+
+        if (!userAgent.contains("Dalvik")) {
+            return responseNoAccess()
+        }
+
+        if (filepath.isEmpty() || filepath == ROOT_DIR) {
             filepath = rootDir.absolutePath
         }
         filesList = File(filepath).listFiles()
@@ -56,8 +63,18 @@ class KageServer : NanoHTTPD(Config.HTTP_SERVER_PORT) {
     //页面不存在，或者文件不存在时
     private fun responseNotExist(url: String): Response {
         val builder = StringBuilder()
-        builder.append("<!DOCTYPE html><html>body>")
+        builder.append("<!DOCTYPE html><html><body>")
         builder.append("Sorry,Can't Found").append(url).append(" !")
+        builder.append("</body></html>\n")
+
+        return newFixedLengthResponse(builder.toString())
+    }
+
+    //非客户端禁止访问
+    private fun responseNoAccess(): Response {
+        val builder = StringBuilder()
+        builder.append("<!DOCTYPE html><html><body>")
+        builder.append("No Access!")
         builder.append("</body></html>\n")
 
         return newFixedLengthResponse(builder.toString())
