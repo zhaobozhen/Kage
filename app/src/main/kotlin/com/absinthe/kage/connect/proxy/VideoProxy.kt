@@ -1,5 +1,6 @@
 package com.absinthe.kage.connect.proxy
 
+import android.media.session.PlaybackState
 import android.os.Handler
 import android.os.Looper
 import com.absinthe.kage.connect.protocol.IpMessageConst
@@ -166,7 +167,7 @@ object VideoProxy : BaseProxy() {
                     }
                 }
             } catch (e: Exception) {
-                Timber.e("protocol invalid:" + e.message)
+                Timber.e("protocol invalid:%s", e.message)
             }
         }
     }
@@ -331,10 +332,10 @@ object VideoProxy : BaseProxy() {
     interface PlayStatue {
         companion object {
             const val INVALIDATE = -1
-            const val STOPPED = 1
-            const val TRANSITIONING = 2
-            const val PLAYING = 3
-            const val PAUSED = 4
+            const val STOPPED = PlaybackState.STATE_STOPPED
+            const val TRANSITIONING = PlaybackState.STATE_BUFFERING
+            const val PLAYING = PlaybackState.STATE_PLAYING
+            const val PAUSED = PlaybackState.STATE_PAUSED
             const val OK = 10
             const val PLAYER_EXIT = 11
             const val ERROR_OCCURRED = 12

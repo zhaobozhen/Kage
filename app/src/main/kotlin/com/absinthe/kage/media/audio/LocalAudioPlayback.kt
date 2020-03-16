@@ -25,8 +25,8 @@ class LocalAudioPlayback internal constructor(context: Context) : Playback {
     private var mAudioFocus = AUDIO_NO_FOCUS_NO_DUCK
     private var mAudioSession = 0
     private var mPlayOnFocusGain = false
-    private var mCallback: Playback.Callback? = null
     private var mMediaPlayer: MediaPlayer = MediaPlayer()
+    private var mCallback: Playback.Callback? = null
 
     init {
         mAudioManager = mContext.getSystemService(Context.AUDIO_SERVICE) as AudioManager
@@ -46,15 +46,11 @@ class LocalAudioPlayback internal constructor(context: Context) : Playback {
 
             if (TextUtils.isEmpty(localMedia.filePath)) {
                 state = PlaybackState.STATE_ERROR
-                if (mCallback != null) {
-                    mCallback!!.onPlaybackStateChanged(state)
-                }
+                mCallback?.onPlaybackStateChanged(state)
                 return
             }
 
-            if (mCallback != null) {
-                mCallback!!.onMediaMetadataChanged(localMedia)
-            }
+            mCallback?.onMediaMetadataChanged(localMedia)
 
             if (mAudioSession != 0) {
                 mMediaPlayer.audioSessionId = mAudioSession
@@ -132,6 +128,7 @@ class LocalAudioPlayback internal constructor(context: Context) : Playback {
         } catch (e: IllegalStateException) {
             e.printStackTrace()
         }
+        mMediaPlayer.reset()
         mMediaPlayer.release()
         abandonAudioFocus()
     }

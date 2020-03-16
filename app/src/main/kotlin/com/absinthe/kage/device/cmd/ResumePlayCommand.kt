@@ -9,6 +9,7 @@ import com.absinthe.kage.device.CommandBuilder
 import com.absinthe.kage.device.client.Client
 import com.absinthe.kage.media.audio.AudioPlayer
 import com.absinthe.kage.media.video.LocalVideoPlayback
+import timber.log.Timber
 
 class ResumePlayCommand : Command() {
 

@@ -7,37 +7,16 @@
     android:background="@color/black"
     tools:context=".ui.media.VideoActivity">
 
+    <com.absinthe.kage.media.video.VideoPlayer
+        android:id="@+id/video_player"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
     <include
         android:id="@+id/toolbar"
         layout="@layout/layout_music_toolbar"
         android:layout_width="match_parent"
         android:layout_height="@dimen/music_toolbar_height"
         app:layout_constraintTop_toTopOf="parent" />
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_marginBottom="15dp"
-        android:gravity="center"
-        android:orientation="horizontal"
-        app:layout_constraintBottom_toTopOf="@id/btn_cast"
-        app:layout_constraintTop_toBottomOf="@id/toolbar">
-
-        <com.absinthe.kage.media.video.VideoPlayer
-            android:id="@+id/video_player"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
-
-    </LinearLayout>
-
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/btn_cast"
-        android:layout_width="200dp"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="15dp"
-        android:text="@string/btn_cast_to_device"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

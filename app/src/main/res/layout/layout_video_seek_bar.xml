@@ -8,22 +8,32 @@
         android:id="@+id/ib_play"
         android:layout_width="30dp"
         android:layout_height="30dp"
+        android:layout_marginEnd="10dp"
         android:background="?attr/selectableItemBackgroundBorderless"
         android:src="@drawable/ic_play_arrow"
-        android:clickable="true"
-        android:focusable="true"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toBottomOf="@id/seek_bar"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="@id/seek_bar" />
 
     <include
-        android:id="@+id/seekbar"
+        android:id="@+id/seek_bar"
         layout="@layout/layout_music_seek_bar"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@id/ib_play"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btn_cast"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="15dp"
+        android:text="@string/btn_cast_to_device"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/seek_bar" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

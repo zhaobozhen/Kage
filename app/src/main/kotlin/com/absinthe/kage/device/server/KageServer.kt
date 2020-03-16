@@ -19,7 +19,7 @@ class KageServer : NanoHTTPD(Config.HTTP_SERVER_PORT) {
         Timber.d("Session Uri = $filepath")
         Timber.d("header = $userAgent")
 
-        if (!userAgent.contains("Dalvik")) {
+        if (userAgent.contains("Mozilla/5.0")) {
             return responseNoAccess()
         }
 

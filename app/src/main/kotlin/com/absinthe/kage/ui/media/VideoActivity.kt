@@ -4,6 +4,7 @@ import android.content.Intent
 import android.graphics.Color
 import android.media.session.PlaybackState
 import android.os.Bundle
+import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import com.absinthe.kage.databinding.ActivityVideoBinding
 import com.absinthe.kage.device.DeviceManager
@@ -71,14 +72,16 @@ class VideoActivity : AppCompatActivity() {
         mBinding.toolbar.ibConnect.setOnClickListener {
             startActivity(Intent(this, ConnectActivity::class.java))
         }
-        mBinding.btnCast.setOnClickListener {
+        mBinding.videoPlayer.setCastButtonClickListener(View.OnClickListener {
             if (DeviceManager.isConnected) {
                 mVideoPlayer.setPlayerType(TYPE_REMOTE)
             } else {
-                startActivity(Intent(this, ConnectActivity::class.java))
+                startActivity(Intent(this@VideoActivity, ConnectActivity::class.java))
             }
-        }
+        })
     }
+
+
 
     private fun getMedia() {
         mLocalMedia = intent.getParcelableExtra(EXTRA_MEDIA)

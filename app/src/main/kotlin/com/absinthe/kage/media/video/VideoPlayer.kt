@@ -67,7 +67,7 @@ open class VideoPlayer : FrameLayout, Playback.Callback {
             if (fromUser) {
                 val newPosition = progress.toLong() * mPlayback.duration.toLong() / 1000
                 mPlayback.seekTo(newPosition.toInt())
-                mBinding.layoutSeekBar.seekbar.tvCurrentTime.text = stringForTime(newPosition.toInt())
+                mBinding.layoutSeekBar.seekBar.tvCurrentTime.text = stringForTime(newPosition.toInt())
             }
         }
 
@@ -105,11 +105,11 @@ open class VideoPlayer : FrameLayout, Playback.Callback {
     }
 
     private fun initView() {
-        seekBar = mBinding.layoutSeekBar.seekbar.seekBar
+        seekBar = mBinding.layoutSeekBar.seekBar.seekBar
         playerView = mBinding.videoView
         ivCover = mBinding.ivCover
 
-        mBinding.layoutSeekBar.ibPlay.setOnClickListener{ doPauseResume() }
+        mBinding.layoutSeekBar.ibPlay.setOnClickListener { doPauseResume() }
         seekBar.max = 1000
         seekBar.setOnSeekBarChangeListener(mOnSeekBarChangeListener)
         initExoPlayer()
@@ -167,6 +167,10 @@ open class VideoPlayer : FrameLayout, Playback.Callback {
 
     fun setVideoPlayCallback(callback: VideoPlayCallback?) {
         mVideoPlayCallback = callback
+    }
+
+    fun setCastButtonClickListener(listener: OnClickListener) {
+        mBinding.layoutSeekBar.btnCast.setOnClickListener(listener)
     }
 
     private fun updatePausePlay() {
@@ -231,13 +235,13 @@ open class VideoPlayer : FrameLayout, Playback.Callback {
             seekBar.progress = (position.toLong() * 1000 / duration.toLong()).toInt()
         }
         seekBar.secondaryProgress = mPlayback.bufferPosition * 10
-        mBinding.layoutSeekBar.seekbar.tvDuration.text = stringForTime(duration)
-        mBinding.layoutSeekBar.seekbar.tvCurrentTime.text = stringForTime(position)
+        mBinding.layoutSeekBar.seekBar.tvDuration.text = stringForTime(duration)
+        mBinding.layoutSeekBar.seekBar.tvCurrentTime.text = stringForTime(position)
         return position
     }
 
     private fun doPauseResume() {
-        Timber.d("state=%d",mPlayback.state)
+        Timber.d("state=%d", mPlayback.state)
         if (isPlaying) {
             Timber.d("doPauseResume")
             mPlayback.pause()

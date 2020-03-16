@@ -72,7 +72,6 @@ class DeviceScanner {
                         mScanCallback?.onDeviceOffline(device)
                     }
                     IpMessageConst.IP_MSG_BR_ENTRY -> {
-                        Timber.d("IP_MSG_BR_ENTRY")
                         val ipMsgSend = IpMessageProtocol()
                         ipMsgSend.version = IpMessageConst.VERSION.toString()
                         ipMsgSend.senderName = mConfig.name
@@ -81,7 +80,6 @@ class DeviceScanner {
                         mUDP?.notify(ipMsgSend, ip, port)
                     }
                     IpMessageConst.IP_MSG_ANS_ENTRY -> {
-                        Timber.d("IP_MSG_ANS_ENTRY")
                         if (device == null) {
                             val protocolVersion = ipMessage.version
                             device = Device(mConfig, protocolVersion)
