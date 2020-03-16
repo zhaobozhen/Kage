@@ -5,10 +5,8 @@ import android.media.session.PlaybackState
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.view.View
-import android.view.View.OnClickListener
 import android.view.ViewGroup
 import android.widget.FrameLayout
-import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.SeekBar
 import android.widget.SeekBar.OnSeekBarChangeListener
@@ -20,8 +18,6 @@ import com.absinthe.kage.media.Playback
 import com.absinthe.kage.media.TYPE_LOCAL
 import com.absinthe.kage.media.TYPE_REMOTE
 import com.absinthe.kage.media.video.VideoHelper.getVideoCoverImage
-import com.google.android.exoplayer2.DefaultLoadControl
-import com.google.android.exoplayer2.ExoPlayerFactory
 import com.google.android.exoplayer2.SimpleExoPlayer
 import com.google.android.exoplayer2.trackselection.AdaptiveTrackSelection
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
@@ -34,8 +30,7 @@ open class VideoPlayer : FrameLayout, Playback.Callback {
 
     private lateinit var mBinding: ViewVideoPlayerBinding
     private lateinit var mRoot: View
-    private lateinit var ibPlay: ImageButton
-    private lateinit var seekbar: SeekBar
+    private lateinit var seekBar: SeekBar
     private lateinit var playerView: PlayerView
     private lateinit var ivCover: ImageView
     private lateinit var simpleExoPlayer: SimpleExoPlayer
@@ -51,8 +46,6 @@ open class VideoPlayer : FrameLayout, Playback.Callback {
     private var mBeforePosition = 0
     private var mPlayState = 0
     private var isLoaded = false
-
-    private val mPauseListener = OnClickListener { doPauseResume() }
 
     private val mShowProgress: Runnable = object : Runnable {
         override fun run() {
@@ -74,7 +67,7 @@ open class VideoPlayer : FrameLayout, Playback.Callback {
             if (fromUser) {
                 val newPosition = progress.toLong() * mPlayback.duration.toLong() / 1000
                 mPlayback.seekTo(newPosition.toInt())
-                mBinding.layoutSeekbar.seekbar.tvCurrentTime.text = stringForTime(newPosition.toInt())
+                mBinding.layoutSeekBar.seekbar.tvCurrentTime.text = stringForTime(newPosition.toInt())
             }
         }
 
@@ -112,23 +105,25 @@ open class VideoPlayer : FrameLayout, Playback.Callback {
     }
 
     private fun initView() {
-        ibPlay = mBinding.layoutSeekbar.ivPlay
-        seekbar = mBinding.layoutSeekbar.seekbar.seekBar
+        seekBar = mBinding.layoutSeekBar.seekbar.seekBar
         playerView = mBinding.videoView
         ivCover = mBinding.ivCover
 
-        ibPlay.setOnClickListener(mPauseListener)
-        seekbar.max = 1000
-        seekbar.setOnSeekBarChangeListener(mOnSeekBarChangeListener)
+        mBinding.layoutSeekBar.ibPlay.setOnClickListener{ doPauseResume() }
+        seekBar.max = 1000
+        seekBar.setOnSeekBarChangeListener(mOnSeekBarChangeListener)
         initExoPlayer()
     }
 
     private fun initExoPlayer() {
-        val bandwidthMeter = DefaultBandwidthMeter()
-        val videoTackSelectionFactory = AdaptiveTrackSelection.Factory(bandwidthMeter)
-        val trackSelector = DefaultTrackSelector(videoTackSelectionFactory)
-        val loadControl = DefaultLoadControl()
-        simpleExoPlayer = ExoPlayerFactory.newSimpleInstance(mContext, trackSelector, loadControl)
+        val bandwidthMeter = DefaultBandwidthMeter.Builder(context).build()
+        val videoTrackSelectionFactory = AdaptiveTrackSelection.Factory()
+        val trackSelector = DefaultTrackSelector(context, videoTrackSelectionFactory)
+
+        simpleExoPlayer = SimpleExoPlayer.Builder(context)
+                .setBandwidthMeter(bandwidthMeter)
+                .setTrackSelector(trackSelector)
+                .build()
         playerView.player = simpleExoPlayer
         playerView.useController = false
         mPlayback = LocalVideoPlayback(simpleExoPlayer)
@@ -165,7 +160,9 @@ open class VideoPlayer : FrameLayout, Playback.Callback {
         Timber.d("release")
         mPlayState = 0
         mPlayback.stop(false)
+        simpleExoPlayer.stop()
         simpleExoPlayer.release()
+        LocalVideoPlayback.INSTANCE = null
     }
 
     fun setVideoPlayCallback(callback: VideoPlayCallback?) {
@@ -175,10 +172,10 @@ open class VideoPlayer : FrameLayout, Playback.Callback {
     private fun updatePausePlay() {
         if (isPlaying) {
             post(mShowProgress)
-            ibPlay.setImageResource(R.drawable.ic_pause)
+            mBinding.layoutSeekBar.ibPlay.setImageResource(R.drawable.ic_pause)
         } else {
             removeCallbacks(mShowProgress)
-            ibPlay.setImageResource(R.drawable.ic_play_arrow)
+            mBinding.layoutSeekBar.ibPlay.setImageResource(R.drawable.ic_play_arrow)
         }
     }
 
@@ -200,7 +197,7 @@ open class VideoPlayer : FrameLayout, Playback.Callback {
 
     override fun onCompletion() {
         Timber.d("onCompletion")
-        seekbar.progress = seekbar.max
+        seekBar.progress = seekBar.max
         updatePausePlay()
     }
 
@@ -231,16 +228,18 @@ open class VideoPlayer : FrameLayout, Playback.Callback {
 
         val duration = mPlayback.duration
         if (duration > 0) {
-            seekbar.progress = (position.toLong() * 1000 / duration.toLong()).toInt()
+            seekBar.progress = (position.toLong() * 1000 / duration.toLong()).toInt()
         }
-        seekbar.secondaryProgress = mPlayback.bufferPosition * 10
-        mBinding.layoutSeekbar.seekbar.tvDuration.text = stringForTime(duration)
-        mBinding.layoutSeekbar.seekbar.tvCurrentTime.text = stringForTime(position)
+        seekBar.secondaryProgress = mPlayback.bufferPosition * 10
+        mBinding.layoutSeekBar.seekbar.tvDuration.text = stringForTime(duration)
+        mBinding.layoutSeekBar.seekbar.tvCurrentTime.text = stringForTime(position)
         return position
     }
 
     private fun doPauseResume() {
+        Timber.d("state=%d",mPlayback.state)
         if (isPlaying) {
+            Timber.d("doPauseResume")
             mPlayback.pause()
         } else {
             mPlayback.play()

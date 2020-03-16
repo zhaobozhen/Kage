@@ -178,6 +178,8 @@ public class MatisseActivity extends AppCompatActivity implements
         mAlbumCollection.onDestroy();
         mSpec.onCheckedListener = null;
         mSpec.onSelectedListener = null;
+        mSpec.onChooseItemListener = null;
+        mSpec.onMediaClickListener = null;
     }
 
     @Override

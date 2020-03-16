@@ -20,7 +20,7 @@
         android:layout_height="match_parent" />
 
     <include
-        android:id="@+id/layout_seekbar"
+        android:id="@+id/layout_seek_bar"
         layout="@layout/layout_video_seek_bar"
         android:layout_width="0dp"
         android:layout_height="wrap_content"

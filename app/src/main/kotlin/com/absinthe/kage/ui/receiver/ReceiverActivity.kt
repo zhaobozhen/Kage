@@ -7,6 +7,8 @@ import android.os.Bundle
 import android.text.TextUtils
 import android.view.View
 import com.absinthe.kage.BaseActivity
+import com.absinthe.kage.connect.proxy.BaseProxy
+import com.absinthe.kage.connect.proxy.MODE_IMAGE
 import com.absinthe.kage.databinding.ActivityReceiverBinding
 import com.absinthe.kage.utils.AnimationUtil
 import com.absinthe.kage.utils.AnimationUtil.showAndHiddenAnimation
@@ -27,6 +29,7 @@ class ReceiverActivity : BaseActivity() {
 
         initView()
         processIntent(intent)
+        BaseProxy.CURRENT_MODE = MODE_IMAGE
     }
 
     override fun onNewIntent(intent: Intent) {

@@ -2,11 +2,10 @@ package com.absinthe.kage.device.cmd
 
 import android.media.session.PlaybackState
 import com.absinthe.kage.connect.protocol.IpMessageConst
+import com.absinthe.kage.connect.proxy.*
 import com.absinthe.kage.device.Command
 import com.absinthe.kage.device.CommandBuilder
 import com.absinthe.kage.device.client.Client
-import com.absinthe.kage.media.audio.AudioPlayer.pause
-import com.absinthe.kage.media.audio.AudioPlayer.playState
 
 class MediaPausePlayingCommand : Command() {
 
@@ -18,8 +17,14 @@ class MediaPausePlayingCommand : Command() {
     }
 
     override fun doWork(client: Client, received: String) {
-        if (playState == PlaybackState.STATE_PLAYING) {
-            pause()
+        if (BaseProxy.CURRENT_MODE == MODE_AUDIO) {
+            if (AudioProxy.playState == PlaybackState.STATE_PLAYING) {
+                AudioProxy.pause()
+            }
+        } else if (BaseProxy.CURRENT_MODE == MODE_VIDEO) {
+            if (VideoProxy.playState == PlaybackState.STATE_PLAYING) {
+                VideoProxy.pause()
+            }
         }
     }
 

@@ -71,13 +71,15 @@ class SenderActivity : BaseActivity() {
         }
 
         mVideoListener = AlbumMediaAdapter.OnMediaClickListener { _, item, _ ->
-            val localMedia = LocalMedia()
-            localMedia.type = TYPE_VIDEO
-            localMedia.title = "Unknown"
-            localMedia.filePath = PathUtils.getPath(this, item?.uri)
+            val localMedia = LocalMedia().apply {
+                type = TYPE_VIDEO
+                title = "Unknown"
+                filePath = PathUtils.getPath(this@SenderActivity, item?.uri)
+            }
 
-            val intent = Intent(this@SenderActivity, VideoActivity::class.java)
-            intent.putExtra(VideoActivity.EXTRA_MEDIA, localMedia)
+            val intent = Intent(this@SenderActivity, VideoActivity::class.java).apply {
+                putExtra(VideoActivity.EXTRA_MEDIA, localMedia)
+            }
             startActivity(intent)
         }
 

@@ -10,6 +10,8 @@ import android.media.session.PlaybackState
 import android.os.Build
 import android.os.PowerManager
 import android.text.TextUtils
+import com.absinthe.kage.connect.proxy.BaseProxy
+import com.absinthe.kage.connect.proxy.MODE_AUDIO
 import com.absinthe.kage.media.LocalMedia
 import com.absinthe.kage.media.Playback
 import timber.log.Timber
@@ -37,6 +39,8 @@ class LocalAudioPlayback internal constructor(context: Context) : Playback {
         private set
 
     override fun playMedia(localMedia: LocalMedia) {
+        BaseProxy.CURRENT_MODE = MODE_AUDIO
+
         try {
             mMediaPlayer.reset()
 

@@ -2,10 +2,15 @@ package com.absinthe.kage.device.cmd
 
 import com.absinthe.kage.connect.protocol.IpMessageConst
 import com.absinthe.kage.connect.protocol.IpMessageProtocol
+import com.absinthe.kage.connect.proxy.AudioProxy
+import com.absinthe.kage.connect.proxy.BaseProxy
+import com.absinthe.kage.connect.proxy.MODE_AUDIO
+import com.absinthe.kage.connect.proxy.MODE_VIDEO
 import com.absinthe.kage.device.Command
 import com.absinthe.kage.device.CommandBuilder
 import com.absinthe.kage.device.client.Client
 import com.absinthe.kage.media.audio.AudioPlayer.seekTo
+import com.absinthe.kage.media.video.LocalVideoPlayback
 
 class SeekToCommand : Command() {
     var position = 0
@@ -19,7 +24,11 @@ class SeekToCommand : Command() {
 
     override fun doWork(client: Client, received: String) {
         if (parseReceived(received)) {
-            seekTo(position)
+            if (BaseProxy.CURRENT_MODE == MODE_AUDIO) {
+                AudioProxy.seekTo(position)
+            } else if (BaseProxy.CURRENT_MODE == MODE_VIDEO) {
+                LocalVideoPlayback.INSTANCE?.seekTo(position)
+            }
         }
     }
 

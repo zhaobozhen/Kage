@@ -2,35 +2,43 @@ package com.absinthe.kage.media.video
 
 import android.media.session.PlaybackState
 import android.net.Uri
+import com.absinthe.kage.KageApplication
+import com.absinthe.kage.connect.proxy.BaseProxy
+import com.absinthe.kage.connect.proxy.MODE_VIDEO
 import com.absinthe.kage.manager.ActivityStackManager
 import com.absinthe.kage.media.LocalMedia
 import com.absinthe.kage.media.Playback
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.SimpleExoPlayer
-import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory
-import com.google.android.exoplayer2.source.ExtractorMediaSource
+import com.google.android.exoplayer2.source.ProgressiveMediaSource
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
+import com.google.android.exoplayer2.util.Util
 import timber.log.Timber
 
 class LocalVideoPlayback(private val exoPlayer: SimpleExoPlayer) : Playback {
 
     private var mCallback: Playback.Callback? = null
+    private var shouldPlay = true
 
     init {
         exoPlayer.addListener(object : Player.EventListener {
             override fun onPlayerStateChanged(playWhenReady: Boolean, playbackState: Int) {
-                Timber.d("ExoPlayer state = $playbackState")
                 when (playbackState) {
                     ExoPlayer.STATE_READY -> {
-                        play()
+                        Timber.i("STATE_READY")
+                        if (shouldPlay) {
+                            play()
+                            shouldPlay = false
+                        }
                     }
                     ExoPlayer.STATE_ENDED -> {
-                        Timber.i("complete")
+                        Timber.i("Complete")
                         state = PlaybackState.STATE_PAUSED
                         if (mCallback != null) {
                             mCallback!!.onCompletion()
                         }
+                        shouldPlay = true
                     }
                     Player.STATE_BUFFERING -> {
                         Timber.d("Buffering")
@@ -41,6 +49,7 @@ class LocalVideoPlayback(private val exoPlayer: SimpleExoPlayer) : Playback {
                 }
             }
         })
+        INSTANCE = this
     }
 
     override var state = PlaybackState.STATE_NONE
@@ -56,6 +65,7 @@ class LocalVideoPlayback(private val exoPlayer: SimpleExoPlayer) : Playback {
         get() = exoPlayer.currentPosition.toInt()
 
     override fun playMedia(localMedia: LocalMedia) {
+        BaseProxy.CURRENT_MODE = MODE_VIDEO
         state = PlaybackState.STATE_BUFFERING
 
         setVideo(Uri.parse(localMedia.filePath))
@@ -93,27 +103,29 @@ class LocalVideoPlayback(private val exoPlayer: SimpleExoPlayer) : Playback {
     }
 
     private fun handlePlayState() {
-        Timber.i("handlePlayState")
-        if (state == PlaybackState.STATE_PLAYING && !exoPlayer.isPlaying) {
+        if (state == PlaybackState.STATE_PLAYING) {
             exoPlayer.playWhenReady = true
-        } else if (state == PlaybackState.STATE_PAUSED && exoPlayer.isPlaying) {
+        } else if (state == PlaybackState.STATE_PAUSED) {
             exoPlayer.playWhenReady = false
         }
         if (mCallback != null) {
-            mCallback!!.onPlaybackStateChanged(state)
+            mCallback?.onPlaybackStateChanged(state)
         }
     }
 
     private fun setVideo(playerUri : Uri) {
         // 生成加载媒体数据的DataSource实例。
-        val dataSourceFactory = DefaultDataSourceFactory(ActivityStackManager.topActivity, "kage-exoplayer")
-        // 生成用于解析媒体数据的Extractor实例。
-        val extractorsFactory = DefaultExtractorsFactory()
+        val dataSourceFactory = DefaultDataSourceFactory(ActivityStackManager.topActivity, Util.getUserAgent(KageApplication.sContext, "Kage"))
 
         // MediaSource代表要播放的媒体。
-        val videoSource = ExtractorMediaSource(playerUri, dataSourceFactory, extractorsFactory,
-                null, null)
+        val videoSource = ProgressiveMediaSource.Factory(dataSourceFactory)
+                .createMediaSource(playerUri)
+
         //Prepare the player with the source.
         exoPlayer.prepare(videoSource)
+    }
+
+    companion object {
+        var INSTANCE : LocalVideoPlayback? = null
     }
 }

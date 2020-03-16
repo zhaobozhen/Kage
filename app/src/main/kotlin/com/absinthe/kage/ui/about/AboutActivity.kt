@@ -28,6 +28,7 @@ class AboutActivity : AbsAboutActivity() {
         items.add(License("NanoHttpd", "NanoHttpd", "BSD-3-Clause", "https://github.com/NanoHttpd/nanohttpd"))
         items.add(License("BaseRecyclerViewAdapterHelper", "CymChad", License.MIT, "https://github.com/CymChad/BaseRecyclerViewAdapterHelper"))
         items.add(License("Matisse", "zhihu", License.APACHE_2, "https://github.com/zhihu/Matisse"))
+        items.add(License("ExoPlayer", "Google", License.APACHE_2, "https://github.com/google/ExoPlayer"))
         items.add(License("AndroidX", "Google", License.APACHE_2, "https://source.google.com"))
         items.add(License("Android Jetpack", "Google", License.APACHE_2, "https://source.google.com"))
         items.add(License("timber", "JakeWharton", License.APACHE_2, "https://github.com/JakeWharton/timber"))

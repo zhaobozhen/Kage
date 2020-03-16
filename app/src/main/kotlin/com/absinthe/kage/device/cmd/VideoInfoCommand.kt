@@ -36,9 +36,10 @@ class VideoInfoCommand : Command() {
                     localMedia.title = title
                     localMedia.type = TYPE_VIDEO
 
-                    val intent = Intent(client.context, VideoActivity::class.java)
-                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                    intent.putExtra(VideoActivity.EXTRA_MEDIA, localMedia)
+                    val intent = Intent(client.context, VideoActivity::class.java).apply {
+                        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                        putExtra(VideoActivity.EXTRA_MEDIA, localMedia)
+                    }
                     client.context.startActivity(intent)
                 }
             }
