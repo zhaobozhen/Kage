@@ -34,7 +34,9 @@ class MediaPreparePlayCommand : Command() {
                     }
                 }
                 TYPE_VIDEO -> {
-                    if (ActivityStackManager.topActivity is MusicActivity || ActivityStackManager.topActivity is ReceiverActivity) {
+                    if (ActivityStackManager.topActivity is MusicActivity
+                            || ActivityStackManager.topActivity is ReceiverActivity
+                            || ActivityStackManager.topActivity is VideoActivity) {
                         ActivityStackManager.killTopActivity()
                     }
                 }

@@ -21,14 +21,14 @@ open class LocalMedia : Parcelable {
 
     constructor()
 
-    constructor(`in`: Parcel) {
-        title = `in`.readString()
-        filePath = `in`.readString()
-        date = `in`.readString()
-        sortLetters = `in`.readString()
-        type = `in`.readInt()
-        duration = `in`.readLong()
-        size = `in`.readFloat()
+    constructor(parcel: Parcel) {
+        title = parcel.readString()
+        filePath = parcel.readString()
+        date = parcel.readString()
+        sortLetters = parcel.readString()
+        type = parcel.readInt()
+        duration = parcel.readLong()
+        size = parcel.readFloat()
     }
 
     val mediaKey: String
@@ -73,8 +73,8 @@ open class LocalMedia : Parcelable {
 
     companion object CREATOR : Parcelable.Creator<LocalMedia> {
 
-        override fun createFromParcel(`in`: Parcel): LocalMedia {
-            return LocalMedia(`in`)
+        override fun createFromParcel(parcel: Parcel): LocalMedia {
+            return LocalMedia(parcel)
         }
 
         override fun newArray(size: Int): Array<LocalMedia?> {
