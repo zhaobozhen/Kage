@@ -27,14 +27,14 @@ open class AbstractPacketWriter(out: DataOutputStream, socketCallback: ISocketCa
                     }
 
                     packet?.let { writeToStream(out, it) }
-                            ?: ISocketCallback.KageSocketCallbackThreadHandler.instance?.post {
+                            ?: GlobalScope.launch(Dispatchers.Main) {
                                 socketCallback?.onWriterIdle()
                             }
                 } catch (e: InterruptedException) {
                     e.printStackTrace()
                 } catch (e: IOException) {
                     Timber.e("Send error: ${e.message}")
-                    ISocketCallback.KageSocketCallbackThreadHandler.instance?.post {
+                    GlobalScope.launch(Dispatchers.Main) {
                         socketCallback?.onReadAndWriteError(ISocketCallback.WRITE_ERROR_CODE_CONNECT_UNKNOWN)
                     }
                 }

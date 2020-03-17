@@ -1,23 +1,26 @@
 package com.absinthe.kage.connect.protocol
 
 import com.absinthe.kage.connect.protocol.IProtocolHandler.IProtocolHandleCallback
-import com.absinthe.kage.connect.protocol.IProtocolHandler.KageProtocolThreadHandler.Companion.instance
 import com.absinthe.kage.connect.tcp.KageSocket
 import com.absinthe.kage.device.Device
 import com.absinthe.kage.device.cmd.InquiryDeviceInfoCommand
 import com.absinthe.kage.device.model.DeviceConfig
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import timber.log.Timber
 
 class ProtocolHandler(
         private val mDevice: Device,
-        private val mConfig: DeviceConfig?,
-        private val mCallback: IProtocolHandleCallback?) : IProtocolHandler {
+        private val mConfig: DeviceConfig,
+        private val mCallback: IProtocolHandleCallback) : IProtocolHandler {
 
     private var hasHandShake = false
 
     override fun handleSocketConnectedEvent() {
-        val inquiryDeviceInfoCommand = InquiryDeviceInfoCommand()
-        inquiryDeviceInfoCommand.phoneName = mConfig?.name ?: "Unknown"
+        val inquiryDeviceInfoCommand = InquiryDeviceInfoCommand().apply {
+            phoneName = mConfig.name
+        }
         mDevice.sendCommand(inquiryDeviceInfoCommand)
     }
 
@@ -27,8 +30,8 @@ class ProtocolHandler(
             when (split[0].toInt()) {
                 IpMessageConst.GET_DEVICE_INFO -> {
                     hasHandShake = true
-                    instance!!.post {
-                        mCallback?.onProtocolConnected()
+                    GlobalScope.launch(Dispatchers.Main) {
+                        mCallback.onProtocolConnected()
                     }
                 }
             }
@@ -40,26 +43,26 @@ class ProtocolHandler(
     override fun handleSocketDisConnectEvent() {
         if (!hasHandShake) {
             // 握手期间断开了连接判定为连接失败
-            instance!!.post {
-                mCallback?.onProtocolConnectedFailed(KageSocket.ISocketCallback.CONNECT_ERROR_CODE_HAND_SHAKE_NOT_COMPLETE, null)
+            GlobalScope.launch(Dispatchers.Main) {
+                mCallback.onProtocolConnectedFailed(KageSocket.ISocketCallback.CONNECT_ERROR_CODE_HAND_SHAKE_NOT_COMPLETE, null)
             }
             return
         }
         hasHandShake = false
-        instance!!.post {
-            mCallback?.onProtocolDisConnect()
+        GlobalScope.launch(Dispatchers.Main) {
+            mCallback.onProtocolDisConnect()
         }
     }
 
     override fun handleSocketConnectFail(errorCode: Int, e: Exception) {
-        instance!!.post {
-            mCallback?.onProtocolConnectedFailed(errorCode, e)
+        GlobalScope.launch(Dispatchers.Main) {
+            mCallback.onProtocolConnectedFailed(errorCode, e)
         }
     }
 
     override fun handleSocketSendOrReceiveError() {
-        instance!!.post {
-            mCallback?.onProtocolSendOrReceiveError()
+        GlobalScope.launch(Dispatchers.Main) {
+            mCallback.onProtocolSendOrReceiveError()
         }
     }
 }

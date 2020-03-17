@@ -1,14 +1,15 @@
 package com.absinthe.kage.connect.proxy
 
 import android.media.session.PlaybackState
-import android.os.Handler
-import android.os.Looper
 import com.absinthe.kage.connect.protocol.IpMessageConst
 import com.absinthe.kage.connect.protocol.IpMessageProtocol
 import com.absinthe.kage.device.Device
 import com.absinthe.kage.device.Device.OnReceiveMsgListener
 import com.absinthe.kage.device.cmd.*
 import com.absinthe.kage.device.model.VideoInfo
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import timber.log.Timber
 
 object VideoProxy : BaseProxy() {
@@ -20,7 +21,6 @@ object VideoProxy : BaseProxy() {
 
     private val mOnReceiveMsgListener: OnReceiveMsgListener
     private val mPlayInfo: PlayInfo = PlayInfo()
-    private val mHandler = Handler(Looper.getMainLooper())
 
     init {
         mOnReceiveMsgListener = object : OnReceiveMsgListener {
@@ -41,28 +41,30 @@ object VideoProxy : BaseProxy() {
             val stopCmd = StopCommand()
             mDevice!!.sendCommand(stopCmd)
 
-            val preparePlayCmd = MediaPreparePlayCommand()
-            preparePlayCmd.type = MediaPreparePlayCommand.TYPE_VIDEO
+            val preparePlayCmd = MediaPreparePlayCommand().apply {
+                type = MediaPreparePlayCommand.TYPE_VIDEO
+            }
             mDevice!!.sendCommand(preparePlayCmd)
 
-            val videoInfoCommand = VideoInfoCommand()
-            videoInfoCommand.title = videoInfo.title
-            videoInfoCommand.url = videoInfo.url
+            val videoInfoCommand = VideoInfoCommand().apply {
+                title = videoInfo.title
+                url = videoInfo.url
+            }
             mDevice!!.sendCommand(videoInfoCommand)
 
-            scheduleInquiryPlayState(1000)
+            scheduleInquiryPlayState()
         }
     }
 
     fun start() {
-        if (mPlayInfo.currentPlayState == PLAY_STATUS.PAUSED_PLAYBACK.status && null != mDevice && mDevice!!.isConnected) {
+        if (mPlayInfo.currentPlayState == PlayingStatus.PAUSED_PLAYBACK.status && mDevice!!.isConnected) {
             val videoInfoCommand = VideoInfoCommand()
             mDevice!!.sendCommand(videoInfoCommand)
         }
     }
 
     fun pause() {
-        if (mPlayInfo.currentPlayState == PLAY_STATUS.PLAYING.status && null != mDevice && mDevice!!.isConnected) {
+        if (mPlayInfo.currentPlayState == PlayingStatus.PLAYING.status && mDevice!!.isConnected) {
             val pauseCmd = MediaPausePlayingCommand()
             mDevice!!.sendCommand(pauseCmd)
         }
@@ -77,8 +79,9 @@ object VideoProxy : BaseProxy() {
 
     fun seekTo(position: Int) {
         if (null != mDevice && mDevice!!.isConnected) {
-            val seekToCmd = SeekToCommand()
-            seekToCmd.position = position
+            val seekToCmd = SeekToCommand().apply {
+                this.position = position
+            }
             mDevice!!.sendCommand(seekToCmd)
             mPlayInfo.position = position
         }
@@ -107,68 +110,71 @@ object VideoProxy : BaseProxy() {
         cancelInquiryPlayState()
     }
 
-    private fun parserMsgAndNotifyIfNeed(msg: String?) {
-        if (msg != null) {
-            val split = msg.split(IpMessageProtocol.DELIMITER).toTypedArray()
-            if (split.size < 2) {
-                return
-            }
-            try {
-                when (split[0].toInt()) {
-                    IpMessageConst.RESPONSE_SET_PLAYBACK_PROGRESS -> {
-                        val position = split[1].toInt()
-                        if (isPlayerWorking) {
-                            mPlayInfo.position = position
-                        } else {
-                            recycle()
-                        }
-                        notifyOnCurrentPositionChanged(mPlayInfo.duration, mPlayInfo.position)
+    private fun parserMsgAndNotifyIfNeed(msg: String) {
+        val split = msg.split(IpMessageProtocol.DELIMITER).toTypedArray()
+        if (split.size < 2) {
+            return
+        }
+
+        try {
+            when (split[0].toInt()) {
+                IpMessageConst.RESPONSE_SET_PLAYBACK_PROGRESS -> {
+                    val position = split[1].toInt()
+
+                    if (isPlayerWorking) {
+                        mPlayInfo.position = position
+                    } else {
+                        recycle()
                     }
-                    IpMessageConst.RESPONSE_SET_MEDIA_DURATION -> {
-                        val duration = split[1].toInt()
-                        if (isPlayerWorking) {
-                            mPlayInfo.duration = duration
-                        } else {
-                            recycle()
-                        }
-                        notifyOnCurrentPositionChanged(mPlayInfo.duration, mPlayInfo.position)
-                        scheduleInquiryCurrentPosition()
-                    }
-                    IpMessageConst.MEDIA_SET_PLAYER_STATUS -> {
-                        val playerState: Int = PLAYER_STATUS.valueOf(split[1]).status
-                        val playOldState = mPlayInfo.currentPlayState
-                        if (PlayStatue.PLAYER_EXIT == playerState) {
-                            Timber.i("Receive Exit")
-                            onPlayStopped()
-                        }
-                        notifyOnPlayStateChanged(playOldState, playerState)
-                    }
-                    IpMessageConst.MEDIA_SET_PLAYING_STATE -> {
-                        val state = split[1]
-                        val newState: Int = PLAY_STATUS.valueOf(state).status
-                        val oldState = mPlayInfo.currentPlayState
-                        Timber.i("newState:$newState-oldState:$oldState")
-                        if (oldState == newState) {
-                            return
-                        }
-                        if (PlayStatue.PLAYING == newState) {
-                            inquiryDuration()
-                        } else {
-                            cancelInquiryCurrentPosition()
-                        }
-                        if (PlayStatue.STOPPED == newState) {
-                            Timber.i("Receive STOP")
-                            onPlayStopped()
-                        }
-                        mPlayInfo.currentPlayState = newState
-                        notifyOnPlayStateChanged(oldState, newState)
-                    }
-                    else -> {
-                    }
+                    notifyOnCurrentPositionChanged(mPlayInfo.duration, mPlayInfo.position)
                 }
-            } catch (e: Exception) {
-                Timber.e("protocol invalid:%s", e.message)
+                IpMessageConst.RESPONSE_SET_MEDIA_DURATION -> {
+                    val duration = split[1].toInt()
+
+                    if (isPlayerWorking) {
+                        mPlayInfo.duration = duration
+                    } else {
+                        recycle()
+                    }
+                    notifyOnCurrentPositionChanged(mPlayInfo.duration, mPlayInfo.position)
+                    scheduleInquiryCurrentPosition()
+                }
+                IpMessageConst.MEDIA_SET_PLAYER_STATUS -> {
+                    val playerState: Int = PlayerStatus.valueOf(split[1]).status
+                    val playOldState = mPlayInfo.currentPlayState
+
+                    if (PlayStatue.PLAYER_EXIT == playerState) {
+                        Timber.i("Receive Exit")
+                        onPlayStopped()
+                    }
+                    notifyOnPlayStateChanged(playOldState, playerState)
+                }
+                IpMessageConst.MEDIA_SET_PLAYING_STATE -> {
+                    val state = split[1]
+                    val newState: Int = PlayerStatus.valueOf(state).status
+                    val oldState = mPlayInfo.currentPlayState
+                    Timber.i("newState:$newState-oldState:$oldState")
+
+                    if (oldState == newState) {
+                        return
+                    }
+                    if (PlayStatue.PLAYING == newState) {
+                        inquiryDuration()
+                    } else {
+                        cancelInquiryCurrentPosition()
+                    }
+                    if (PlayStatue.STOPPED == newState) {
+                        Timber.i("Receive STOP")
+                        onPlayStopped()
+                    }
+                    mPlayInfo.currentPlayState = newState
+                    notifyOnPlayStateChanged(oldState, newState)
+                }
+                else -> {
+                }
             }
+        } catch (e: Exception) {
+            Timber.e("protocol invalid:%s", e.message)
         }
     }
 
@@ -181,39 +187,36 @@ object VideoProxy : BaseProxy() {
     }
 
     private fun notifyOnCurrentPositionChanged(duration: Int, position: Int) {
-        mHandler.post {
-            if (mOnPlayListener != null) {
-                mOnPlayListener!!.onCurrentPositionChanged(duration, position)
-            }
+        GlobalScope.launch(Dispatchers.Main) {
+            mOnPlayListener?.onCurrentPositionChanged(duration, position)
         }
     }
 
     private fun notifyOnPlayStateChanged(oldState: Int, newState: Int) {
-        mHandler.post {
-            if (mOnPlayListener != null) {
-                mOnPlayListener!!.onPlayStateChanged(oldState, newState)
-            }
+        GlobalScope.launch(Dispatchers.Main) {
+            mOnPlayListener?.onPlayStateChanged(oldState, newState)
         }
     }
 
     private fun resetCurrentPlayInfo() {
-        mPlayInfo.duration = 0
-        mPlayInfo.position = 0
-        mPlayInfo.currentPlayState = PlayStatue.STOPPED
+        mPlayInfo.apply {
+            duration = 0
+            position = 0
+            currentPlayState = PlayStatue.STOPPED
+        }
     }
 
-    private fun scheduleInquiryPlayState(period: Int) {
+    private fun scheduleInquiryPlayState() {
         cancelInquiryPlayState()
-        mInquiryPlayStateThread = InquiryPlayStateThread(mDevice)
-        mInquiryPlayStateThread!!.setPeriod(period)
-        mInquiryPlayStateThread!!.start()
+        mInquiryPlayStateThread = InquiryPlayStateThread(mDevice).apply {
+            setPeriod(1000)
+            start()
+        }
     }
 
     private fun cancelInquiryPlayState() {
-        if (mInquiryPlayStateThread != null) {
-            mInquiryPlayStateThread!!.interrupt()
-            mInquiryPlayStateThread = null
-        }
+        mInquiryPlayStateThread?.interrupt()
+        mInquiryPlayStateThread = null
     }
 
     private fun inquiryDuration() {
@@ -227,15 +230,14 @@ object VideoProxy : BaseProxy() {
         if (mPlayPositionInquiryPeriod < updatePeriod) {
             mPlayPositionInquiryPeriod = updatePeriod
         }
-        mInquiryCurrentPositionThread = InquiryCurrentPositionThread(mDevice, updatePeriod, mPlayPositionInquiryPeriod, mPlayInfo)
-        mInquiryCurrentPositionThread!!.start()
+        mInquiryCurrentPositionThread = InquiryCurrentPositionThread(mDevice, updatePeriod, mPlayPositionInquiryPeriod, mPlayInfo).apply {
+            start()
+        }
     }
 
     private fun cancelInquiryCurrentPosition() {
-        if (mInquiryCurrentPositionThread != null) {
-            mInquiryCurrentPositionThread!!.interrupt()
-            mInquiryCurrentPositionThread = null
-        }
+        mInquiryCurrentPositionThread?.interrupt()
+        mInquiryCurrentPositionThread = null
     }
 
     private class InquiryCurrentPositionThread(private val mDevice: Device?, updatePeriod: Int, inquiryPeriod: Int, playInfo: PlayInfo?) : Thread() {
@@ -243,7 +245,9 @@ object VideoProxy : BaseProxy() {
         private var mInquiryPeriod = 4000
         private var mNoInquiryMills = 0
         private val mPlayInfo: PlayInfo?
+
         private val inquiryCurrentPositionCmd = InquiryPlayingPositionCommand()
+
         override fun run() {
             while (true) {
                 if (isInterrupted) {
@@ -290,6 +294,7 @@ object VideoProxy : BaseProxy() {
 
     private class InquiryPlayStateThread(private val mDevice: Device?) : Thread() {
         private var period = 2000
+
         override fun run() {
             while (true) {
                 if (isInterrupted) {
@@ -300,11 +305,12 @@ object VideoProxy : BaseProxy() {
                 }
                 val inquiryPlayStateCmd = InquiryPlayStateCommand()
                 mDevice.sendCommand(inquiryPlayStateCmd)
+
                 val inquiryPlayerStatusCmd = InquiryPlayerStatusCommand()
                 mDevice.sendCommand(inquiryPlayerStatusCmd)
-                val inquiryPeriod = period.toLong()
+
                 try {
-                    sleep(inquiryPeriod)
+                    sleep(period.toLong())
                 } catch (e: InterruptedException) {
                     Timber.e("InquiryCurrentPositionThread is interrupted")
                     break
@@ -344,14 +350,14 @@ object VideoProxy : BaseProxy() {
     }
 
     //  播放器状态
-    private enum class PLAYER_STATUS(val status: Int) {
+    private enum class PlayerStatus(val status: Int) {
         OK(PlayStatue.OK),
         PLAYER_EXIT(PlayStatue.PLAYER_EXIT),
         ERROR_OCCURRED(PlayStatue.ERROR_OCCURRED);
     }
 
     //播放状态
-    private enum class PLAY_STATUS(val status: Int) {
+    private enum class PlayingStatus(val status: Int) {
         STOPPED(PlayStatue.STOPPED),
         PLAYING(PlayStatue.PLAYING),
         PAUSED_PLAYBACK(PlayStatue.PAUSED),
@@ -360,20 +366,16 @@ object VideoProxy : BaseProxy() {
 
     override fun onDeviceConnected(device: Device) {
         if (mDevice != device) {
-            if (mDevice != null) {
-                mDevice!!.unregisterOnReceiveMsgListener(mOnReceiveMsgListener)
-                cancelInquiryPlayState()
-                cancelInquiryCurrentPosition()
-            }
+            mDevice?.unregisterOnReceiveMsgListener(mOnReceiveMsgListener)
+            cancelInquiryPlayState()
+            cancelInquiryCurrentPosition()
             mDevice = device
         }
     }
 
     override fun onDeviceDisconnected(device: Device) {
         super.onDeviceDisconnected(device)
-        val playerState = PlayStatue.DISCONNECT
-        val playOldState = mPlayInfo.currentPlayState
         onPlayStopped()
-        notifyOnPlayStateChanged(playOldState, playerState)
+        notifyOnPlayStateChanged(mPlayInfo.currentPlayState, PlayStatue.DISCONNECT)
     }
 }

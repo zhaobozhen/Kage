@@ -8,7 +8,7 @@ class IpMessageProtocol {
     var packetNum: String //Packet number
     var senderName: String = "Unknown" //Sender name
     var cmd: Int = 0 //Command
-    var additionalSection: String? = null
+    var additionalSection: String = ""
 
     constructor() {
         packetNum = seconds

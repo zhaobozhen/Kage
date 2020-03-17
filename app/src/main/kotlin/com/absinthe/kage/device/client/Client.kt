@@ -32,11 +32,11 @@ class Client(val context: Context,
                 continue
             }
 
-            var commandNum = 0
-            try {
-                commandNum = command.split(IpMessageProtocol.DELIMITER).toTypedArray()[0].toInt()
+            val commandNum = try {
+                command.split(IpMessageProtocol.DELIMITER).toTypedArray()[0].toInt()
             } catch (e: NumberFormatException) {
                 e.printStackTrace()
+                0
             }
 
             when (commandNum) {
@@ -128,7 +128,7 @@ class Client(val context: Context,
     }
 
     private fun offline(socket: Socket, dis: DataInputStream?, dos: DataOutputStream?) {
-        Timber.i("Offline: " + socket.inetAddress)
+        Timber.i("Offline: %s", socket.inetAddress)
 
         synchronized(Client::class.java) {
             try {

@@ -32,16 +32,20 @@ class KageServer : NanoHTTPD(Config.HTTP_SERVER_PORT) {
 
     //对于请求目录的，返回文件列表
     private fun responsePage(filesList: Array<File>): Response {
-        val builder = StringBuilder()
-        builder.append("<!DOCTYPER html><html><body>")
-        builder.append("<ol>")
-        for (detailsOfFiles in filesList) {
-            builder.append("<a href=\"")
-                    .append(detailsOfFiles.absolutePath).append("\" alt = \"\">")
-                    .append(detailsOfFiles.absolutePath).append("</a><br>")
+        val builder = StringBuilder().apply {
+            append("<!DOCTYPER html><html><body>")
+            append("<ol>")
+
+            for (detailsOfFiles in filesList) {
+                append("<a href=\"")
+                append(detailsOfFiles.absolutePath).append("\" alt = \"\">")
+                append(detailsOfFiles.absolutePath).append("</a><br>")
+            }
+
+            append("</ol>")
+            append("</body></html>\n")
         }
-        builder.append("</ol>")
-        builder.append("</body></html>\n")
+
         //回送应答
         return newFixedLengthResponse(builder.toString())
     }
@@ -52,7 +56,8 @@ class KageServer : NanoHTTPD(Config.HTTP_SERVER_PORT) {
             //文件输入流
             val fis = FileInputStream(uri)
             // 返回OK，同时传送文件
-            return newFixedLengthResponse(Response.Status.OK, "application/octet-stream", fis, fis.available().toLong())
+            return newFixedLengthResponse(Response.Status.OK,
+                    "application/octet-stream", fis, fis.available().toLong())
         } catch (e: IOException) {
             e.printStackTrace()
         }
@@ -62,20 +67,22 @@ class KageServer : NanoHTTPD(Config.HTTP_SERVER_PORT) {
 
     //页面不存在，或者文件不存在时
     private fun responseNotExist(url: String): Response {
-        val builder = StringBuilder()
-        builder.append("<!DOCTYPE html><html><body>")
-        builder.append("Sorry,Can't Found").append(url).append(" !")
-        builder.append("</body></html>\n")
+        val builder = StringBuilder().apply {
+            append("<!DOCTYPE html><html><body>")
+            append("Sorry,Can't Found").append(url).append(" !")
+            append("</body></html>\n")
+        }
 
         return newFixedLengthResponse(builder.toString())
     }
 
     //非客户端禁止访问
     private fun responseNoAccess(): Response {
-        val builder = StringBuilder()
-        builder.append("<!DOCTYPE html><html><body>")
-        builder.append("No Access!")
-        builder.append("</body></html>\n")
+        val builder = StringBuilder().apply {
+            append("<!DOCTYPE html><html><body>")
+            append("No Access!")
+            append("</body></html>\n")
+        }
 
         return newFixedLengthResponse(builder.toString())
     }

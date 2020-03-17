@@ -59,18 +59,16 @@ class HeartbeatSender(private val mSocket: KageSocket) {
 
         override fun run() {
             mSocket.send(mHeartbeatRequest)
-            val response = mHeartbeatRequest.waitResponse(mTimeout)
-            if (null == response) {
-                if (null != mCallback) {
-                    mCallback!!.onBeatTimeout(mId)
+
+            when (mHeartbeatRequest.waitResponse(mTimeout)) {
+                is ErrorResponse -> {
+                    mCallback?.onBeatTimeout(mId)
                 }
-            } else if (response is CancelBeatResponse) {
-                if (null != mCallback) {
-                    mCallback!!.onBeatCancel(mId)
+                is CancelBeatResponse -> {
+                    mCallback?.onBeatCancel(mId)
                 }
-            } else {
-                if (null != mCallback) {
-                    mCallback!!.onBeatSuccess(mId)
+                else -> {
+                    mCallback?.onBeatSuccess(mId)
                 }
             }
         }

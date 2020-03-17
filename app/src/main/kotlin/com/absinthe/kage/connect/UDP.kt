@@ -55,9 +55,10 @@ class UDP(private val mLocalIpAddress: String, monitorPort: Int) {
             mReceivePacketThread?.isStop = true
             mReceivePacketThread?.interrupt()
 
-            mReceivePacketThread = ReceivePacketThread(mDatagramSocket, mLocalIpAddress)
-            mReceivePacketThread?.callback = callback
-            mReceivePacketThread?.start()
+            mReceivePacketThread = ReceivePacketThread(mDatagramSocket, mLocalIpAddress).apply {
+                this.callback = callback
+                start()
+            }
         }
     }
 

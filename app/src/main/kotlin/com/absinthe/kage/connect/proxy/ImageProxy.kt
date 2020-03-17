@@ -1,7 +1,5 @@
 package com.absinthe.kage.connect.proxy
 
-import android.os.Handler
-import android.os.Looper
 import com.absinthe.kage.connect.protocol.IpMessageConst
 import com.absinthe.kage.connect.protocol.IpMessageProtocol
 import com.absinthe.kage.device.Device
@@ -9,6 +7,9 @@ import com.absinthe.kage.device.Device.OnReceiveMsgListener
 import com.absinthe.kage.device.cmd.ImageInfoCommand
 import com.absinthe.kage.device.cmd.MediaPreparePlayCommand
 import com.absinthe.kage.device.cmd.StopCommand
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import timber.log.Timber
 
 object ImageProxy : BaseProxy() {
@@ -17,7 +18,6 @@ object ImageProxy : BaseProxy() {
     private var mOnPlayListener: OnPlayListener? = null
     private var mInquiryPlayStateThread: InquiryPlayStateThread? = null
 
-    private val mHandler = Handler(Looper.getMainLooper())
     private val mPlayInfo = PlayInfo()
 
     init {
@@ -48,10 +48,8 @@ object ImageProxy : BaseProxy() {
                     }
                     mPlayInfo.playState = playerState
                     if (mOnPlayListener != null) {
-                        mHandler.post {
-                            if (mOnPlayListener != null) {
-                                mOnPlayListener!!.onPlayStateChanged(playOldState, mPlayInfo.playState)
-                            }
+                        GlobalScope.launch(Dispatchers.Main) {
+                            mOnPlayListener?.onPlayStateChanged(playOldState, mPlayInfo.playState)
                         }
                     }
                 }
@@ -68,63 +66,59 @@ object ImageProxy : BaseProxy() {
                         mPlayInfo.playState = newState
                     }
                     if (mOnPlayListener != null) {
-                        mHandler.post {
-                            if (mOnPlayListener != null) {
-                                mOnPlayListener!!.onPlayStateChanged(oldState, mPlayInfo.playState)
-                            }
+                        GlobalScope.launch(Dispatchers.Main) {
+                            mOnPlayListener?.onPlayStateChanged(oldState, mPlayInfo.playState)
                         }
                     }
                     mPlayInfo.playState = newState
                 }
                 IpMessageConst.MEDIA_PLAY_PREVIOUS -> if (mOnPlayListener != null) {
-                    mHandler.post {
-                        if (mOnPlayListener != null) {
-                            mOnPlayListener!!.onRemotePreview()
-                        }
+                    GlobalScope.launch(Dispatchers.Main) {
+                        mOnPlayListener?.onRemotePreview()
                     }
                 }
                 IpMessageConst.MEDIA_PLAY_NEXT -> if (mOnPlayListener != null) {
-                    mHandler.post {
-                        if (mOnPlayListener != null) {
-                            mOnPlayListener!!.onRemoteNext()
-                        }
+                    GlobalScope.launch(Dispatchers.Main) {
+                        mOnPlayListener?.onRemoteNext()
                     }
-                }
-                else -> {
                 }
             }
         } catch (e: Exception) {
-            Timber.e("Protocol invalid: " + e.message)
+            Timber.e("Protocol invalid: %s", e.message)
         }
     }
 
     private fun onPlayExit() {}
     fun close() {
-        if (mDevice != null) {
-            mDevice!!.unregisterOnReceiveMsgListener(mOnReceiveMsgListener)
-        }
+        mDevice?.unregisterOnReceiveMsgListener(mOnReceiveMsgListener)
+
     }
 
     fun cast(url: String, needStop: Boolean = false) {
-        if (mDevice != null && mDevice!!.isConnected) {
+        if (mDevice!!.isConnected) {
             mPlayInfo.playState = PlayStatue.TRANSITIONING
             mDevice!!.registerOnReceiveMsgListener(mOnReceiveMsgListener)
             if (needStop) {
                 val stopCmd = StopCommand()
                 mDevice!!.sendCommand(stopCmd)
             }
-            val preparePlayCommand = MediaPreparePlayCommand()
-            preparePlayCommand.type = MediaPreparePlayCommand.TYPE_IMAGE
+
+            val preparePlayCommand = MediaPreparePlayCommand().apply {
+                type = MediaPreparePlayCommand.TYPE_IMAGE
+            }
             mDevice!!.sendCommand(preparePlayCommand)
-            val imageInfoCommand = ImageInfoCommand()
-            imageInfoCommand.info = url
+
+            val imageInfoCommand = ImageInfoCommand().apply {
+                info = url
+            }
             mDevice!!.sendCommand(imageInfoCommand)
+
             scheduleInquiryPlayState()
         }
     }
 
     fun stop() {
-        if (null != mDevice && mDevice!!.isConnected) {
+        if (mDevice!!.isConnected) {
             val stopCmd = StopCommand()
             mDevice!!.sendCommand(stopCmd)
         }
@@ -142,10 +136,8 @@ object ImageProxy : BaseProxy() {
     }
 
     private fun cancelInquiryPlayState() {
-        if (mInquiryPlayStateThread != null) {
-            mInquiryPlayStateThread!!.interrupt()
-            mInquiryPlayStateThread = null
-        }
+        mInquiryPlayStateThread?.interrupt()
+        mInquiryPlayStateThread = null
     }
 
     interface OnPlayListener {
@@ -197,9 +189,9 @@ object ImageProxy : BaseProxy() {
                 if (mDevice == null || !mDevice.isConnected) {
                     break
                 }
-                val inquiryPeriod = period.toLong()
+
                 try {
-                    sleep(inquiryPeriod)
+                    sleep(period.toLong())
                 } catch (e: InterruptedException) {
                     Timber.e("InquiryCurrentPositionThread is interrupted")
                     break
@@ -215,10 +207,8 @@ object ImageProxy : BaseProxy() {
 
     override fun onDeviceConnected(device: Device) {
         if (mDevice != device) {
-            if (mDevice != null) {
-                mDevice!!.unregisterOnReceiveMsgListener(mOnReceiveMsgListener)
-                cancelInquiryPlayState()
-            }
+            mDevice?.unregisterOnReceiveMsgListener(mOnReceiveMsgListener)
+            cancelInquiryPlayState()
             mDevice = device
         }
     }
@@ -227,10 +217,9 @@ object ImageProxy : BaseProxy() {
         super.onDeviceDisconnected(device)
         val playerState = PlayStatue.DISCONNECT
         val playOldState = mPlayInfo.playState
+
         onPlayExit()
-        if (mOnPlayListener != null) {
-            mOnPlayListener!!.onPlayStateChanged(playOldState, playerState)
-        }
+        mOnPlayListener?.onPlayStateChanged(playOldState, playerState)
         mPlayInfo.playState = playerState
     }
 }

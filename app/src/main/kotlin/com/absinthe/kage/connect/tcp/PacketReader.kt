@@ -33,7 +33,7 @@ class PacketReader(private val mIn: DataInputStream?, private val mSocketCallbac
                             return@launch
                         }
                         if (null == packet) {
-                            ISocketCallback.KageSocketCallbackThreadHandler.instance?.post {
+                            GlobalScope.launch(Dispatchers.Main) {
                                 mSocketCallback?.onReaderIdle()
                             }
                         }
@@ -79,7 +79,7 @@ class PacketReader(private val mIn: DataInputStream?, private val mSocketCallbac
                         }
                         if (data == null) {
                             Timber.e("ReceiveDataThread receive data == null")
-                            ISocketCallback.KageSocketCallbackThreadHandler.instance?.post {
+                            GlobalScope.launch(Dispatchers.Main) {
                                 mSocketCallback?.onReadAndWriteError(ISocketCallback.READ_ERROR_CODE_CONNECT_UNKNOWN)
                             }
                             return
@@ -101,7 +101,7 @@ class PacketReader(private val mIn: DataInputStream?, private val mSocketCallbac
 
                         responseAllHeartBeat() //收到任何数据都消费掉所有的心跳超时
                         if (!isHeartBeat(data)) {
-                            ISocketCallback.KageSocketCallbackThreadHandler.instance?.post {
+                            GlobalScope.launch(Dispatchers.Main) {
                                 mSocketCallback?.onReceiveMsg(data)
                             }
                         }

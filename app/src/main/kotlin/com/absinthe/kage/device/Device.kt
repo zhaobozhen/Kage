@@ -14,7 +14,7 @@ import com.absinthe.kage.device.model.DeviceInfo
 import timber.log.Timber
 import java.util.*
 
-class Device(config: DeviceConfig?, protocolVersionString: String?) {
+class Device(config: DeviceConfig, protocolVersionString: String?) {
 
     private lateinit var mSocket: KageSocket
     private var mProtocolHandler: IProtocolHandler

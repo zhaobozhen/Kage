@@ -1,10 +1,8 @@
 package com.absinthe.kage.connect.tcp
 
-import android.os.Handler
-import android.os.HandlerThread
-import android.os.Looper
-import com.absinthe.kage.connect.protocol.IProtocolHandler.KageProtocolThreadHandler
-import com.absinthe.kage.connect.tcp.KageSocket.ISocketCallback.KageSocketCallbackThreadHandler
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.io.DataInputStream
 import java.io.DataOutputStream
@@ -53,34 +51,26 @@ class KageSocket {
                         mPacketWriter = PacketWriter(mOut!!, mSocketCallback)
                         mPacketReader = PacketReader(mIn, mSocketCallback)
 
-                        KageSocketCallbackThreadHandler.instance!!.post {
-                            if (mSocketCallback != null) {
-                                mSocketCallback!!.onConnected()
-                            }
+                        GlobalScope.launch(Dispatchers.Main) {
+                            mSocketCallback!!.onConnected()
                         }
                     } catch (e: Exception) {
                         Timber.i("Socket connection Exception: $e")
                         mSocket = null
                         when (e) {
                             is SocketTimeoutException -> {
-                                KageSocketCallbackThreadHandler.instance!!.post {
-                                    if (mSocketCallback != null) {
-                                        mSocketCallback!!.onConnectError(ISocketCallback.CONNECT_ERROR_CODE_CONNECT_TIMEOUT, e)
-                                    }
+                                GlobalScope.launch(Dispatchers.Main) {
+                                    mSocketCallback!!.onConnectError(ISocketCallback.CONNECT_ERROR_CODE_CONNECT_TIMEOUT, e)
                                 }
                             }
                             is ConnectException -> {
-                                KageSocketCallbackThreadHandler.instance!!.post {
-                                    if (mSocketCallback != null) {
-                                        mSocketCallback!!.onConnectError(ISocketCallback.CONNECT_ERROR_CODE_CONNECT_IP_OR_PORT_UNREACHABLE, e)
-                                    }
+                                GlobalScope.launch(Dispatchers.Main) {
+                                    mSocketCallback!!.onConnectError(ISocketCallback.CONNECT_ERROR_CODE_CONNECT_IP_OR_PORT_UNREACHABLE, e)
                                 }
                             }
                             else -> {
-                                KageSocketCallbackThreadHandler.instance!!.post {
-                                    if (mSocketCallback != null) {
-                                        mSocketCallback!!.onConnectError(ISocketCallback.CONNECT_ERROR_CODE_CONNECT_UNKNOWN, e)
-                                    }
+                                GlobalScope.launch(Dispatchers.Main) {
+                                    mSocketCallback!!.onConnectError(ISocketCallback.CONNECT_ERROR_CODE_CONNECT_UNKNOWN, e)
                                 }
                             }
                         }
@@ -109,10 +99,8 @@ class KageSocket {
                         mPacketReader!!.shutdown()
                         mPacketReader = null
                     }
-                    KageSocketCallbackThreadHandler.instance!!.post {
-                        if (mSocketCallback != null) {
-                            mSocketCallback!!.onDisConnected()
-                        }
+                    GlobalScope.launch(Dispatchers.Main) {
+                        mSocketCallback!!.onDisConnected()
                     }
                     true
                 } catch (e: IOException) {
@@ -149,28 +137,6 @@ class KageSocket {
         fun onReadAndWriteError(errorCode: Int)
         fun onWriterIdle()
         fun onReaderIdle()
-
-        class KageSocketCallbackThreadHandler(looper: Looper) : Handler(looper) {
-            companion object {
-                private var mHandlerThread: HandlerThread? = null
-                private var mHandler: KageProtocolThreadHandler? = null
-                val instance: KageProtocolThreadHandler?
-                    get() {
-                        if (null == mHandler) {
-                            synchronized(KageProtocolThreadHandler::class.java) {
-                                if (null == mHandler) {
-                                    if (null == mHandlerThread) {
-                                        mHandlerThread = HandlerThread(KageSocketCallbackThreadHandler::class.java.simpleName)
-                                        mHandlerThread!!.start()
-                                    }
-                                    mHandler = KageProtocolThreadHandler(mHandlerThread!!.looper)
-                                }
-                            }
-                        }
-                        return mHandler
-                    }
-            }
-        }
 
         companion object {
             const val CONNECT_ERROR_CODE_CONNECT_UNKNOWN = 1
