@@ -6,6 +6,9 @@ import android.os.*
 import android.os.PowerManager.WakeLock
 import com.absinthe.kage.KageApplication
 import com.absinthe.kage.media.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.util.*
 
@@ -18,11 +21,10 @@ object AudioPlayer: Observable(), Playback.Callback {
     private const val REPEAT_ALL = 3
 
     private var mPlayback: Playback? = null
-    private var mPlaylist: PlayList? = null
+    private var mPlaylist: PlayList = PlayList()
     private var mWakeLock: WakeLock
     private var mPosition = 0
 
-    private val mHandler = Handler(Looper.getMainLooper())
     private val mPlayMode = NOT_REPEATING
 
     private var playType = TYPE_LOCAL
@@ -56,18 +58,19 @@ object AudioPlayer: Observable(), Playback.Callback {
             mPlayback = RemoteAudioPlayback()
             (mPlayback as RemoteAudioPlayback).setCallback(this)
         }
-        if (mPlayback != null && mPlaylist != null) {
-            mPlaylist?.currentMedia?.let { mPlayback!!.playMedia(it) }
+        if (mPlayback != null) {
+            mPlaylist.currentMedia?.let { mPlayback?.playMedia(it) }
         }
     }
 
     @Synchronized
     fun playMedia(media: LocalMedia) {
-        if (mPlaylist == null) {
-            mPlaylist = PlayList()
+        if (mPlaylist.queryMediaIndex(media) == -1) {
+            mPlaylist.addMediaToTop(media)
+            mPlaylist.currentIndex = 0
+        } else {
+            mPlaylist.currentIndex.plus(1)
         }
-        mPlaylist?.addMediaToTop(media)
-        mPlaylist?.currentIndex = 0
 
         mPosition = 0
         mPlayback?.playMedia(media)
@@ -79,14 +82,11 @@ object AudioPlayer: Observable(), Playback.Callback {
             mWakeLock.acquire(10 * 60 * 1000L /*10 minutes*/)
         }
         if (playList != null) {
-            if (mPlaylist == null) {
-                mPlaylist = PlayList()
-            }
-            mPlaylist!!.setList(playList.list, playList.currentIndex)
+            mPlaylist.setList(playList.list, playList.currentIndex)
             if (mPlayback is RemoteAudioPlayback) {
-                (mPlayback as RemoteAudioPlayback).playListMedia(mPlaylist!!)
+                (mPlayback as RemoteAudioPlayback).playListMedia(mPlaylist)
             } else if (mPlayback is LocalAudioPlayback) {
-                mPlaylist!!.currentMedia?.let { (mPlayback as LocalAudioPlayback).playMedia(it) }
+                mPlaylist.currentMedia?.let { (mPlayback as LocalAudioPlayback).playMedia(it) }
             }
         }
     }
@@ -110,24 +110,20 @@ object AudioPlayer: Observable(), Playback.Callback {
     }
 
     fun playNext() {
-        if (mPlaylist != null) {
-            val next: LocalMedia? = mPlaylist?.getNextMedia(
-                    mPlayMode == REPEAT_ONE || mPlayMode == REPEAT_ALL,
-                    mPlayMode == SHUFFLED)
-            if (next != null) {
-                playMedia(next)
-            }
+        val next: LocalMedia? = mPlaylist.getNextMedia(
+                mPlayMode == REPEAT_ONE || mPlayMode == REPEAT_ALL,
+                mPlayMode == SHUFFLED)
+        if (next != null) {
+            playMedia(next)
         }
     }
 
     fun playPrevious() {
-        if (mPlaylist != null) {
-            val previous: LocalMedia? = mPlaylist?.getPreviousMedia(
-                    mPlayMode == REPEAT_ONE || mPlayMode == REPEAT_ALL,
-                    mPlayMode == SHUFFLED)
-            if (previous != null) {
-                playMedia(previous)
-            }
+        val previous: LocalMedia? = mPlaylist.getPreviousMedia(
+                mPlayMode == REPEAT_ONE || mPlayMode == REPEAT_ALL,
+                mPlayMode == SHUFFLED)
+        if (previous != null) {
+            playMedia(previous)
         }
     }
 
@@ -138,7 +134,7 @@ object AudioPlayer: Observable(), Playback.Callback {
     }
 
     val currentMedia: LocalMedia?
-        get() = if (mPlaylist == null) null else mPlaylist!!.currentMedia
+        get() = mPlaylist.currentMedia
 
     val playbackState: PlaybackState
         get() {
@@ -168,9 +164,7 @@ object AudioPlayer: Observable(), Playback.Callback {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
                 builder.setExtras(extras)
             }
-            if (mPlaylist != null) {
-                builder.setActiveQueueItemId(mPlaylist!!.currentIndex.toLong())
-            }
+            builder.setActiveQueueItemId(mPlaylist.currentIndex.toLong())
 
             return builder.build()
         }
@@ -220,33 +214,29 @@ object AudioPlayer: Observable(), Playback.Callback {
     }
 
     private fun updateMediaMetadata(media: LocalMedia) {
-        mHandler.post(object : Runnable {
-            override fun run() {
-                synchronized(this) {
-                    setChanged()
-                    notifyObservers(media)
-                }
+        GlobalScope.launch(Dispatchers.Main) {
+            synchronized(this) {
+                setChanged()
+                notifyObservers(media)
             }
-        })
+        }
     }
 
     private fun updateMediaPlayState() {
-        mHandler.post(object : Runnable {
-            override fun run() {
-                synchronized(this) {
-                    setChanged()
-                    notifyObservers(playbackState)
-                }
+        GlobalScope.launch(Dispatchers.Main) {
+            synchronized(this) {
+                setChanged()
+                notifyObservers(playbackState)
             }
-        })
+        }
     }
 
     private operator fun hasNext(): Boolean {
-        return mPlaylist != null && mPlaylist!!.hasNextMedia()
+        return mPlaylist.hasNextMedia()
     }
 
     private fun hasPre(): Boolean {
-        return mPlaylist != null && mPlaylist!!.hasPreviousMedia()
+        return mPlaylist.hasPreviousMedia()
     }
 
     private val isPlayOrPause: Boolean
