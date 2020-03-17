@@ -11,7 +11,6 @@ import java.util.concurrent.ConcurrentHashMap
 
 class DeviceScanner {
 
-    private val LOCK = ByteArray(0)
     private val mDevices: MutableMap<String?, Device> = ConcurrentHashMap()
 
     private lateinit var mScanCallback: IScanCallback
@@ -196,9 +195,6 @@ class DeviceScanner {
 
     internal inner class NoticeOnlineThread(private val udp: UDP) : Thread() {
 
-        val MIN_PERIOD = 1000 //间隔至少1秒
-        val DEFAULT_PERIOD = 6000
-
         @Transient
         var isStopped = false
         private var mPeriod = DEFAULT_PERIOD
@@ -276,5 +272,8 @@ class DeviceScanner {
 
     companion object {
         private const val TIMEOUT = 5000 //5 秒间隔询问无回复则判定为无响应
+        private const val MIN_PERIOD = 1000 //间隔至少1秒
+        private const val DEFAULT_PERIOD = 6000
+        private val LOCK = ByteArray(0)
     }
 }

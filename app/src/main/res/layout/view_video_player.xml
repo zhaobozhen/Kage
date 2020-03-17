@@ -14,11 +14,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <ImageView
-        android:id="@+id/iv_cover"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
-
     <include
         android:id="@+id/layout_seek_bar"
         layout="@layout/layout_video_seek_bar"

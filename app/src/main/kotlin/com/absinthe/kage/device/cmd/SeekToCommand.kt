@@ -9,7 +9,6 @@ import com.absinthe.kage.connect.proxy.MODE_VIDEO
 import com.absinthe.kage.device.Command
 import com.absinthe.kage.device.CommandBuilder
 import com.absinthe.kage.device.client.Client
-import com.absinthe.kage.media.audio.AudioPlayer.seekTo
 import com.absinthe.kage.media.video.LocalVideoPlayback
 
 class SeekToCommand : Command() {

@@ -125,11 +125,12 @@ class LocalAudioPlayback internal constructor(context: Context) : Playback {
 
         try {
             mMediaPlayer.stop()
+            mMediaPlayer.reset()
+            mMediaPlayer.release()
         } catch (e: IllegalStateException) {
             e.printStackTrace()
         }
-        mMediaPlayer.reset()
-        mMediaPlayer.release()
+
         abandonAudioFocus()
     }
 

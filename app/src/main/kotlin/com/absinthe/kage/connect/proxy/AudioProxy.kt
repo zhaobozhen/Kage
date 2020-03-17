@@ -85,11 +85,11 @@ object AudioProxy : BaseProxy() {
     }
 
     fun seekTo(position: Int) {
-        if (mPlayInfo.playState != PlayingStatus.STOPPED.status && mDevice!!.isConnected) {
+        if (mPlayInfo.playState != PlayingStatus.STOPPED.status && mDevice != null && mDevice!!.isConnected) {
             val seekToCmd = SeekToCommand().apply {
                 this.position = position
             }
-            mDevice!!.sendCommand(seekToCmd)
+            mDevice?.sendCommand(seekToCmd)
             mPlayInfo.position = position
         }
     }

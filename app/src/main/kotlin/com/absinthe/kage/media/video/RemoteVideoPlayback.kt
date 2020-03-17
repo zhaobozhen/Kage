@@ -55,17 +55,17 @@ class RemoteVideoPlayback : Playback {
         get() = mVideoProxy.currentPosition
 
     override fun playMedia(localMedia: LocalMedia) {
-        val mediaInfo = VideoInfo()
-        mediaInfo.url = localMedia.url
-        mediaInfo.title = localMedia.title
-        mVideoProxy.play(mediaInfo)
         Timber.i("playMedia")
 
-        state = PlaybackState.STATE_BUFFERING
-        if (mCallback != null) {
-            mCallback!!.onMediaMetadataChanged(localMedia)
-            mCallback!!.onPlaybackStateChanged(state)
+        val mediaInfo = VideoInfo().apply {
+            this.url = localMedia.url
+            this.title = localMedia.title
         }
+        mVideoProxy.play(mediaInfo)
+
+        state = PlaybackState.STATE_BUFFERING
+        mCallback?.onMediaMetadataChanged(localMedia)
+        mCallback?.onPlaybackStateChanged(state)
     }
 
     override fun play() {
@@ -102,8 +102,6 @@ class RemoteVideoPlayback : Playback {
                 mVideoProxy.pause()
             }
         }
-        if (mCallback != null) {
-            mCallback!!.onPlaybackStateChanged(state)
-        }
+        mCallback?.onPlaybackStateChanged(state)
     }
 }

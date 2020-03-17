@@ -7,7 +7,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
-import android.widget.ImageView
 import android.widget.SeekBar
 import android.widget.SeekBar.OnSeekBarChangeListener
 import androidx.annotation.AttrRes
@@ -17,7 +16,6 @@ import com.absinthe.kage.media.LocalMedia
 import com.absinthe.kage.media.Playback
 import com.absinthe.kage.media.TYPE_LOCAL
 import com.absinthe.kage.media.TYPE_REMOTE
-import com.absinthe.kage.media.video.VideoHelper.getVideoCoverImage
 import com.google.android.exoplayer2.SimpleExoPlayer
 import com.google.android.exoplayer2.trackselection.AdaptiveTrackSelection
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
@@ -32,7 +30,6 @@ open class VideoPlayer : FrameLayout, Playback.Callback {
     private lateinit var mRoot: View
     private lateinit var seekBar: SeekBar
     private lateinit var playerView: PlayerView
-    private lateinit var ivCover: ImageView
     private lateinit var simpleExoPlayer: SimpleExoPlayer
     private lateinit var mPlayback: Playback
 
@@ -45,7 +42,6 @@ open class VideoPlayer : FrameLayout, Playback.Callback {
     private var mDragging = false
     private var mBeforePosition = 0
     private var mPlayState = 0
-    private var isLoaded = false
 
     private val mShowProgress: Runnable = object : Runnable {
         override fun run() {
@@ -79,6 +75,9 @@ open class VideoPlayer : FrameLayout, Playback.Callback {
         }
     }
 
+    private val isPlaying: Boolean
+        get() = mPlayback.state == PlaybackState.STATE_PLAYING
+
     constructor(context: Context, attrs: AttributeSet?) : super(context, attrs) {
         mContext = context
         init()
@@ -107,7 +106,6 @@ open class VideoPlayer : FrameLayout, Playback.Callback {
     private fun initView() {
         seekBar = mBinding.layoutSeekBar.seekBar.seekBar
         playerView = mBinding.videoView
-        ivCover = mBinding.ivCover
 
         mBinding.layoutSeekBar.ibPlay.setOnClickListener { doPauseResume() }
         seekBar.max = 1000
@@ -141,13 +139,9 @@ open class VideoPlayer : FrameLayout, Playback.Callback {
         mPlayback.stop(true)
 
         if (type == TYPE_LOCAL) {
-            ivCover.visibility = View.GONE
-            playerView.visibility = View.VISIBLE
             mPlayback = LocalVideoPlayback(simpleExoPlayer)
             (mPlayback as LocalVideoPlayback).setCallback(this)
         } else if (type == TYPE_REMOTE) {
-            ivCover.visibility = View.VISIBLE
-            playerView.visibility = View.GONE
             mPlayback = RemoteVideoPlayback()
             (mPlayback as RemoteVideoPlayback).setCallback(this)
         }
@@ -173,6 +167,10 @@ open class VideoPlayer : FrameLayout, Playback.Callback {
         mBinding.layoutSeekBar.btnCast.setOnClickListener(listener)
     }
 
+    fun setCastButtonVisibility(flag: Int) {
+        mBinding.layoutSeekBar.btnCast.visibility = flag
+    }
+
     private fun updatePausePlay() {
         if (isPlaying) {
             post(mShowProgress)
@@ -180,22 +178,6 @@ open class VideoPlayer : FrameLayout, Playback.Callback {
         } else {
             removeCallbacks(mShowProgress)
             mBinding.layoutSeekBar.ibPlay.setImageResource(R.drawable.ic_play_arrow)
-        }
-    }
-
-    private fun requestCoverImage() {
-        if (ivCover.width > 0 && mLocalMedia != null) {
-            Timber.d("mIVCover start load")
-            val bitmap = getVideoCoverImage(mLocalMedia?.filePath)
-            isLoaded = true
-            ivCover.setImageBitmap(bitmap)
-        }
-    }
-
-    override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
-        super.onLayout(changed, left, top, right, bottom)
-        if (!isLoaded) {
-            requestCoverImage()
         }
     }
 
@@ -262,9 +244,6 @@ open class VideoPlayer : FrameLayout, Playback.Callback {
             mFormatter.format("%d:%02d:%02d", hours, minutes, seconds).toString()
         } else mFormatter.format("%02d:%02d", minutes, seconds).toString()
     }
-
-    private val isPlaying: Boolean
-        get() = mPlayback.state == PlaybackState.STATE_PLAYING
 
     interface VideoPlayCallback {
         fun changeState(state: Int)

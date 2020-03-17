@@ -153,7 +153,7 @@ object VideoProxy : BaseProxy() {
                     val state = split[1]
                     val newState: Int = PlayerStatus.valueOf(state).status
                     val oldState = mPlayInfo.currentPlayState
-                    Timber.i("newState:$newState-oldState:$oldState")
+                    Timber.i("newState: $newState, oldState: $oldState")
 
                     if (oldState == newState) {
                         return
@@ -174,7 +174,7 @@ object VideoProxy : BaseProxy() {
                 }
             }
         } catch (e: Exception) {
-            Timber.e("protocol invalid:%s", e.message)
+            Timber.e("Protocol invalid: %s", e.message)
         }
     }
 

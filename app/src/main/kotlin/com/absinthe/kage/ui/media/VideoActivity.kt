@@ -5,7 +5,7 @@ import android.graphics.Color
 import android.media.session.PlaybackState
 import android.os.Bundle
 import android.view.View
-import androidx.appcompat.app.AppCompatActivity
+import com.absinthe.kage.BaseActivity
 import com.absinthe.kage.databinding.ActivityVideoBinding
 import com.absinthe.kage.device.DeviceManager
 import com.absinthe.kage.device.DeviceObserverImpl
@@ -17,10 +17,14 @@ import com.absinthe.kage.media.TYPE_REMOTE
 import com.absinthe.kage.media.video.VideoPlayer
 import com.absinthe.kage.ui.connect.ConnectActivity
 
-class VideoActivity : AppCompatActivity() {
+class VideoActivity : BaseActivity() {
 
     private lateinit var mBinding: ActivityVideoBinding
+    private lateinit var mVideoPlayer: VideoPlayer
     private var mPlayState: Int = PlaybackState.STATE_NONE
+    private var mType = TYPE_SENDER
+    private var mLocalMedia: LocalMedia? = null
+
     private val mDeviceManager: DeviceManager = DeviceManager
     private val mObserver: IDeviceObserver = object : DeviceObserverImpl() {
 
@@ -34,14 +38,13 @@ class VideoActivity : AppCompatActivity() {
             mBinding.toolbar.ibConnect.isSelected = false
         }
     }
-    private var mLocalMedia: LocalMedia? = null
-    private lateinit var mVideoPlayer: VideoPlayer
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         mBinding = ActivityVideoBinding.inflate(layoutInflater)
         setContentView(mBinding.root)
 
+        getType()
         getMedia()
         initView()
         initPlayer()
@@ -72,19 +75,27 @@ class VideoActivity : AppCompatActivity() {
             }
         })
         mBinding.toolbar.ibBack.setOnClickListener { finish() }
-        mBinding.toolbar.ibConnect.setOnClickListener {
-            startActivity(Intent(this, ConnectActivity::class.java))
-        }
-        mBinding.videoPlayer.setCastButtonClickListener(View.OnClickListener {
-            if (DeviceManager.isConnected) {
-                mVideoPlayer.setPlayerType(TYPE_REMOTE)
-            } else {
-                startActivity(Intent(this@VideoActivity, ConnectActivity::class.java))
+
+        if (mType == TYPE_SENDER) {
+            mBinding.toolbar.ibConnect.setOnClickListener {
+                startActivity(Intent(this, ConnectActivity::class.java))
             }
-        })
+            mBinding.videoPlayer.setCastButtonClickListener(View.OnClickListener {
+                if (DeviceManager.isConnected) {
+                    mVideoPlayer.setPlayerType(TYPE_REMOTE)
+                } else {
+                    startActivity(Intent(this@VideoActivity, ConnectActivity::class.java))
+                }
+            })
+        } else {
+            mBinding.toolbar.ibConnect.visibility = View.GONE
+            mBinding.videoPlayer.setCastButtonVisibility(View.GONE)
+        }
     }
 
-
+    private fun getType() {
+        mType = intent.getIntExtra(EXTRA_TYPE, TYPE_SENDER)
+    }
 
     private fun getMedia() {
         mLocalMedia = intent.getParcelableExtra(EXTRA_MEDIA)
@@ -100,5 +111,8 @@ class VideoActivity : AppCompatActivity() {
 
     companion object {
         const val EXTRA_MEDIA = "EXTRA_MEDIA"
+        const val EXTRA_TYPE = "EXTRA_TYPE"
+        const val TYPE_SENDER = 0
+        const val TYPE_RECEIVER = 1
     }
 }

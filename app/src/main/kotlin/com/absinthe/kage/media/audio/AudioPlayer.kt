@@ -36,9 +36,7 @@ object AudioPlayer: Observable(), Playback.Callback {
 
     fun release() {
         playState = PlaybackState.STATE_NONE
-        if (mPlayback != null) {
-            mPlayback!!.stop(false)
-        }
+        mPlayback?.stop(false)
         deleteObservers()
         if (mWakeLock.isHeld) {
             mWakeLock.release()
@@ -178,17 +176,17 @@ object AudioPlayer: Observable(), Playback.Callback {
         }
 
     val duration: Int
-        get() = if (isPlayOrPause) {
+        get() = if (mPlayback != null && isPlayOrPause) {
             mPlayback!!.duration
         } else 0
 
     val bufferPosition: Int
-        get() = if (isPlayOrPause) {
+        get() = if (mPlayback != null && isPlayOrPause) {
             mPlayback!!.bufferPosition
         } else 0
 
     val currentPosition: Int
-        get() = if (isPlayOrPause) {
+        get() = if (mPlayback != null && isPlayOrPause) {
             mPlayback!!.currentPosition
         } else 0
 
