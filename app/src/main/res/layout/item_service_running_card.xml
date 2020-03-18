@@ -4,9 +4,8 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:backgroundTint="@color/green"
-    android:clickable="true"
-    android:focusable="true"
     android:translationZ="2dp"
+    app:rippleColor="@null"
     app:cardCornerRadius="5dp"
     app:cardElevation="2dp"
     app:strokeColor="@color/cardBorder"
@@ -36,14 +35,14 @@
                 android:id="@+id/tv_info"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Service is running"
+                android:text="@string/service_is_running"
                 android:textAppearance="?textAppearanceHeadline6" />
 
             <TextView
                 android:id="@+id/tv_tip"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Tap to start service"
+                android:text="@string/tap_to_start_service"
                 android:textAppearance="?textAppearanceSubtitle2"
                 android:textColor="@color/grayText" />
 

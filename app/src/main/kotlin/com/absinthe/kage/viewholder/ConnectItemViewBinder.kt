@@ -21,6 +21,8 @@ class ConnectItemViewBinder : ItemViewBinder<ConnectItem, ConnectItemViewBinder.
             val intent = Intent(holder.itemView.context, ConnectActivity::class.java)
             holder.itemView.context.startActivity(intent)
         }
+
+        holder.itemView.setOnTouchListener(HolderConstant.onTouchListener)
     }
 
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView)

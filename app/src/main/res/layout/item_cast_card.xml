@@ -3,10 +3,9 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:clickable="true"
-    android:focusable="true"
     app:cardCornerRadius="5dp"
     app:cardElevation="0dp"
+    app:rippleColor="@null"
     app:strokeColor="@color/cardBorder"
     app:strokeWidth="1dp">
 
@@ -23,7 +22,7 @@
             android:layout_height="@dimen/main_card_icon_size"
             android:background="@drawable/bg_circle_yellow"
             android:scaleType="centerInside"
-            android:src="@drawable/ic_logo" />
+            android:src="@drawable/ic_delivery" />
 
         <TextView
             android:layout_width="wrap_content"

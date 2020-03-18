@@ -34,4 +34,8 @@
     <string name="about_label">关于</string>
     <string name="btn_cast_to_device">投射到设备</string>
     <string name="btn_cast_to_device_land">投射</string>
+    <string name="service_is_running">Kage 服务正在运行</string>
+    <string name="service_is_not_running">Kage 服务尚未运行</string>
+    <string name="tap_to_start_service">点按以启动服务</string>
+    <string name="tap_to_stop_service">点按以停止服务</string>
 </resources>

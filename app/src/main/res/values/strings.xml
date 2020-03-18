@@ -7,6 +7,12 @@
     <string name="music_list_label">Music List</string>
     <string name="about_label">About</string>
 
+    <!--  Home  -->
+    <string name="service_is_running">Kage service is running</string>
+    <string name="service_is_not_running">Kage service is not running</string>
+    <string name="tap_to_start_service">Tap to start service</string>
+    <string name="tap_to_stop_service">Tap to stop service</string>
+
     <!--  Connect  -->
     <string name="connect_empty_list">Empty List</string>
     <string name="connect_empty_list_subtitle">Please make sure your device is on the same LAN and Kage service is turning on</string>

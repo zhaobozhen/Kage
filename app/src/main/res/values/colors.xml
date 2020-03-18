@@ -10,9 +10,9 @@
     <color name="black">#FF000000</color>
     <color name="gray">#FF888888</color>
     <color name="lightGray">#FFBBBBBB</color>
-    <color name="blue">#FF81D4FA</color>
+    <color name="blue">#FF4CB1FA</color>
     <color name="green">#FF99D48D</color>
-    <color name="yellow">#FFFFDFA6</color>
+    <color name="yellow">#FFFAC14C</color>
     <color name="ripple">#FFBBBBBB</color>
 
     <color name="cardBorder">#FFDDDDDD</color>

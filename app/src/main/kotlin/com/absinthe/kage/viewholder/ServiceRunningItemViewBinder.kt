@@ -13,6 +13,7 @@ import com.absinthe.kage.ui.main.MainActivity
 import com.drakeet.multitype.ItemViewBinder
 import timber.log.Timber
 
+
 class ServiceRunningItemViewBinder : ItemViewBinder<ServiceRunningItem, ServiceRunningItemViewBinder.ViewHolder>() {
 
     override fun onCreateViewHolder(inflater: LayoutInflater, parent: ViewGroup): ViewHolder {
@@ -22,24 +23,34 @@ class ServiceRunningItemViewBinder : ItemViewBinder<ServiceRunningItem, ServiceR
 
     override fun onBindViewHolder(holder: ViewHolder, item: ServiceRunningItem) {
         if (item.isServiceRunning) {
-            holder.info.text = "Service is running"
-            holder.tip.text = "Tap to stop service"
+            holder.info.text = holder.itemView.context.getString(R.string.service_is_running)
+            holder.tip.text = holder.itemView.context.getString(R.string.tap_to_stop_service)
             holder.icon.setImageResource(R.drawable.ic_done)
 
             holder.itemView.setOnClickListener {
                 TCPService.stop(holder.itemView.context)
-                (ActivityStackManager.topActivity as MainActivity).viewModel.isServiceRunning.value = false
+                
+                val activity = ActivityStackManager.topActivity
+                if (activity is MainActivity) {
+                    activity.viewModel.isServiceRunning.value = false
+                }
             }
         } else {
-            holder.info.text = "Service is not running"
-            holder.tip.text = "Tap to start service"
+            holder.info.text = holder.itemView.context.getString(R.string.service_is_not_running)
+            holder.tip.text = holder.itemView.context.getString(R.string.tap_to_start_service)
             holder.icon.setImageResource(R.drawable.ic_no)
 
             holder.itemView.setOnClickListener {
                 TCPService.start(holder.itemView.context)
-                (ActivityStackManager.topActivity as MainActivity).viewModel.isServiceRunning.value = true
+
+                val activity = ActivityStackManager.topActivity
+                if (activity is MainActivity) {
+                    activity.viewModel.isServiceRunning.value = true
+                }
             }
         }
+
+        holder.itemView.setOnTouchListener(HolderConstant.onTouchListener)
     }
 
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
