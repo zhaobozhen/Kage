@@ -7,9 +7,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.absinthe.kage.R
-import com.absinthe.kage.manager.ActivityStackManager
 import com.absinthe.kage.service.TCPService
-import com.absinthe.kage.ui.main.MainActivity
 import com.drakeet.multitype.ItemViewBinder
 import timber.log.Timber
 
@@ -22,18 +20,16 @@ class ServiceRunningItemViewBinder : ItemViewBinder<ServiceRunningItem, ServiceR
     }
 
     override fun onBindViewHolder(holder: ViewHolder, item: ServiceRunningItem) {
+        holder.itemView.isEnabled = true
+
         if (item.isServiceRunning) {
             holder.info.text = holder.itemView.context.getString(R.string.service_is_running)
             holder.tip.text = holder.itemView.context.getString(R.string.tap_to_stop_service)
             holder.icon.setImageResource(R.drawable.ic_done)
 
             holder.itemView.setOnClickListener {
+                holder.itemView.isEnabled = false
                 TCPService.stop(holder.itemView.context)
-
-                val activity = ActivityStackManager.topActivity
-                if (activity is MainActivity) {
-                    activity.viewModel.isServiceRunning.value = false
-                }
             }
         } else {
             holder.info.text = holder.itemView.context.getString(R.string.service_is_not_running)
@@ -41,12 +37,8 @@ class ServiceRunningItemViewBinder : ItemViewBinder<ServiceRunningItem, ServiceR
             holder.icon.setImageResource(R.drawable.ic_no)
 
             holder.itemView.setOnClickListener {
+                holder.itemView.isEnabled = false
                 TCPService.start(holder.itemView.context)
-
-                val activity = ActivityStackManager.topActivity
-                if (activity is MainActivity) {
-                    activity.viewModel.isServiceRunning.value = true
-                }
             }
         }
 

@@ -97,20 +97,17 @@ class MusicActivity : BaseActivity(), Observer {
         processIntent(intent)
     }
 
-    override fun dispatchKeyEvent(event: KeyEvent?): Boolean {
-        return when(event?.keyCode) {
+    override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
+        when (event?.keyCode) {
             KeyEvent.KEYCODE_VOLUME_UP -> {
                 RemoteControlProxy.sendVolumeUpKeyAction()
-                true
             }
             KeyEvent.KEYCODE_VOLUME_DOWN -> {
                 RemoteControlProxy.sendVolumeDownKeyAction()
-                true
-            }
-            else -> {
-                super.dispatchKeyEvent(event)
             }
         }
+        return super.onKeyDown(keyCode, event)
+
     }
 
     private fun processIntent(intent: Intent?) {
@@ -155,11 +152,11 @@ class MusicActivity : BaseActivity(), Observer {
     private fun initListener() {
         deviceObserver = object : DeviceObserverImpl() {
 
-            override fun onDeviceConnected(deviceInfo: DeviceInfo?) {
+            override fun onDeviceConnected(deviceInfo: DeviceInfo) {
                 mBinding.toolbar.ibConnect.isSelected = true
             }
 
-            override fun onDeviceDisConnect(deviceInfo: DeviceInfo?) {
+            override fun onDeviceDisConnect(deviceInfo: DeviceInfo) {
                 mBinding.toolbar.ibConnect.isSelected = false
             }
         }

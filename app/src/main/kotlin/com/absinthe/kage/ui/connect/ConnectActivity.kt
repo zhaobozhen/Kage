@@ -71,38 +71,38 @@ class ConnectActivity : BaseActivity() {
     private fun initObserver() {
         mObserver = object : DeviceObserverImpl() {
 
-            override fun onFindDevice(deviceInfo: DeviceInfo?) {
+            override fun onFindDevice(deviceInfo: DeviceInfo) {
                 Timber.d("onFindDevice: $deviceInfo")
-                mAdapter.addData(deviceInfo!!)
+                mAdapter.addData(deviceInfo)
                 switchContainer(VF_DEVICE_LIST)
             }
 
-            override fun onLostDevice(deviceInfo: DeviceInfo?) {
+            override fun onLostDevice(deviceInfo: DeviceInfo) {
                 Timber.d("onLostDevice: $deviceInfo")
-                mAdapter.remove(deviceInfo!!)
+                mAdapter.remove(deviceInfo)
                 if (mAdapter.itemCount == 0) {
                     switchContainer(VF_EMPTY)
                 }
             }
 
-            override fun onDeviceConnected(deviceInfo: DeviceInfo?) {
+            override fun onDeviceConnected(deviceInfo: DeviceInfo) {
                 Timber.d("onDeviceConnected")
                 mAdapter.notifyDataSetChanged()
                 finish()
                 makeText(R.string.toast_connected)
             }
 
-            override fun onDeviceConnecting(deviceInfo: DeviceInfo?) {
+            override fun onDeviceConnecting(deviceInfo: DeviceInfo) {
                 Timber.d("onDeviceConnecting")
                 mAdapter.notifyDataSetChanged()
             }
 
-            override fun onDeviceDisConnect(deviceInfo: DeviceInfo?) {
+            override fun onDeviceDisConnect(deviceInfo: DeviceInfo) {
                 Timber.d("onDeviceDisConnect")
                 mAdapter.notifyDataSetChanged()
             }
 
-            override fun onDeviceConnectFailed(deviceInfo: DeviceInfo?, errorCode: Int, errorMessage: String?) {
+            override fun onDeviceConnectFailed(deviceInfo: DeviceInfo, errorCode: Int, errorMessage: String?) {
                 Timber.d("onDeviceConnectFailed")
             }
         }

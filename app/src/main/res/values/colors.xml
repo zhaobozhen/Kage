@@ -13,6 +13,7 @@
     <color name="blue">#FF4CB1FA</color>
     <color name="green">#FF99D48D</color>
     <color name="yellow">#FFFAC14C</color>
+    <color name="lightRed">#FFE57373</color>
     <color name="ripple">#FFBBBBBB</color>
 
     <color name="cardBorder">#FFDDDDDD</color>

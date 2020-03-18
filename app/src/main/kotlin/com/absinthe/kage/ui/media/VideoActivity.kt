@@ -28,12 +28,12 @@ class VideoActivity : BaseActivity() {
     private val mDeviceManager: DeviceManager = DeviceManager
     private val mObserver: IDeviceObserver = object : DeviceObserverImpl() {
 
-        override fun onDeviceConnected(deviceInfo: DeviceInfo?) {
+        override fun onDeviceConnected(deviceInfo: DeviceInfo) {
             super.onDeviceConnected(deviceInfo)
             mBinding.toolbar.ibConnect.isSelected = true
         }
 
-        override fun onDeviceDisConnect(deviceInfo: DeviceInfo?) {
+        override fun onDeviceDisConnect(deviceInfo: DeviceInfo) {
             super.onDeviceDisConnect(deviceInfo)
             mBinding.toolbar.ibConnect.isSelected = false
         }

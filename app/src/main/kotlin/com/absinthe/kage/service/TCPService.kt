@@ -22,6 +22,7 @@ import com.absinthe.kage.device.DeviceObserverImpl
 import com.absinthe.kage.device.client.Client
 import com.absinthe.kage.device.model.DeviceInfo
 import com.absinthe.kage.device.server.KageServer
+import com.absinthe.kage.manager.ActivityStackManager
 import com.absinthe.kage.ui.main.MainActivity
 import com.absinthe.kage.utils.NotificationUtils
 import com.absinthe.kage.utils.NotificationUtils.createTCPChannel
@@ -38,11 +39,11 @@ class TCPService : LifecycleService() {
 
     private lateinit var mServerSocket: ServerSocket
     private val deviceObserver = object : DeviceObserverImpl() {
-        override fun onDeviceConnected(deviceInfo: DeviceInfo?) {
+        override fun onDeviceConnected(deviceInfo: DeviceInfo) {
             SelectionSpec.getInstance().isConnect = true
         }
 
-        override fun onDeviceDisConnect(deviceInfo: DeviceInfo?) {
+        override fun onDeviceDisConnect(deviceInfo: DeviceInfo) {
             SelectionSpec.getInstance().isConnect = false
         }
     }
@@ -81,8 +82,23 @@ class TCPService : LifecycleService() {
         }
     }
 
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        val activity = ActivityStackManager.topActivity
+        if (activity is MainActivity) {
+            activity.viewModel.isServiceRunning.value = true
+        }
+
+        return super.onStartCommand(intent, flags, startId)
+    }
+
     override fun onDestroy() {
         DeviceManager.unregister(deviceObserver)
+
+        val activity = ActivityStackManager.topActivity
+        if (activity is MainActivity) {
+            activity.viewModel.isServiceRunning.value = false
+        }
+
         super.onDestroy()
     }
 

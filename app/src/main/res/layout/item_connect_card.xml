@@ -20,7 +20,8 @@
         <ImageView
             android:layout_width="@dimen/main_card_icon_size"
             android:layout_height="@dimen/main_card_icon_size"
-            android:background="@drawable/bg_circle_blue"
+            android:background="@drawable/bg_circle_button"
+            android:backgroundTint="@color/blue"
             android:scaleType="centerInside"
             android:src="@drawable/ic_main_connect" />
 

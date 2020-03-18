@@ -11,6 +11,9 @@ import com.absinthe.kage.BaseActivity
 import com.absinthe.kage.R
 import com.absinthe.kage.adapter.SpacesItemDecoration
 import com.absinthe.kage.databinding.ActivityMainBinding
+import com.absinthe.kage.device.DeviceManager
+import com.absinthe.kage.device.DeviceObserverImpl
+import com.absinthe.kage.device.model.DeviceInfo
 import com.absinthe.kage.service.TCPService
 import com.absinthe.kage.ui.about.AboutActivity
 import com.absinthe.kage.viewholder.*
@@ -25,6 +28,19 @@ class MainActivity : BaseActivity() {
     private lateinit var binding: ActivityMainBinding
     private val adapter = MultiTypeAdapter()
     private val items = ArrayList<Any>()
+    private val deviceObserver = object : DeviceObserverImpl() {
+
+        override fun onDeviceConnected(deviceInfo: DeviceInfo) {
+            val deviceItem = DeviceItem(deviceInfo.name, deviceInfo.ip)
+            items.add(1, deviceItem)
+            adapter.notifyItemInserted(1)
+        }
+
+        override fun onDeviceDisConnect(deviceInfo: DeviceInfo) {
+            items.removeAt(1)
+            adapter.notifyItemRemoved(1)
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -32,6 +48,8 @@ class MainActivity : BaseActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         viewModel = ViewModelProvider(this).get(MainViewModel::class.java)
+        DeviceManager.register(deviceObserver)
+
         initView()
 
         if (!ServiceUtils.isServiceRunning(TCPService::class.java)) {
@@ -41,6 +59,7 @@ class MainActivity : BaseActivity() {
 
     override fun onDestroy() {
         TCPService.stop(this)
+        DeviceManager.unregister(deviceObserver)
         super.onDestroy()
     }
 
@@ -50,6 +69,7 @@ class MainActivity : BaseActivity() {
         adapter.register(ServiceRunningItemViewBinder())
         adapter.register(CastItemViewBinder())
         adapter.register(ConnectItemViewBinder())
+        adapter.register(DeviceItemViewBinder())
 
         binding.recyclerview.adapter = adapter
         binding.recyclerview.layoutManager = LinearLayoutManager(this)
