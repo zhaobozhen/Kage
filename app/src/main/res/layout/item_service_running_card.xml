@@ -4,9 +4,8 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:backgroundTint="@color/green"
-    android:translationZ="2dp"
     app:rippleColor="@null"
-    app:cardCornerRadius="5dp"
+    app:cardCornerRadius="@dimen/main_card_corner"
     app:cardElevation="2dp"
     app:strokeColor="@color/cardBorder"
     app:strokeWidth="0dp">
@@ -15,8 +14,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:paddingHorizontal="20dp"
-        android:paddingVertical="30dp">
+        android:paddingHorizontal="@dimen/main_card_inset_horizontal"
+        android:paddingVertical="@dimen/main_card_inset_vertical">
 
         <ImageView
             android:id="@+id/iv_icon"
@@ -28,7 +27,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
-            android:layout_marginStart="20dp"
+            android:layout_marginStart="@dimen/main_card_inset_horizontal"
             android:orientation="vertical">
 
             <TextView

@@ -30,6 +30,7 @@ import com.zhihu.matisse.internal.entity.SelectionSpec
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import java.io.DataInputStream
 import java.io.DataOutputStream
 import java.io.IOException
@@ -94,9 +95,13 @@ class TCPService : LifecycleService() {
     override fun onDestroy() {
         DeviceManager.unregister(deviceObserver)
 
-        val activity = ActivityStackManager.topActivity
-        if (activity is MainActivity) {
-            activity.viewModel.isServiceRunning.value = false
+        try {
+            val activity = ActivityStackManager.topActivity
+            if (activity is MainActivity) {
+                activity.viewModel.isServiceRunning.value = false
+            }
+        } catch (e: NoSuchElementException) {
+            Timber.e(e)
         }
 
         super.onDestroy()

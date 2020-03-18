@@ -26,8 +26,6 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:overScrollMode="never"
-        android:paddingHorizontal="10dp"
-        android:paddingTop="10dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toBottomOf="@id/appbar" />
 

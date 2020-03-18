@@ -18,7 +18,6 @@ import com.absinthe.kage.service.TCPService
 import com.absinthe.kage.ui.about.AboutActivity
 import com.absinthe.kage.viewholder.*
 import com.absinthe.kage.viewmodel.MainViewModel
-import com.blankj.utilcode.util.ConvertUtils
 import com.blankj.utilcode.util.ServiceUtils
 import com.drakeet.multitype.MultiTypeAdapter
 
@@ -73,7 +72,7 @@ class MainActivity : BaseActivity() {
 
         binding.recyclerview.adapter = adapter
         binding.recyclerview.layoutManager = LinearLayoutManager(this)
-        binding.recyclerview.addItemDecoration(SpacesItemDecoration(ConvertUtils.dp2px(10f)))
+        binding.recyclerview.addItemDecoration(SpacesItemDecoration(resources.getDimension(R.dimen.main_card_padding).toInt()))
 
         val serviceRunning = ServiceRunningItem(true)
         val castItem = CastItem()
