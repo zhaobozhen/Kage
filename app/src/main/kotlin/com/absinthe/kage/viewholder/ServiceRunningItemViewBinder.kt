@@ -29,7 +29,7 @@ class ServiceRunningItemViewBinder : ItemViewBinder<ServiceRunningItem, ServiceR
 
             holder.itemView.setOnClickListener {
                 TCPService.stop(holder.itemView.context)
-                
+
                 val activity = ActivityStackManager.topActivity
                 if (activity is MainActivity) {
                     activity.viewModel.isServiceRunning.value = false
