@@ -9,7 +9,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.absinthe.kage.BaseActivity
 import com.absinthe.kage.R
-import com.absinthe.kage.adapter.SpacesItemDecoration
+import com.absinthe.kage.viewholder.SpacesItemDecoration
 import com.absinthe.kage.databinding.ActivityMainBinding
 import com.absinthe.kage.device.DeviceManager
 import com.absinthe.kage.device.DeviceObserverImpl

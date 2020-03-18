@@ -2,25 +2,25 @@ package com.absinthe.kage.ui.connect
 
 import android.os.Bundle
 import android.view.MenuItem
-import android.view.View
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.absinthe.kage.BaseActivity
 import com.absinthe.kage.R
-import com.absinthe.kage.adapter.DeviceAdapter
 import com.absinthe.kage.databinding.ActivityConnectBinding
 import com.absinthe.kage.device.DeviceManager
 import com.absinthe.kage.device.DeviceObserverImpl
 import com.absinthe.kage.device.IDeviceObserver
 import com.absinthe.kage.device.model.DeviceInfo
 import com.absinthe.kage.utils.ToastUtil.makeText
-import com.chad.library.adapter.base.BaseQuickAdapter
+import com.absinthe.kage.viewholder.DeviceInfoItemViewBinder
+import com.drakeet.multitype.MultiTypeAdapter
 import timber.log.Timber
 
 class ConnectActivity : BaseActivity() {
 
     private lateinit var mBinding: ActivityConnectBinding
     private lateinit var mObserver: IDeviceObserver
-    private var mAdapter: DeviceAdapter = DeviceAdapter()
+    private var mAdapter = MultiTypeAdapter()
+    private var mItems = ArrayList<Any>()
     private var mDeviceManager: DeviceManager = DeviceManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -56,12 +56,14 @@ class ConnectActivity : BaseActivity() {
         mBinding.vfContainer.setInAnimation(this, R.anim.anim_fade_in)
         mBinding.vfContainer.setOutAnimation(this, R.anim.anim_fade_out)
 
+        mAdapter.register(DeviceInfoItemViewBinder())
         mBinding.rvDevices.adapter = mAdapter
         mBinding.rvDevices.layoutManager = LinearLayoutManager(this)
 
-        val list = mDeviceManager.deviceInfoList
-        if (list.isNotEmpty()) {
-            mAdapter.setNewData(list as MutableList<DeviceInfo>)
+        mItems.clear()
+        mItems.addAll(mDeviceManager.deviceInfoList)
+        if (mItems.isNotEmpty()) {
+            mAdapter.items = mItems
             switchContainer(VF_DEVICE_LIST)
         }
 
@@ -73,13 +75,17 @@ class ConnectActivity : BaseActivity() {
 
             override fun onFindDevice(deviceInfo: DeviceInfo) {
                 Timber.d("onFindDevice: $deviceInfo")
-                mAdapter.addData(deviceInfo)
+                mItems.add(deviceInfo)
+                mAdapter.items = mItems
+                mAdapter.notifyItemInserted(mAdapter.itemCount - 1)
                 switchContainer(VF_DEVICE_LIST)
             }
 
             override fun onLostDevice(deviceInfo: DeviceInfo) {
                 Timber.d("onLostDevice: $deviceInfo")
-                mAdapter.remove(deviceInfo)
+                mItems.remove(deviceInfo)
+                mAdapter.items = mItems
+                mAdapter.notifyItemRangeRemoved(0, mAdapter.itemCount - 1)
                 if (mAdapter.itemCount == 0) {
                     switchContainer(VF_EMPTY)
                 }
@@ -108,18 +114,6 @@ class ConnectActivity : BaseActivity() {
         }
 
         mDeviceManager.register(mObserver)
-        mAdapter.setOnItemChildClickListener { _: BaseQuickAdapter<*, *>?, view: View, position: Int ->
-            if (view.id == R.id.btn_connect) {
-                val deviceInfo = mAdapter.getItem(position)
-
-                if (!deviceInfo.isConnected) {
-                    mDeviceManager.onlineDevice(deviceInfo)
-                    mDeviceManager.connectDevice(deviceInfo)
-                } else {
-                    mDeviceManager.disConnectDevice()
-                }
-            }
-        }
     }
 
     private fun switchContainer(flag: Int) {

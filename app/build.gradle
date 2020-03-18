@@ -61,7 +61,6 @@ dependencies {
     implementation 'io.reactivex.rxjava2:rxandroid:2.1.1'
     implementation 'com.github.tbruyelle:rxpermissions:0.10.2'
     implementation "com.github.bumptech.glide:glide:$glide_version"
-    implementation 'com.github.CymChad:BaseRecyclerViewAdapterHelper:3.0.1'
     implementation 'com.drakeet.about:about:2.4.1'
     implementation 'com.drakeet.multitype:multitype:4.2.0'
     implementation 'it.sephiroth.android.library.imagezoom:imagezoom:2.3.0'

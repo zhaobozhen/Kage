@@ -1,4 +1,4 @@
-package com.absinthe.kage.adapter;
+package com.absinthe.kage.viewholder;
 
 import androidx.annotation.NonNull;
 import android.graphics.Rect;
