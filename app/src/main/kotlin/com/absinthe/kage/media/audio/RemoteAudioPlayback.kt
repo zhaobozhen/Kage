@@ -1,7 +1,6 @@
 package com.absinthe.kage.media.audio
 
 import android.media.session.PlaybackState
-import com.absinthe.kage.KageApplication
 import com.absinthe.kage.connect.Const
 import com.absinthe.kage.connect.proxy.AudioProxy
 import com.absinthe.kage.device.model.AudioInfo
@@ -9,6 +8,7 @@ import com.absinthe.kage.media.LocalMedia
 import com.absinthe.kage.media.PlayList
 import com.absinthe.kage.media.Playback
 import com.absinthe.kage.utils.NetUtils.localAddress
+import com.blankj.utilcode.util.Utils
 import timber.log.Timber
 import java.io.File
 import java.util.*
@@ -65,7 +65,7 @@ class RemoteAudioPlayback internal constructor() : Playback {
         mPlayList = playlist
         val audioInfos: MutableList<AudioInfo> = ArrayList()
 
-        for (media in playlist.list!!) {
+        for (media in playlist.list) {
             if (media is LocalMusic) {
                 val audioInfo = AudioInfo()
                 audioInfo.name = media.title
@@ -94,7 +94,7 @@ class RemoteAudioPlayback internal constructor() : Playback {
 
             if (localAddress.isNotEmpty()) {
                 info.coverPath = (String.format(Const.HTTP_SERVER_FORMAT, localAddress)
-                        + KageApplication.sContext.externalCacheDir
+                        + Utils.getApp().applicationContext.externalCacheDir
                         + File.separator + localMedia.albumId + ".png")
             }
             mAudioProxy.play(info)

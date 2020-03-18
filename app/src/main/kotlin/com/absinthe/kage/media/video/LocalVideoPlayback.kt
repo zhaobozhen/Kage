@@ -2,12 +2,12 @@ package com.absinthe.kage.media.video
 
 import android.media.session.PlaybackState
 import android.net.Uri
-import com.absinthe.kage.KageApplication
 import com.absinthe.kage.connect.proxy.BaseProxy
 import com.absinthe.kage.connect.proxy.MODE_VIDEO
 import com.absinthe.kage.manager.ActivityStackManager
 import com.absinthe.kage.media.LocalMedia
 import com.absinthe.kage.media.Playback
+import com.blankj.utilcode.util.Utils
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.SimpleExoPlayer
@@ -115,7 +115,8 @@ class LocalVideoPlayback(private val exoPlayer: SimpleExoPlayer) : Playback {
 
     private fun setVideo(playerUri : Uri) {
         // 生成加载媒体数据的DataSource实例。
-        val dataSourceFactory = DefaultDataSourceFactory(ActivityStackManager.topActivity, Util.getUserAgent(KageApplication.sContext, "Kage"))
+        val dataSourceFactory = DefaultDataSourceFactory(ActivityStackManager.topActivity,
+                Util.getUserAgent(Utils.getApp().applicationContext, "Kage"))
 
         // MediaSource代表要播放的媒体。
         val videoSource = ProgressiveMediaSource.Factory(dataSourceFactory)

@@ -13,19 +13,19 @@ class LocalMusic : LocalMedia, Parcelable {
 
     constructor()
 
-    constructor(`in`: Parcel) {
-        title = `in`.readString()
-        filePath = `in`.readString()
-        date = `in`.readString()
-        sortLetters = `in`.readString()
-        type = `in`.readInt()
-        duration = `in`.readLong()
-        size = `in`.readFloat()
-        album = `in`.readString()
-        albumId = `in`.readInt()
-        artist = `in`.readString()
-        artistId = `in`.readInt()
-        coverPath = `in`.readString()
+    constructor(parcel: Parcel) {
+        title = parcel.readString()
+        filePath = parcel.readString()
+        date = parcel.readString()
+        sortLetters = parcel.readString()
+        type = parcel.readInt()
+        duration = parcel.readLong()
+        size = parcel.readFloat()
+        album = parcel.readString()
+        albumId = parcel.readInt()
+        artist = parcel.readString()
+        artistId = parcel.readInt()
+        coverPath = parcel.readString()
     }
 
     override fun describeContents(): Int {
@@ -48,8 +48,8 @@ class LocalMusic : LocalMedia, Parcelable {
     }
 
     companion object CREATOR : Parcelable.Creator<LocalMusic> {
-        override fun createFromParcel(`in`: Parcel): LocalMusic {
-            return LocalMusic(`in`)
+        override fun createFromParcel(parcel: Parcel): LocalMusic {
+            return LocalMusic(parcel)
         }
 
         override fun newArray(size: Int): Array<LocalMusic?> {

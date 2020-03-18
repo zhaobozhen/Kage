@@ -29,8 +29,9 @@ open class BaseActivity : AppCompatActivity() {
         super.onConfigurationChanged(newConfig)
 
         if (DeviceManager.isConnected) {
-            val command = DeviceRotationCommand()
-            command.flag = newConfig.orientation
+            val command = DeviceRotationCommand().apply {
+                flag = newConfig.orientation
+            }
             DeviceManager.sendCommandToCurrentDevice(command)
         }
     }

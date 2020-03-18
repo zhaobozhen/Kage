@@ -5,4 +5,5 @@ public interface OnChooseItemListener {
     void onStop();
     void onPreview();
     void onNext();
+    void onNotConnect();
 }

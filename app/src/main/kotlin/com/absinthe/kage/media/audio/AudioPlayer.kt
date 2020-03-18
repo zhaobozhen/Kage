@@ -2,10 +2,12 @@ package com.absinthe.kage.media.audio
 
 import android.content.Context
 import android.media.session.PlaybackState
-import android.os.*
+import android.os.Build
+import android.os.Bundle
+import android.os.PowerManager
 import android.os.PowerManager.WakeLock
-import com.absinthe.kage.KageApplication
 import com.absinthe.kage.media.*
+import com.blankj.utilcode.util.Utils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -32,7 +34,7 @@ object AudioPlayer: Observable(), Playback.Callback {
         private set
 
     init {
-        val pm = KageApplication.sContext.getSystemService(Context.POWER_SERVICE) as PowerManager
+        val pm = Utils.getApp().applicationContext.getSystemService(Context.POWER_SERVICE) as PowerManager
         mWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "AudioPlayer:WakeLock")
     }
 
@@ -52,7 +54,7 @@ object AudioPlayer: Observable(), Playback.Callback {
             mPlayback!!.stop(true)
         }
         if (type == TYPE_LOCAL) {
-            mPlayback = LocalAudioPlayback(KageApplication.sContext)
+            mPlayback = LocalAudioPlayback(Utils.getApp().applicationContext)
             (mPlayback as LocalAudioPlayback).setCallback(this)
         } else if (type == TYPE_REMOTE) {
             mPlayback = RemoteAudioPlayback()

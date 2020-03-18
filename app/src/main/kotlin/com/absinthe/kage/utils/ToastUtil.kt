@@ -2,7 +2,7 @@ package com.absinthe.kage.utils
 
 import android.widget.Toast
 import androidx.annotation.StringRes
-import com.absinthe.kage.KageApplication
+import com.blankj.utilcode.util.Utils
 
 object ToastUtil {
 
@@ -12,7 +12,7 @@ object ToastUtil {
      * @param text a string text
      */
     fun makeText(text: String) {
-        Toast.makeText(KageApplication.sContext, text, Toast.LENGTH_SHORT).show()
+        Toast.makeText(Utils.getApp().applicationContext, text, Toast.LENGTH_SHORT).show()
     }
 
     /**
@@ -22,6 +22,6 @@ object ToastUtil {
      */
     @JvmStatic
     fun makeText(@StringRes resId: Int) {
-        Toast.makeText(KageApplication.sContext, KageApplication.sContext.getText(resId), Toast.LENGTH_SHORT).show()
+        Toast.makeText(Utils.getApp().applicationContext, Utils.getApp().applicationContext.getText(resId), Toast.LENGTH_SHORT).show()
     }
 }

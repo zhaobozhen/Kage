@@ -34,5 +34,5 @@ object IpMessageConst {
     const val MEDIA_SET_PLAY_INDEX = 0x00000019
     const val MEDIA_RESUME_PLAY = 0x0000001A
     const val MEDIA_VIDEO_INFO = 0x0000001B //Get video info like URI etc.
-
+    const val KEY_EVENT = 0x0000001C //Send key event
 }

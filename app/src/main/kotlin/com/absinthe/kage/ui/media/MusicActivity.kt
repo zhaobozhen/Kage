@@ -8,6 +8,7 @@ import android.media.session.PlaybackState
 import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
+import android.view.KeyEvent
 import android.view.View
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
@@ -15,6 +16,7 @@ import android.widget.SeekBar
 import android.widget.SeekBar.OnSeekBarChangeListener
 import com.absinthe.kage.BaseActivity
 import com.absinthe.kage.R
+import com.absinthe.kage.connect.proxy.RemoteControlProxy
 import com.absinthe.kage.databinding.ActivityMusicBinding
 import com.absinthe.kage.device.DeviceManager
 import com.absinthe.kage.device.DeviceManager.isConnected
@@ -93,6 +95,22 @@ class MusicActivity : BaseActivity(), Observer {
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         processIntent(intent)
+    }
+
+    override fun dispatchKeyEvent(event: KeyEvent?): Boolean {
+        return when(event?.keyCode) {
+            KeyEvent.KEYCODE_VOLUME_UP -> {
+                RemoteControlProxy.sendVolumeUpKeyAction()
+                true
+            }
+            KeyEvent.KEYCODE_VOLUME_DOWN -> {
+                RemoteControlProxy.sendVolumeDownKeyAction()
+                true
+            }
+            else -> {
+                super.dispatchKeyEvent(event)
+            }
+        }
     }
 
     private fun processIntent(intent: Intent?) {

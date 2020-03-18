@@ -203,6 +203,10 @@ public abstract class BasePreviewActivity extends AppCompatActivity implements V
         } else if (v.getId() == R.id.button_apply) {
 //            sendBackResult(true);
 //            finish();
+            if (!mSpec.isConnect) {
+                mSpec.onChooseItemListener.onNotConnect();
+                return;
+            }
             if (!mIsCasting) {
                 if (mSpec.onChooseItemListener != null) {
                     Item item = mAdapter.getMediaItem(mPager.getCurrentItem());

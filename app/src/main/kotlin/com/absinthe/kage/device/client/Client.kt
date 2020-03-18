@@ -57,6 +57,7 @@ class Client(val context: Context,
                 IpMessageConst.MEDIA_RESUME_PLAY -> ResumePlayCommand().doWork(this, command)
                 IpMessageConst.MEDIA_SEEK_TO -> SeekToCommand().doWork(this, command)
                 IpMessageConst.MEDIA_VIDEO_INFO -> VideoInfoCommand().doWork(this, command)
+                IpMessageConst.KEY_EVENT -> RemoteControlKeyCommand().doWork(this, command)
             }
         }
     }

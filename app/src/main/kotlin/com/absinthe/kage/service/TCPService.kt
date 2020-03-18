@@ -15,13 +15,17 @@ import com.absinthe.kage.R
 import com.absinthe.kage.connect.protocol.Config
 import com.absinthe.kage.connect.proxy.AudioProxy
 import com.absinthe.kage.connect.proxy.ImageProxy
+import com.absinthe.kage.connect.proxy.RemoteControlProxy
 import com.absinthe.kage.connect.proxy.VideoProxy
 import com.absinthe.kage.device.DeviceManager
+import com.absinthe.kage.device.DeviceObserverImpl
 import com.absinthe.kage.device.client.Client
+import com.absinthe.kage.device.model.DeviceInfo
 import com.absinthe.kage.device.server.KageServer
 import com.absinthe.kage.ui.main.MainActivity
 import com.absinthe.kage.utils.NotificationUtils
 import com.absinthe.kage.utils.NotificationUtils.createTCPChannel
+import com.zhihu.matisse.internal.entity.SelectionSpec
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -33,6 +37,15 @@ import java.net.ServerSocket
 class TCPService : LifecycleService() {
 
     private lateinit var mServerSocket: ServerSocket
+    private val deviceObserver = object : DeviceObserverImpl() {
+        override fun onDeviceConnected(deviceInfo: DeviceInfo?) {
+            SelectionSpec.getInstance().isConnect = true
+        }
+
+        override fun onDeviceDisConnect(deviceInfo: DeviceInfo?) {
+            SelectionSpec.getInstance().isConnect = false
+        }
+    }
 
     override fun onCreate() {
         super.onCreate()
@@ -43,6 +56,7 @@ class TCPService : LifecycleService() {
         DeviceManager.scanPeriod = 2000
         DeviceManager.startMonitorDevice()
         lifecycle.addObserver(DeviceManager)
+        DeviceManager.register(deviceObserver)
 
         GlobalScope.launch(Dispatchers.IO) {
             try {
@@ -67,6 +81,11 @@ class TCPService : LifecycleService() {
         }
     }
 
+    override fun onDestroy() {
+        DeviceManager.unregister(deviceObserver)
+        super.onDestroy()
+    }
+
     private val notificationInstance: Notification
         get() {
             val notifyIntent = Intent(this, MainActivity::class.java)
@@ -88,6 +107,7 @@ class TCPService : LifecycleService() {
         deviceManager.addProxy(ImageProxy)
         deviceManager.addProxy(AudioProxy)
         deviceManager.addProxy(VideoProxy)
+        deviceManager.addProxy(RemoteControlProxy)
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
@@ -95,6 +115,7 @@ class TCPService : LifecycleService() {
         deviceManager.removeProxy(ImageProxy)
         deviceManager.removeProxy(AudioProxy)
         deviceManager.removeProxy(VideoProxy)
+        deviceManager.removeProxy(RemoteControlProxy)
     }
 
     companion object {

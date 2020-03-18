@@ -7,7 +7,6 @@ import com.absinthe.kage.BaseActivity
 import com.absinthe.kage.R
 import com.absinthe.kage.connect.proxy.ImageProxy
 import com.absinthe.kage.databinding.ActivitySenderBinding
-import com.absinthe.kage.device.DeviceManager
 import com.absinthe.kage.media.LocalMedia
 import com.absinthe.kage.media.TYPE_VIDEO
 import com.absinthe.kage.ui.connect.ConnectActivity
@@ -32,6 +31,7 @@ class SenderActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
         mBinding = ActivitySenderBinding.inflate(layoutInflater)
         setContentView(mBinding.root)
+
         initView()
     }
 
@@ -44,22 +44,17 @@ class SenderActivity : BaseActivity() {
         mImageListener = object : OnChooseItemListener {
 
             override fun onChoose(itemUri: String) {
-                if (DeviceManager.isConnected) {
-                    ImageProxy.cast(itemUri)
-                } else {
-                    startActivity(Intent(this@SenderActivity, ConnectActivity::class.java))
-                    finish()
-                }
+                ImageProxy.cast(itemUri)
             }
 
             override fun onStop() {
-                if (DeviceManager.isConnected) {
-                    ImageProxy.stop()
-                    ImageProxy.close()
-                } else {
-                    startActivity(Intent(this@SenderActivity, ConnectActivity::class.java))
-                    finish()
-                }
+                ImageProxy.stop()
+                ImageProxy.close()
+            }
+
+            override fun onNotConnect() {
+                startActivity(Intent(this@SenderActivity, ConnectActivity::class.java))
+                finish()
             }
 
             override fun onPreview() {
