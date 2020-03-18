@@ -16,4 +16,6 @@
     <dimen name="category_card_corner_radius">3dp</dimen>
     <dimen name="category_card_margin">5dp</dimen>
     <dimen name="category_title_margin">20dp</dimen>
+
+    <dimen name="main_card_icon_size">45dp</dimen>
 </resources>

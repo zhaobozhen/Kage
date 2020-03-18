@@ -41,6 +41,8 @@ class SenderActivity : BaseActivity() {
     }
 
     private fun initView() {
+        setSupportActionBar(mBinding.toolbar)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
         mImageListener = object : OnChooseItemListener {
 
             override fun onChoose(itemUri: String) {

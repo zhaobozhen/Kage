@@ -6,50 +6,29 @@
     android:layout_height="match_parent"
     android:background="@color/backgroundNormal">
 
-    <com.google.android.material.card.MaterialCardView
-        android:layout_width="wrap_content"
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/appbar"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        app:cardCornerRadius="15dp"
-        app:cardElevation="3dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="@color/backgroundNormal"
+            app:titleTextColor="@color/textNormal" />
 
-            <TextView
-                android:id="@+id/btn_send"
-                android:layout_width="120dp"
-                android:layout_height="80dp"
-                android:background="@drawable/bg_btn_send"
-                android:clickable="true"
-                android:focusable="true"
-                android:gravity="center"
-                android:text="@string/sender_label"
-                android:textAppearance="?attr/textAppearanceHeadline6"
-                android:textColor="@color/white"
-                android:textStyle="bold" />
+    </com.google.android.material.appbar.AppBarLayout>
 
-            <TextView
-                android:id="@+id/btn_connect"
-                android:layout_width="120dp"
-                android:layout_height="80dp"
-                android:background="@drawable/bg_btn_connect"
-                android:clickable="true"
-                android:focusable="true"
-                android:gravity="center"
-                android:text="@string/connect_label"
-                android:textAppearance="?attr/textAppearanceHeadline6"
-                android:textColor="@color/white"
-                android:textStyle="bold" />
-
-        </LinearLayout>
-
-    </com.google.android.material.card.MaterialCardView>
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerview"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:overScrollMode="never"
+        android:paddingHorizontal="10dp"
+        android:paddingTop="10dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/appbar" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

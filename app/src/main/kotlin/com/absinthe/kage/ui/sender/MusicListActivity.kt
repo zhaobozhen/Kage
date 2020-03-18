@@ -33,6 +33,9 @@ class MusicListActivity : BaseActivity() {
     }
 
     private fun initView() {
+        setSupportActionBar(mBinding.toolbar)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+
         mBinding.rvMusicList.adapter = mAdapter
         mBinding.rvMusicList.layoutManager = LinearLayoutManager(this)
         mAdapter.setOnItemClickListener { adapter: BaseQuickAdapter<*, *>, _: View?, position: Int ->

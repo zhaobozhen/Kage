@@ -20,6 +20,9 @@ class CategoryCardView : MaterialCardView {
         findViewById<ImageView>(R.id.image)?.setImageResource(a.getResourceId(R.styleable.CategoryCardView_categoryImage, 0))
 
         a.recycle()
+
+        isClickable = true
+        isFocusable = true
     }
 
 }

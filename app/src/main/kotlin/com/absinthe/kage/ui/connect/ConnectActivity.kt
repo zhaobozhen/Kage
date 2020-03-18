@@ -51,6 +51,8 @@ class ConnectActivity : BaseActivity() {
     }
 
     private fun initView() {
+        setSupportActionBar(mBinding.toolbar)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
         mBinding.vfContainer.setInAnimation(this, R.anim.anim_fade_in)
         mBinding.vfContainer.setOutAnimation(this, R.anim.anim_fade_out)
 

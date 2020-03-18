@@ -22,6 +22,7 @@ import android.database.Cursor;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -99,6 +100,13 @@ public class MatisseActivity extends AppCompatActivity implements
         mSpec = SelectionSpec.getInstance();
         setTheme(mSpec.themeId);
         UIUtils.setTransparentNavBar(this);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            View view = getWindow().getDecorView();
+            int flags = view.getSystemUiVisibility();
+            flags &= ~View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR;
+            view.setSystemUiVisibility(flags);
+        }
+
         super.onCreate(savedInstanceState);
         if (!mSpec.hasInited) {
             setResult(RESULT_CANCELED);

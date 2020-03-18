@@ -10,10 +10,16 @@
     <color name="black">#FF000000</color>
     <color name="gray">#FF888888</color>
     <color name="lightGray">#FFBBBBBB</color>
-    <color name="blue">#FF03A9F4</color>
+    <color name="blue">#FF81D4FA</color>
+    <color name="green">#FF99D48D</color>
+    <color name="yellow">#FFFFDFA6</color>
     <color name="ripple">#FFBBBBBB</color>
+
+    <color name="cardBorder">#FFDDDDDD</color>
+    <color name="grayText">#FF737373</color>
 
     <color name="aboutHeader">#FFFFC107</color>
     <color name="musicRouletteBorder">#FF232323</color>
     <color name="videoPlayerBackground">#4C000000</color>
+
 </resources>

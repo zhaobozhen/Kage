@@ -48,8 +48,7 @@
             android:name=".ui.receiver.ReceiverActivity"
             android:configChanges="orientation|screenSize"
             android:label="@string/receiver_label"
-            android:launchMode="singleTask"
-            android:theme="@style/AppTheme.NoActionBar" />
+            android:launchMode="singleTask" />
         <activity
             android:name=".ui.sender.SenderActivity"
             android:configChanges="orientation|screenSize"
@@ -62,8 +61,7 @@
         <activity
             android:name=".ui.media.MusicActivity"
             android:configChanges="orientation|screenSize"
-            android:launchMode="singleTask"
-            android:theme="@style/AppTheme.NoActionBar" />
+            android:launchMode="singleTask" />
         <activity
             android:name=".ui.sender.MusicListActivity"
             android:configChanges="orientation|screenSize"
@@ -72,8 +70,7 @@
         <activity
             android:name=".ui.media.VideoActivity"
             android:configChanges="orientation|screenSize"
-            android:launchMode="singleTask"
-            android:theme="@style/AppTheme.NoActionBar" />
+            android:launchMode="singleTask" />
 
         <uses-library
             android:name="org.apache.http.legacy"
