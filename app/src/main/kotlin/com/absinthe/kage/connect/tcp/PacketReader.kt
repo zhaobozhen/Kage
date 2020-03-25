@@ -24,6 +24,7 @@ class PacketReader(private val mIn: DataInputStream?, private val mSocketCallbac
 
     init {
         ReceiveDataThread().start()
+
         GlobalScope.launch(Dispatchers.IO) {
             try {
                 while (!shutdown) {
@@ -90,10 +91,10 @@ class PacketReader(private val mIn: DataInputStream?, private val mSocketCallbac
                         Timber.d("Receive Data: $data")
 
                         mExecutorService.submit {
-                            val packet = Packet()
-                            packet.data = data
                             try {
-                                mPackets.put(packet)
+                                mPackets.put(Packet().apply {
+                                    this.data = data
+                                })
                             } catch (e: InterruptedException) {
                                 e.printStackTrace()
                             }
@@ -136,7 +137,7 @@ class PacketReader(private val mIn: DataInputStream?, private val mSocketCallbac
                 iterator.remove()
                 mExecutorService.submit {
                     val response = Response()
-                    next.value!!.setResponse(response)
+                    next.value?.setResponse(response)
                 }
             }
         }
@@ -152,9 +153,11 @@ class PacketReader(private val mIn: DataInputStream?, private val mSocketCallbac
             Timber.d("readNextPacket IO: ${e.message}")
             return null
         }
+
         require(receiveLength < MAX_READ_LENGTH) { "receiveLength too big, receiveLength = $receiveLength" }
         val bArray = ByteArray(receiveLength)
         var bytesRead = 0
+
         while (bytesRead < receiveLength) {
             bytesRead += try {
                 val result = dis.read(bArray, bytesRead, receiveLength - bytesRead)

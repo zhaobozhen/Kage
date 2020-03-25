@@ -14,12 +14,10 @@ object RemoteControlProxy : BaseProxy() {
     }
 
     private fun sendKeyAction(key: Int) {
-        if (mDevice == null || !mDevice!!.isConnected) {
-            return
+        mDevice?.let {
+            it.sendCommand(RemoteControlKeyCommand().apply {
+                keyCode = key
+            })
         }
-        val controlKeyCmd = RemoteControlKeyCommand().apply {
-            keyCode = key
-        }
-        mDevice?.sendCommand(controlKeyCmd)
     }
 }

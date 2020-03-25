@@ -32,23 +32,17 @@ class Device(config: DeviceConfig, protocolVersionString: String?) {
             override fun onProtocolConnected() {
                 Timber.d("onProtocolConnected")
                 deviceInfo.isConnected = true
-                if (null != mConnectCallback) {
-                    mConnectCallback!!.onConnected()
-                }
+                mConnectCallback?.onConnected()
             }
 
             override fun onProtocolDisConnect() {
                 deviceInfo.isConnected = false
-                if (null != mConnectCallback) {
-                    mConnectCallback!!.onDisConnect()
-                }
+                mConnectCallback?.onDisConnect()
             }
 
             override fun onProtocolConnectedFailed(errorCode: Int, e: Exception?) {
                 deviceInfo.isConnected = false
-                if (null != mConnectCallback) {
-                    mConnectCallback!!.onConnectedFailed(errorCode, e)
-                }
+                mConnectCallback?.onConnectedFailed(errorCode, e)
             }
 
             override fun onProtocolSendOrReceiveError() {
@@ -160,9 +154,9 @@ class Device(config: DeviceConfig, protocolVersionString: String?) {
     }
 
     private fun sendMessage(data: String) {
-        val packet = Packet()
-        packet.data = data
-        mSocket.send(packet)
+        mSocket.send(Packet().apply {
+            this.data = data
+        })
     }
 
     val isConnected: Boolean

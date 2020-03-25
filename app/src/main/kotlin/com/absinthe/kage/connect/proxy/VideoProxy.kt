@@ -30,67 +30,6 @@ object VideoProxy : BaseProxy() {
         }
     }
 
-    fun play(videoInfo: VideoInfo) {
-        if (videoInfo.url != null && mDevice != null && mDevice!!.isConnected) {
-            mDevice!!.unregisterOnReceiveMsgListener(mOnReceiveMsgListener)
-            cancelInquiryPlayState()
-            cancelInquiryCurrentPosition()
-            resetCurrentPlayInfo()
-            mDevice!!.registerOnReceiveMsgListener(mOnReceiveMsgListener)
-
-            val stopCmd = StopCommand()
-            mDevice!!.sendCommand(stopCmd)
-
-            val preparePlayCmd = MediaPreparePlayCommand().apply {
-                type = MediaPreparePlayCommand.TYPE_VIDEO
-            }
-            mDevice!!.sendCommand(preparePlayCmd)
-
-            val videoInfoCommand = VideoInfoCommand().apply {
-                title = videoInfo.title
-                url = videoInfo.url
-            }
-            mDevice!!.sendCommand(videoInfoCommand)
-
-            scheduleInquiryPlayState()
-        }
-    }
-
-    fun start() {
-        if (mPlayInfo.currentPlayState == PlayingStatus.PAUSED_PLAYBACK.status && mDevice!!.isConnected) {
-            val videoInfoCommand = VideoInfoCommand()
-            mDevice!!.sendCommand(videoInfoCommand)
-        }
-    }
-
-    fun pause() {
-        if (mPlayInfo.currentPlayState == PlayingStatus.PLAYING.status && mDevice!!.isConnected) {
-            val pauseCmd = MediaPausePlayingCommand()
-            mDevice!!.sendCommand(pauseCmd)
-        }
-    }
-
-    fun stop() {
-        if (null != mDevice && mDevice!!.isConnected) {
-            val stopCmd = StopCommand()
-            mDevice!!.sendCommand(stopCmd)
-        }
-    }
-
-    fun seekTo(position: Int) {
-        if (null != mDevice && mDevice!!.isConnected) {
-            val seekToCmd = SeekToCommand().apply {
-                this.position = position
-            }
-            mDevice!!.sendCommand(seekToCmd)
-            mPlayInfo.position = position
-        }
-    }
-
-    fun setOnPlayListener(onPlayListener: OnPlayListener?) {
-        mOnPlayListener = onPlayListener
-    }
-
     val playState: Int
         get() {
             return mPlayInfo.currentPlayState
@@ -102,10 +41,73 @@ object VideoProxy : BaseProxy() {
     val currentPosition: Int
         get() = mPlayInfo.position
 
-    fun recycle() {
-        if (mDevice != null) {
-            mDevice!!.unregisterOnReceiveMsgListener(mOnReceiveMsgListener)
+    private val isPlayerWorking: Boolean
+        get() = (mPlayInfo.currentPlayState == PlayStatue.PLAYING || mPlayInfo.currentPlayState == PlayStatue.PAUSED)
+
+    fun play(videoInfo: VideoInfo) {
+        mDevice?.let {
+            if (it.isConnected && videoInfo.url != null) {
+                it.unregisterOnReceiveMsgListener(mOnReceiveMsgListener)
+                cancelInquiryPlayState()
+                cancelInquiryCurrentPosition()
+                resetCurrentPlayInfo()
+                it.registerOnReceiveMsgListener(mOnReceiveMsgListener)
+
+                it.sendCommand(StopCommand())
+                it.sendCommand(MediaPreparePlayCommand().apply {
+                    type = MediaPreparePlayCommand.TYPE_VIDEO
+                })
+                it.sendCommand(VideoInfoCommand().apply {
+                    title = videoInfo.title
+                    url = videoInfo.url
+                })
+
+                scheduleInquiryPlayState()
+            }
         }
+    }
+
+    fun start() {
+        mDevice?.let {
+            if (it.isConnected && mPlayInfo.currentPlayState == PlayingStatus.PAUSED_PLAYBACK.status) {
+                it.sendCommand(VideoInfoCommand())
+            }
+        }
+    }
+
+    fun pause() {
+        mDevice?.let {
+            if (it.isConnected && mPlayInfo.currentPlayState == PlayingStatus.PLAYING.status) {
+                it.sendCommand(MediaPausePlayingCommand())
+            }
+        }
+    }
+
+    fun stop() {
+        mDevice?.let {
+            if (it.isConnected) {
+                it.sendCommand(StopCommand())
+            }
+        }
+    }
+
+    fun seekTo(position: Int) {
+        mDevice?.let {
+            if (it.isConnected) {
+                it.sendCommand(SeekToCommand().apply {
+                    this.position = position
+                })
+                mPlayInfo.position = position
+            }
+        }
+    }
+
+    fun setOnPlayListener(onPlayListener: OnPlayListener?) {
+        mOnPlayListener = onPlayListener
+    }
+
+    fun recycle() {
+        mDevice?.unregisterOnReceiveMsgListener(mOnReceiveMsgListener)
         cancelInquiryCurrentPosition()
         cancelInquiryPlayState()
     }
@@ -170,16 +172,11 @@ object VideoProxy : BaseProxy() {
                     mPlayInfo.currentPlayState = newState
                     notifyOnPlayStateChanged(oldState, newState)
                 }
-                else -> {
-                }
             }
         } catch (e: Exception) {
             Timber.e("Protocol invalid: %s", e.message)
         }
     }
-
-    private val isPlayerWorking: Boolean
-        get() = (mPlayInfo.currentPlayState == PlayStatue.PLAYING || mPlayInfo.currentPlayState == PlayStatue.PAUSED)
 
     private fun onPlayStopped() {
         resetCurrentPlayInfo()
@@ -220,8 +217,7 @@ object VideoProxy : BaseProxy() {
     }
 
     private fun inquiryDuration() {
-        val inquiryDurationCmd = InquiryDurationCommand()
-        mDevice!!.sendCommand(inquiryDurationCmd)
+        mDevice?.sendCommand(InquiryDurationCommand())
     }
 
     private fun scheduleInquiryCurrentPosition() {
@@ -244,8 +240,8 @@ object VideoProxy : BaseProxy() {
         private var mUpdatePeriod = 2000
         private var mInquiryPeriod = 4000
         private var mNoInquiryMills = 0
-        private val mPlayInfo: PlayInfo?
 
+        private val mPlayInfo: PlayInfo?
         private val inquiryCurrentPositionCmd = InquiryPlayingPositionCommand()
 
         override fun run() {
@@ -275,6 +271,7 @@ object VideoProxy : BaseProxy() {
                     notifyOnCurrentPositionChanged(mPlayInfo.duration, mPlayInfo.position)
                 }
                 mNoInquiryMills += updatePeriodMillis
+
                 try {
                     sleep(updatePeriodMillis.toLong())
                 } catch (e: InterruptedException) {
@@ -303,11 +300,9 @@ object VideoProxy : BaseProxy() {
                 if (mDevice == null || !mDevice.isConnected) {
                     break
                 }
-                val inquiryPlayStateCmd = InquiryPlayStateCommand()
-                mDevice.sendCommand(inquiryPlayStateCmd)
 
-                val inquiryPlayerStatusCmd = InquiryPlayerStatusCommand()
-                mDevice.sendCommand(inquiryPlayerStatusCmd)
+                mDevice.sendCommand(InquiryPlayStateCommand())
+                mDevice.sendCommand(InquiryPlayerStatusCommand())
 
                 try {
                     sleep(period.toLong())
@@ -365,12 +360,10 @@ object VideoProxy : BaseProxy() {
     }
 
     override fun onDeviceConnected(device: Device) {
-        if (mDevice != device) {
-            mDevice?.unregisterOnReceiveMsgListener(mOnReceiveMsgListener)
-            cancelInquiryPlayState()
-            cancelInquiryCurrentPosition()
-            mDevice = device
-        }
+        mDevice?.unregisterOnReceiveMsgListener(mOnReceiveMsgListener)
+        cancelInquiryPlayState()
+        cancelInquiryCurrentPosition()
+        mDevice = device
     }
 
     override fun onDeviceDisconnected(device: Device) {

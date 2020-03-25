@@ -44,20 +44,24 @@ class UDP(private val mLocalIpAddress: String, monitorPort: Int) {
         synchronized(UDP::class.java) {
             mReceivePacketThread?.isStop = true
             mReceivePacketThread = null
-            if (mDatagramSocket != null && !mDatagramSocket!!.isClosed) {
-                mDatagramSocket?.close()
+
+            mDatagramSocket?.let {
+                if (!it.isClosed) {
+                    it.close()
+                }
             }
         }
     }
 
     fun startReceive(callback: IUDPCallback?) {
         synchronized(UDP::class.java) {
-            mReceivePacketThread?.isStop = true
-            mReceivePacketThread?.interrupt()
-
-            mReceivePacketThread = ReceivePacketThread(mDatagramSocket, mLocalIpAddress).apply {
-                this.callback = callback
-                start()
+            mReceivePacketThread?.apply {
+                isStop = true
+                interrupt()
+                mReceivePacketThread = ReceivePacketThread(mDatagramSocket, mLocalIpAddress).apply {
+                    this.callback = callback
+                    start()
+                }
             }
         }
     }
@@ -101,7 +105,8 @@ class UDP(private val mLocalIpAddress: String, monitorPort: Int) {
 
                 val ip = address.hostAddress
                 val port = packet.port
-                if (mLocalIpAddress != ip && Const.LOCAL_IP_IN_AP != ip && callback != null) {
+
+                if (mLocalIpAddress != ip && Const.LOCAL_IP_IN_AP != ip) {
                     callback?.onReceive(ip, port, dataStr)
                 }
                 packet.length = buffLen

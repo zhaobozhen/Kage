@@ -40,6 +40,7 @@ object ImageProxy : BaseProxy() {
                 IpMessageConst.MEDIA_SET_PLAYER_STATUS -> {
                     val playerState: Int = PlayerStatus.valueOf(split[1]).status
                     val playOldState = mPlayInfo.playState
+
                     if (playerState == playOldState) {
                         return
                     }
@@ -88,39 +89,37 @@ object ImageProxy : BaseProxy() {
         }
     }
 
-    private fun onPlayExit() {}
     fun close() {
         mDevice?.unregisterOnReceiveMsgListener(mOnReceiveMsgListener)
-
     }
 
     fun cast(url: String, needStop: Boolean = false) {
-        if (mDevice!!.isConnected) {
-            mPlayInfo.playState = PlayStatue.TRANSITIONING
-            mDevice!!.registerOnReceiveMsgListener(mOnReceiveMsgListener)
-            if (needStop) {
-                val stopCmd = StopCommand()
-                mDevice!!.sendCommand(stopCmd)
-            }
+        mDevice?.let {
+            if (it.isConnected) {
+                mPlayInfo.playState = PlayStatue.TRANSITIONING
+                it.registerOnReceiveMsgListener(mOnReceiveMsgListener)
+                if (needStop) {
+                    it.sendCommand(StopCommand())
+                }
 
-            val preparePlayCommand = MediaPreparePlayCommand().apply {
-                type = MediaPreparePlayCommand.TYPE_IMAGE
-            }
-            mDevice!!.sendCommand(preparePlayCommand)
+                it.sendCommand(MediaPreparePlayCommand().apply {
+                    type = MediaPreparePlayCommand.TYPE_IMAGE
+                })
 
-            val imageInfoCommand = ImageInfoCommand().apply {
-                info = url
-            }
-            mDevice!!.sendCommand(imageInfoCommand)
+                it.sendCommand(ImageInfoCommand().apply {
+                    info = url
+                })
 
-            scheduleInquiryPlayState()
+                scheduleInquiryPlayState()
+            }
         }
     }
 
     fun stop() {
-        if (mDevice!!.isConnected) {
-            val stopCmd = StopCommand()
-            mDevice!!.sendCommand(stopCmd)
+        mDevice?.let {
+            if (it.isConnected) {
+                it.sendCommand(StopCommand())
+            }
         }
     }
 
@@ -130,10 +129,13 @@ object ImageProxy : BaseProxy() {
 
     private fun scheduleInquiryPlayState() {
         cancelInquiryPlayState()
-        mInquiryPlayStateThread = InquiryPlayStateThread(mDevice)
-        mInquiryPlayStateThread!!.setPeriod(1000)
-        mInquiryPlayStateThread!!.start()
+        mInquiryPlayStateThread = InquiryPlayStateThread(mDevice).apply {
+            setPeriod(1000)
+            start()
+        }
     }
+
+    private fun onPlayExit() {}
 
     private fun cancelInquiryPlayState() {
         mInquiryPlayStateThread?.interrupt()
@@ -206,8 +208,8 @@ object ImageProxy : BaseProxy() {
     }
 
     override fun onDeviceConnected(device: Device) {
-        if (mDevice != device) {
-            mDevice?.unregisterOnReceiveMsgListener(mOnReceiveMsgListener)
+        mDevice?.let {
+            it.unregisterOnReceiveMsgListener(mOnReceiveMsgListener)
             cancelInquiryPlayState()
             mDevice = device
         }

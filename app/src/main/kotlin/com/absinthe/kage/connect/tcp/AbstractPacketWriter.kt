@@ -50,10 +50,12 @@ open class AbstractPacketWriter(out: DataOutputStream, socketCallback: ISocketCa
         val bArray = data!!.toByteArray(StandardCharsets.UTF_8)
         val sendLen = bArray.size
 
-        dos.writeInt(sendLen)
-        dos.flush()
-        dos.write(bArray, 0, sendLen)
-        dos.flush()
+        dos.apply {
+            writeInt(sendLen)
+            flush()
+            write(bArray, 0, sendLen)
+            flush()
+        }
     }
 
     override fun writePacket(packet: Packet) {

@@ -32,65 +32,69 @@ object AudioProxy : BaseProxy() {
         }
     }
 
-    fun play(audioInfo: AudioInfo?) {
-        if (mDevice!!.isConnected && audioInfo?.url != null) {
-            mDevice!!.unregisterOnReceiveMsgListener(mOnReceiveMsgListener)
-            cancelInquiryPlayState()
-            cancelInquiryCurrentPosition()
-            cancelInquiryDuration()
-            resetCurrentPlayInfo()
-            mDevice!!.registerOnReceiveMsgListener(mOnReceiveMsgListener)
+    fun play(audioInfo: AudioInfo) {
+        mDevice?.let {
+            if (it.isConnected && audioInfo.url != null) {
+                it.unregisterOnReceiveMsgListener(mOnReceiveMsgListener)
+                cancelAllInquiry()
+                it.registerOnReceiveMsgListener(mOnReceiveMsgListener)
 
-            val stopCmd = StopCommand()
-            mDevice!!.sendCommand(stopCmd)
+                val stopCmd = StopCommand()
+                it.sendCommand(stopCmd)
 
-            val preparePlayCmd = MediaPreparePlayCommand().apply {
-                type = MediaPreparePlayCommand.TYPE_MUSIC
+                val preparePlayCmd = MediaPreparePlayCommand().apply {
+                    type = MediaPreparePlayCommand.TYPE_MUSIC
+                }
+                it.sendCommand(preparePlayCmd)
+
+                val audioInfoCommand = AudioInfoCommand().apply {
+                    url = audioInfo.url
+                    name = audioInfo.name
+                    artist = audioInfo.artist
+                    album = audioInfo.album
+                    coverPath = audioInfo.coverPath
+                }
+                it.sendCommand(audioInfoCommand)
+
+                mPlayInfo.isPlayListMode = false
+                scheduleInquiryPlayState()
             }
-            mDevice!!.sendCommand(preparePlayCmd)
-
-            val audioInfoCommand = AudioInfoCommand().apply {
-                url = audioInfo.url
-                name = audioInfo.name
-                artist = audioInfo.artist
-                album = audioInfo.album
-                coverPath = audioInfo.coverPath
-            }
-            mDevice!!.sendCommand(audioInfoCommand)
-
-            mPlayInfo.isPlayListMode = false
-            scheduleInquiryPlayState()
         }
     }
 
     fun start() {
-        if (mPlayInfo.playState == PlayingStatus.PAUSED_PLAYBACK.status && mDevice!!.isConnected) {
-            val resumePlayCommand = ResumePlayCommand()
-            mDevice!!.sendCommand(resumePlayCommand)
+        mDevice?.let {
+            if (it.isConnected && mPlayInfo.playState == PlayingStatus.PAUSED_PLAYBACK.status) {
+                it.sendCommand(ResumePlayCommand())
+            }
         }
     }
 
     fun pause() {
-        if (mPlayInfo.playState == PlayingStatus.PLAYING.status && mDevice!!.isConnected) {
-            val pauseCmd = MediaPausePlayingCommand()
-            mDevice!!.sendCommand(pauseCmd)
+        mDevice?.let {
+            if (it.isConnected && mPlayInfo.playState == PlayingStatus.PLAYING.status) {
+                it.sendCommand(MediaPausePlayingCommand())
+            }
         }
     }
 
     fun stop() {
-        if (mDevice!!.isConnected) {
-            val stopCmd = StopCommand()
-            mDevice!!.sendCommand(stopCmd)
+        mDevice?.let {
+            if (it.isConnected) {
+                it.sendCommand(StopCommand())
+            }
         }
+
     }
 
     fun seekTo(position: Int) {
-        if (mPlayInfo.playState != PlayingStatus.STOPPED.status && mDevice != null && mDevice!!.isConnected) {
-            val seekToCmd = SeekToCommand().apply {
-                this.position = position
+        mDevice?.let {
+            if (it.isConnected && mPlayInfo.playState != PlayingStatus.STOPPED.status) {
+                it.sendCommand(SeekToCommand().apply {
+                    this.position = position
+                })
+                mPlayInfo.position = position
             }
-            mDevice?.sendCommand(seekToCmd)
-            mPlayInfo.position = position
         }
     }
 
@@ -112,98 +116,89 @@ object AudioProxy : BaseProxy() {
 
     fun recycle() {
         mDevice?.unregisterOnReceiveMsgListener(mOnReceiveMsgListener)
-        cancelInquiryCurrentPosition()
-        cancelInquiryDuration()
-        cancelInquiryPlayState()
+        cancelAllInquiry()
     }
 
     fun playPrevious() {
-        if (null != mDevice && mDevice!!.isConnected) {
-            if (!mPlayInfo.isPlayListMode) {
-                return
-            }
-            mDevice!!.unregisterOnReceiveMsgListener(mOnReceiveMsgListener)
-            cancelInquiryPlayState()
-            cancelInquiryCurrentPosition()
-            cancelInquiryDuration()
-            resetCurrentPlayInfo()
-            mDevice!!.registerOnReceiveMsgListener(mOnReceiveMsgListener)
+        mDevice?.let {
+            if (it.isConnected) {
+                if (!mPlayInfo.isPlayListMode) {
+                    return
+                }
+                it.unregisterOnReceiveMsgListener(mOnReceiveMsgListener)
+                cancelAllInquiry()
+                it.registerOnReceiveMsgListener(mOnReceiveMsgListener)
 
-            val playPreCmd = PlayPreviousCommand()
-            mDevice!!.sendCommand(playPreCmd)
-            scheduleInquiryPlayState()
+                it.sendCommand(PlayPreviousCommand())
+                scheduleInquiryPlayState()
+            }
         }
     }
 
     fun playNext() {
-        if (null != mDevice && mDevice!!.isConnected) {
-            if (!mPlayInfo.isPlayListMode) {
-                return
-            }
-            mDevice!!.unregisterOnReceiveMsgListener(mOnReceiveMsgListener)
-            cancelInquiryPlayState()
-            cancelInquiryCurrentPosition()
-            cancelInquiryDuration()
-            resetCurrentPlayInfo()
-            mDevice!!.registerOnReceiveMsgListener(mOnReceiveMsgListener)
+        mDevice?.let {
+            if (it.isConnected) {
+                if (!mPlayInfo.isPlayListMode) {
+                    return
+                }
+                it.unregisterOnReceiveMsgListener(mOnReceiveMsgListener)
+                cancelAllInquiry()
+                it.registerOnReceiveMsgListener(mOnReceiveMsgListener)
 
-            val playNextCmd = PlayNextCommand()
-            mDevice!!.sendCommand(playNextCmd)
-            scheduleInquiryPlayState()
+                it.sendCommand(PlayNextCommand())
+                scheduleInquiryPlayState()
+            }
         }
     }
 
     fun playList(index: Int, list: List<AudioInfo?>?) {
-        if (null != mDevice && mDevice!!.isConnected && null != list && list.isNotEmpty()) {
-            mDevice!!.unregisterOnReceiveMsgListener(mOnReceiveMsgListener)
-            cancelInquiryPlayState()
-            cancelInquiryCurrentPosition()
-            cancelInquiryDuration()
-            resetCurrentPlayInfo()
-            mDevice!!.registerOnReceiveMsgListener(mOnReceiveMsgListener)
+        mDevice?.let {
+            if (it.isConnected && list != null && list.isNotEmpty()) {
+                it.unregisterOnReceiveMsgListener(mOnReceiveMsgListener)
+                cancelAllInquiry()
+                it.registerOnReceiveMsgListener(mOnReceiveMsgListener)
 
-            val stopCmd = StopCommand()
-            mDevice!!.sendCommand(stopCmd)
+                it.sendCommand(StopCommand())
 
-            val preparePlayCmd = MediaPreparePlayCommand().apply {
-                type = MediaPreparePlayCommand.TYPE_MUSIC
+                it.sendCommand(MediaPreparePlayCommand().apply {
+                    type = MediaPreparePlayCommand.TYPE_MUSIC
+                })
+
+                it.sendCommand(PlayAudioListCommand().apply {
+                    this.index = index
+                    this.size = list.size
+                    this.listInfo = Gson().toJson(list)
+                })
+
+                mPlayInfo.isPlayListMode = true
+                scheduleInquiryPlayState()
             }
-            mDevice!!.sendCommand(preparePlayCmd)
-
-            val playListCmd = PlayAudioListCommand().apply {
-                this.index = index
-                this.size = list.size
-                this.listInfo = Gson().toJson(list)
-            }
-            mDevice!!.sendCommand(playListCmd)
-
-            mPlayInfo.isPlayListMode = true
-            scheduleInquiryPlayState()
         }
     }
 
     fun setPlayAudioMode(mode: Int) {
-        if (null != mDevice && mDevice!!.isConnected) {
-            val setAudioModeCmd = SetAudioModeCommand().apply {
-                this.mode = mode
+        mDevice?.let {
+            if (it.isConnected) {
+                it.sendCommand(SetAudioModeCommand().apply {
+                    this.mode = mode
+                })
             }
-            mDevice!!.sendCommand(setAudioModeCmd)
         }
+
     }
 
     fun setPlayIndex(index: Int) {
-        if (null != mDevice && mDevice!!.isConnected) {
-            if (!mPlayInfo.isPlayListMode) {
-                return
+        mDevice?.let {
+            if (it.isConnected) {
+                if (!mPlayInfo.isPlayListMode || index < 0) {
+                    return
+                }
+
+                it.sendCommand(SetPlayIndexCommand().apply {
+                    this.index = index
+                })
+                resetCurrentPlayInfo()
             }
-            if (index < 0) {
-                return
-            }
-            val setPlayIndexCommand = SetPlayIndexCommand().apply {
-                this.index = index
-            }
-            mDevice!!.sendCommand(setPlayIndexCommand)
-            resetCurrentPlayInfo()
         }
     }
 
@@ -356,8 +351,7 @@ object AudioProxy : BaseProxy() {
     }
 
     private fun inquiryDuration() {
-        val inquiryDurationCmd = InquiryDurationCommand()
-        mDevice!!.sendCommand(inquiryDurationCmd)
+        mDevice?.sendCommand(InquiryDurationCommand())
     }
 
     private fun scheduleInquiryCurrentPosition() {
@@ -371,6 +365,13 @@ object AudioProxy : BaseProxy() {
     private fun cancelInquiryCurrentPosition() {
         mInquiryCurrentPositionThread?.interrupt()
         mInquiryCurrentPositionThread = null
+    }
+
+    private fun cancelAllInquiry() {
+        cancelInquiryPlayState()
+        cancelInquiryCurrentPosition()
+        cancelInquiryDuration()
+        resetCurrentPlayInfo()
     }
 
     private class InquiryCurrentPositionThread internal constructor(
@@ -425,11 +426,9 @@ object AudioProxy : BaseProxy() {
                 if (isInterrupted || mDevice == null || !mDevice.isConnected) {
                     break
                 }
-                val inquiryPlayStateCmd = InquiryPlayStateCommand()
-                mDevice.sendCommand(inquiryPlayStateCmd)
 
-                val inquiryPlayStatusCmd = InquiryPlayerStatusCommand()
-                mDevice.sendCommand(inquiryPlayStatusCmd)
+                mDevice.sendCommand(InquiryPlayStateCommand())
+                mDevice.sendCommand(InquiryPlayerStatusCommand())
 
                 try {
                     sleep(period.toLong())

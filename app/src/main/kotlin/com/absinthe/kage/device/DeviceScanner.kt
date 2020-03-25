@@ -83,13 +83,13 @@ class DeviceScanner {
                     }
                     IpMessageConst.IP_MSG_ANS_ENTRY -> {
                         if (device == null) {
-                            val protocolVersion = ipMessage.version
-                            device = Device(mConfig, protocolVersion).apply {
+                            device = Device(mConfig, ipMessage.version).apply {
                                 this.ip = ip
                                 this.name = ipMessage.senderName
                             }
-                            val additionalSection = ipMessage.additionalSection
-                            val userInfo = additionalSection.split(IpMessageProtocol.DELIMITER).toTypedArray()
+
+                            val userInfo = ipMessage.additionalSection
+                                    .split(IpMessageProtocol.DELIMITER).toTypedArray()
 
                             if (userInfo.isEmpty()) {
                                 device.name = ipMessage.senderName
@@ -100,8 +100,8 @@ class DeviceScanner {
                             mScanCallback.onDeviceOnline(device)
                         } else if (isDeviceInfoChanged(ipMessage, device)) {
                             device.name = ipMessage.senderName
-                            val additionalSection = ipMessage.additionalSection
-                            val userInfo = additionalSection.split(IpMessageProtocol.DELIMITER).toTypedArray()
+                            val userInfo = ipMessage.additionalSection
+                                    .split(IpMessageProtocol.DELIMITER).toTypedArray()
 
                             if (userInfo.isEmpty()) {
                                 device.name = ipMessage.senderName
@@ -118,12 +118,14 @@ class DeviceScanner {
 
         })
         synchronized(LOCK) {
-            mNoticeOnlineThread.isStopped = true
-            mNoticeOnlineThread.interrupt()
+            mNoticeOnlineThread.apply {
+                isStopped = true
+                interrupt()
 
-            mNoticeOnlineThread = NoticeOnlineThread(mUDP).apply {
-                this.period = period
-                start()
+                mNoticeOnlineThread = NoticeOnlineThread(mUDP).apply {
+                    this.period = period
+                    start()
+                }
             }
         }
         return true
@@ -154,8 +156,7 @@ class DeviceScanner {
             val protocolVersion = deviceInfo.protocolVersion
             val functionCode = deviceInfo.functionCode
 
-            if (TextUtils.isEmpty(protocolVersion)
-                    or TextUtils.isEmpty(functionCode)) {
+            if (TextUtils.isEmpty(protocolVersion) || TextUtils.isEmpty(functionCode)) {
                 return null
             }
 
@@ -180,16 +181,13 @@ class DeviceScanner {
             return false
         }
 
-        return if (mDevices.containsKey(deviceInfo.ip)) {
-            val device = mDevices.remove(deviceInfo.ip)
-            if (null != device) {
-                mScanCallback.onDeviceOffline(device)
-                true
-            } else {
-                false
-            }
+        if (mDevices.containsKey(deviceInfo.ip)) {
+            mDevices.remove(deviceInfo.ip)?.let {
+                mScanCallback.onDeviceOffline(it)
+                return true
+            } ?: return false
         } else {
-            false
+            return false
         }
     }
 

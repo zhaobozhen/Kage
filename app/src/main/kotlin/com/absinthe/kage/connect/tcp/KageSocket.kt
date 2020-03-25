@@ -41,18 +41,20 @@ class KageSocket {
             synchronized(KageSocket::class.java) {
                 if (mSocket == null) {
                     try {
-                        mSocket = Socket()
+                        mSocket = Socket().apply {
+                            connect(InetSocketAddress(ip, port), timeout)
+                            keepAlive = true
+                            mIn = DataInputStream(getInputStream())
+                            mOut = DataOutputStream(getOutputStream())
+                        }
 
-                        val endPoint: SocketAddress = InetSocketAddress(ip, port)
-                        mSocket!!.connect(endPoint, timeout)
-                        mSocket!!.keepAlive = true
-                        mIn = DataInputStream(mSocket!!.getInputStream())
-                        mOut = DataOutputStream(mSocket!!.getOutputStream())
-                        mPacketWriter = PacketWriter(mOut!!, mSocketCallback)
-                        mPacketReader = PacketReader(mIn, mSocketCallback)
+                        mOut?.let {
+                            mPacketWriter = PacketWriter(it, mSocketCallback)
+                            mPacketReader = PacketReader(mIn, mSocketCallback)
+                        }
 
                         GlobalScope.launch(Dispatchers.Main) {
-                            mSocketCallback!!.onConnected()
+                            mSocketCallback?.onConnected()
                         }
                     } catch (e: Exception) {
                         Timber.i("Socket connection Exception: $e")
@@ -60,17 +62,17 @@ class KageSocket {
                         when (e) {
                             is SocketTimeoutException -> {
                                 GlobalScope.launch(Dispatchers.Main) {
-                                    mSocketCallback!!.onConnectError(ISocketCallback.CONNECT_ERROR_CODE_CONNECT_TIMEOUT, e)
+                                    mSocketCallback?.onConnectError(ISocketCallback.CONNECT_ERROR_CODE_CONNECT_TIMEOUT, e)
                                 }
                             }
                             is ConnectException -> {
                                 GlobalScope.launch(Dispatchers.Main) {
-                                    mSocketCallback!!.onConnectError(ISocketCallback.CONNECT_ERROR_CODE_CONNECT_IP_OR_PORT_UNREACHABLE, e)
+                                    mSocketCallback?.onConnectError(ISocketCallback.CONNECT_ERROR_CODE_CONNECT_IP_OR_PORT_UNREACHABLE, e)
                                 }
                             }
                             else -> {
                                 GlobalScope.launch(Dispatchers.Main) {
-                                    mSocketCallback!!.onConnectError(ISocketCallback.CONNECT_ERROR_CODE_CONNECT_UNKNOWN, e)
+                                    mSocketCallback?.onConnectError(ISocketCallback.CONNECT_ERROR_CODE_CONNECT_UNKNOWN, e)
                                 }
                             }
                         }
@@ -83,31 +85,32 @@ class KageSocket {
 
     fun disconnect(): Boolean {
         synchronized(KageSocket::class.java) {
-            return if (mSocket != null && mSocket!!.isConnected) {
-                try {
-                    mIn!!.close()
-                    mOut!!.close()
-                    mSocket!!.close()
-                    mIn = null
-                    mOut = null
-                    mSocket = null
-                    if (null != mPacketWriter) {
-                        mPacketWriter!!.shutdown()
+            mSocket?.let {
+                return if (it.isConnected) {
+                    try {
+                        mIn?.close()
+                        mOut?.close()
+                        mPacketWriter?.shutdown()
+                        mPacketReader?.shutdown()
+                        it.close()
+
+                        mIn = null
+                        mOut = null
+                        mSocket = null
                         mPacketWriter = null
-                    }
-                    if (null != mPacketReader) {
-                        mPacketReader!!.shutdown()
                         mPacketReader = null
+
+                        GlobalScope.launch(Dispatchers.Main) {
+                            mSocketCallback?.onDisConnected()
+                        }
+                        true
+                    } catch (e: IOException) {
+                        Timber.e(e.toString())
+                        false
                     }
-                    GlobalScope.launch(Dispatchers.Main) {
-                        mSocketCallback!!.onDisConnected()
-                    }
-                    true
-                } catch (e: IOException) {
-                    Timber.e(e.toString())
-                    false
-                }
-            } else false
+                } else false
+            }
+            return false
         }
     }
 
