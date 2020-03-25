@@ -1,4 +1,4 @@
-package com.absinthe.kage.viewholder
+package com.absinthe.kage.viewholder.delegate
 
 import android.content.Intent
 import android.view.LayoutInflater

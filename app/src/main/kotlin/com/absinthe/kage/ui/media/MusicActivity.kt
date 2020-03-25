@@ -3,6 +3,7 @@ package com.absinthe.kage.ui.media
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.graphics.*
+import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.Drawable
 import android.media.session.PlaybackState
 import android.net.Uri
@@ -277,10 +278,11 @@ class MusicActivity : BaseActivity(), Observer {
             if (media is LocalMusic) {
                 mBinding.toolbar.tvMusicName.text = media.title
                 mBinding.toolbar.tvArtist.text = media.artist
+
                 if (type == TYPE_SENDER) {
                     applyRouletteAndBlurBackground(media.albumId, null)
                 } else if (type == TYPE_RECEIVER) {
-                    applyRouletteAndBlurBackground(media.albumId, Uri.parse(media.coverPath))
+                    applyRouletteAndBlurBackground(media.albumId, Uri.parse(media.coverPath ?: ""))
                 }
                 mHandler.post(mShowProgressTask)
             }
@@ -293,38 +295,54 @@ class MusicActivity : BaseActivity(), Observer {
         Glide.with(this)
                 .asBitmap()
                 .load(uri ?: getAlbumArt(albumId.toLong()))
+                .fallback(ColorDrawable(Color.GRAY))
                 .into(object : CustomTarget<Bitmap?>() {
 
                     override fun onLoadCleared(placeholder: Drawable?) {}
 
                     override fun onResourceReady(resource: Bitmap, transition: Transition<in Bitmap?>?) {
                         val result = ImageUtils.renderScriptBlur(resource, 25f)
-                        val cMatrix = ColorMatrix()
                         val brightness = -70
-                        cMatrix.set(floatArrayOf(1f, 0f, 0f, 0f, brightness.toFloat(), 0f, 1f, 0f, 0f, brightness.toFloat(), 0f, 0f, 1f, 0f, brightness.toFloat(), 0f, 0f, 0f, 1f, 0f))
-                        val paint = Paint()
-                        paint.colorFilter = ColorMatrixColorFilter(cMatrix)
-                        val canvas = Canvas(result)
-                        // 在 Canvas 上绘制一个已经存在的 Bitmap
-                        canvas.drawBitmap(result, 0f, 0f, paint)
 
-                        val animOut = AnimationUtils.loadAnimation(this@MusicActivity, android.R.anim.fade_out)
+                        val cMatrix = ColorMatrix().apply {
+                            set(floatArrayOf(
+                                    1f, 0f, 0f, 0f,
+                                    brightness.toFloat(), 0f, 1f, 0f,
+                                    0f, brightness.toFloat(), 0f, 0f,
+                                    1f, 0f, brightness.toFloat(), 0f,
+                                    0f, 0f, 1f, 0f)
+                            )
+                        }
+
+                        val paint = Paint().apply {
+                            colorFilter = ColorMatrixColorFilter(cMatrix)
+                        }
+
+                        Canvas(result).apply {
+                            // 在 Canvas 上绘制一个已经存在的 Bitmap
+                            drawBitmap(result, 0f, 0f, paint)
+                        }
+
                         val animIn = AnimationUtils.loadAnimation(this@MusicActivity, android.R.anim.fade_in)
-                        animOut.setAnimationListener(object : Animation.AnimationListener {
-                            override fun onAnimationRepeat(animation: Animation?) {
 
-                            }
+                        val animOut = AnimationUtils.loadAnimation(this@MusicActivity, android.R.anim.fade_out).apply {
+                            setAnimationListener(object : Animation.AnimationListener {
+                                override fun onAnimationRepeat(animation: Animation?) {
 
-                            override fun onAnimationEnd(animation: Animation?) {
-                                mBinding.ivBackground.setImageBitmap(result)
-                                mBinding.ivBackground.startAnimation(animIn)
-                            }
+                                }
 
-                            override fun onAnimationStart(animation: Animation?) {
+                                override fun onAnimationEnd(animation: Animation?) {
+                                    mBinding.ivBackground.setImageBitmap(result)
+                                    mBinding.ivBackground.startAnimation(animIn)
+                                }
 
-                            }
+                                override fun onAnimationStart(animation: Animation?) {
 
-                        })
+                                }
+
+                            })
+                        }
+
                         mBinding.ivBackground.startAnimation(animOut)
 
                         if (type == TYPE_SENDER) {
@@ -335,6 +353,7 @@ class MusicActivity : BaseActivity(), Observer {
 
         Glide.with(this)
                 .load(uri ?: getAlbumArt(albumId.toLong()))
+                .fallback(R.mipmap.pic_album_placeholder)
                 .into(object : CustomTarget<Drawable>() {
                     override fun onResourceReady(resource: Drawable, transition: Transition<in Drawable>?) {
                         mBinding.musicRoulette.setImageDrawable(resource)

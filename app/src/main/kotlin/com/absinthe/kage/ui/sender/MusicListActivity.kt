@@ -9,7 +9,7 @@ import com.absinthe.kage.BaseActivity
 import com.absinthe.kage.databinding.ActivityMusicListBinding
 import com.absinthe.kage.media.MusicList
 import com.absinthe.kage.media.audio.LocalMusic
-import com.absinthe.kage.viewholder.LocalMusicViewBinder
+import com.absinthe.kage.viewholder.delegate.LocalMusicViewBinder
 import com.absinthe.kage.viewmodel.MusicViewModel
 import com.drakeet.multitype.MultiTypeAdapter
 

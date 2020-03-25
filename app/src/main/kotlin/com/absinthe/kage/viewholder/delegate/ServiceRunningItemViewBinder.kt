@@ -1,4 +1,4 @@
-package com.absinthe.kage.viewholder
+package com.absinthe.kage.viewholder.delegate
 
 import android.view.LayoutInflater
 import android.view.View
@@ -8,6 +8,8 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.absinthe.kage.R
 import com.absinthe.kage.service.TCPService
+import com.absinthe.kage.viewholder.HolderConstant
+import com.absinthe.kage.viewholder.model.ServiceRunningItem
 import com.drakeet.multitype.ItemViewBinder
 import timber.log.Timber
 

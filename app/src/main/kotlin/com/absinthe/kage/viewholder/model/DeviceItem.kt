@@ -1,4 +1,4 @@
-package com.absinthe.kage.viewholder
+package com.absinthe.kage.viewholder.model
 
 class DeviceItem(name: String, ip: String) {
     val deviceName = name

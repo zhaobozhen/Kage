@@ -1,4 +1,4 @@
-package com.absinthe.kage.viewholder
+package com.absinthe.kage.viewholder.delegate
 
 import android.view.LayoutInflater
 import android.view.View
@@ -6,6 +6,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.absinthe.kage.R
+import com.absinthe.kage.viewholder.model.DeviceItem
 import com.drakeet.multitype.ItemViewBinder
 
 class DeviceItemViewBinder : ItemViewBinder<DeviceItem, DeviceItemViewBinder.ViewHolder>() {

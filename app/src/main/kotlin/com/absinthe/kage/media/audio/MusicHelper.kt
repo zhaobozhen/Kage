@@ -20,15 +20,17 @@ object MusicHelper {
                 val path = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATA))
                 val albumId = cursor.getInt(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM_ID))
                 val artistId = cursor.getInt(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ARTIST_ID))
+
                 if (title.isNotEmpty()) {
-                    val music = LocalMusic()
-                    music.title = title
-                    music.album = album
-                    music.albumId = albumId
-                    music.artist = artist
-                    music.artistId = artistId
-                    music.filePath = path
-                    music.type = TYPE_AUDIO
+                    val music = LocalMusic().apply {
+                        this.title = title
+                        this.album = album
+                        this.albumId = albumId
+                        this.artist = artist
+                        this.artistId = artistId
+                        this.filePath = path
+                        this.type = TYPE_AUDIO
+                    }
                     result.add(music)
                 }
             } while (cursor.moveToNext())
@@ -37,7 +39,6 @@ object MusicHelper {
         return result
     }
 
-    @JvmStatic
     fun getAlbumArt(albumId: Long): Uri {
         val uriAlbums = "content://media/external/audio/albumart"
         return Uri.withAppendedPath(Uri.parse(uriAlbums), albumId.toString())

@@ -9,8 +9,8 @@ android {
         applicationId "com.absinthe.kage"
         minSdkVersion rootProject.ext.android.minSdkVersion
         targetSdkVersion rootProject.ext.android.targetSdkVersion
-        versionCode 403
-        versionName "0.4.3"
+        versionCode 404
+        versionName "0.4.4"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
     buildTypes {

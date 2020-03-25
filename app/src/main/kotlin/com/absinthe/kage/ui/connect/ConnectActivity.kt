@@ -11,7 +11,7 @@ import com.absinthe.kage.device.DeviceObserverImpl
 import com.absinthe.kage.device.IDeviceObserver
 import com.absinthe.kage.device.model.DeviceInfo
 import com.absinthe.kage.utils.ToastUtil.makeText
-import com.absinthe.kage.viewholder.DeviceInfoItemViewBinder
+import com.absinthe.kage.viewholder.delegate.DeviceInfoItemViewBinder
 import com.drakeet.multitype.MultiTypeAdapter
 import timber.log.Timber
 
