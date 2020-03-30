@@ -93,8 +93,9 @@ class MusicRouletteView : AppCompatImageView {
     }
 
     override fun onDraw(canvas: Canvas) {
-        if (drawable != null) {
+        drawable?.let {
             canvas.drawCircle((width / 2).toFloat(), (height / 2).toFloat(), mDrawableRadius, mBitmapPaint)
+
             if (mBorderWidth != 0) {
                 canvas.drawCircle((width / 2).toFloat(), (height / 2).toFloat(), mBorderRadius, mBorderPaint)
             }
@@ -183,18 +184,20 @@ class MusicRouletteView : AppCompatImageView {
 
     private fun setup() {
         if (mIsReady) {
-            if (mBitmap != null) {
-                mBitmapShader = BitmapShader(mBitmap!!, TileMode.CLAMP, TileMode.CLAMP)
-                mBitmapPaint.isAntiAlias = true
-                mBitmapPaint.shader = mBitmapShader
-                mBorderPaint.style = Paint.Style.STROKE
-                mBorderPaint.isAntiAlias = true
-                mBorderPaint.color = mBorderColor
-                mBorderPaint.strokeWidth = mBorderWidth.toFloat()
-                mBitmapHeight = mBitmap!!.height
-                mBitmapWidth = mBitmap!!.width
+            mBitmap?.let {
+                mBitmapShader = BitmapShader(it, TileMode.CLAMP, TileMode.CLAMP)
+                mBitmapPaint.apply {
+                    isAntiAlias = true
+                    shader = mBitmapShader
+                    style = Paint.Style.STROKE
+                    color = mBorderColor
+                    strokeWidth = mBorderWidth.toFloat()
+                }
+                mBitmapHeight = it.height
+                mBitmapWidth = it.width
                 mBorderRect[0.0f, 0.0f, width.toFloat()] = height.toFloat()
-                mBorderRadius = ((mBorderRect.height() - mBorderWidth.toFloat()) / 2.0f).coerceAtMost((mBorderRect.width() - mBorderWidth.toFloat()) / 2.0f)
+                mBorderRadius = ((mBorderRect.height() - mBorderWidth.toFloat()) / 2.0f)
+                        .coerceAtMost((mBorderRect.width() - mBorderWidth.toFloat()) / 2.0f)
                 mDrawableRect[mBorderWidth.toFloat(), mBorderWidth.toFloat(), mBorderRect.width() - mBorderWidth.toFloat()] = mBorderRect.height() - mBorderWidth.toFloat()
                 mDrawableRadius = (mDrawableRect.height() / 2.0f).coerceAtMost(mDrawableRect.width() / 2.0f)
                 updateShaderMatrix()
@@ -211,7 +214,7 @@ class MusicRouletteView : AppCompatImageView {
         val scale: Float
         var dx = 0.0f
         var dy = 0.0f
-        mShaderMatrix.set(null)
+
         if (mBitmapWidth.toFloat() * mDrawableRect.height() > mDrawableRect.width() * mBitmapHeight.toFloat()) {
             scale = mDrawableRect.height() / mBitmapHeight.toFloat()
             dx = (mDrawableRect.width() - mBitmapWidth.toFloat() * scale) * 0.5f
@@ -219,24 +222,28 @@ class MusicRouletteView : AppCompatImageView {
             scale = mDrawableRect.width() / mBitmapWidth.toFloat()
             dy = (mDrawableRect.height() - mBitmapHeight.toFloat() * scale) * 0.5f
         }
-        mShaderMatrix.setScale(scale, scale)
-        val i = (dx + 0.5f).toInt()
-        mShaderMatrix.postTranslate((i + mBorderWidth).toFloat(), ((0.5f + dy).toInt() + mBorderWidth).toFloat())
-        mBitmapShader!!.setLocalMatrix(mShaderMatrix)
+
+        mShaderMatrix.apply {
+            set(null)
+            setScale(scale, scale)
+            postTranslate(0.5f + dx + mBorderWidth, 0.5f + dy + mBorderWidth)
+        }
+
+        mBitmapShader?.setLocalMatrix(mShaderMatrix)
     }
 
     private fun initAnimator() {
         mCurrentRotation = 0.0f
-        mObjectAnimator.target = this
-        mObjectAnimator.setPropertyName("rotation")
-        mObjectAnimator.duration = 20000
-        mObjectAnimator.interpolator = LinearInterpolator()
-        mObjectAnimator.repeatCount = ValueAnimator.INFINITE
-        mObjectAnimator.repeatMode = ValueAnimator.RESTART
-        mObjectAnimator.addUpdateListener { animation: ValueAnimator -> mCurrentRotation = animation.animatedValue as Float }
+        mObjectAnimator.apply {
+            target = this
+            duration = 20000
+            interpolator = LinearInterpolator()
+            repeatCount = ValueAnimator.INFINITE
+            repeatMode = ValueAnimator.RESTART
+            setPropertyName("rotation")
+            addUpdateListener { animation: ValueAnimator -> mCurrentRotation = animation.animatedValue as Float }
 
-        if (mObjectAnimator.isStarted) {
-            mObjectAnimator.cancel()
+            if (isStarted) cancel()
         }
     }
 
@@ -248,10 +255,11 @@ class MusicRouletteView : AppCompatImageView {
     }
 
     companion object {
-        private val BITMAP_CONFIG = Bitmap.Config.ARGB_8888
         private const val COLOR_DRAWABLE_DIMENSION = 1
         private const val DEFAULT_BORDER_COLOR = Color.BLACK
         private const val DEFAULT_BORDER_WIDTH = 0
+
+        private val BITMAP_CONFIG = Bitmap.Config.ARGB_8888
         private val SCALE_TYPE = ScaleType.CENTER_CROP
     }
 }

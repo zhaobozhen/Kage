@@ -73,8 +73,7 @@ class Client(val context: Context,
     }
 
     private fun readToStream(dis: DataInputStream): String? {
-        val receivedLen: Int
-        receivedLen = try {
+        val receivedLen: Int = try {
             dis.readInt()
         } catch (e: IOException) {
             e.printStackTrace()
@@ -85,8 +84,7 @@ class Client(val context: Context,
             return ""
         }
 
-        val bArray: ByteArray
-        bArray = try {
+        val bArray: ByteArray = try {
             ByteArray(receivedLen)
         } catch (e: OutOfMemoryError) {
             e.printStackTrace()
@@ -105,15 +103,12 @@ class Client(val context: Context,
             }
         }
 
-        val enStr: String
-        enStr = try {
+        return try {
             String(bArray, StandardCharsets.UTF_8)
         } catch (e: OutOfMemoryError) {
             e.printStackTrace()
             return ""
         }
-
-        return enStr
     }
 
     @Synchronized
@@ -123,9 +118,11 @@ class Client(val context: Context,
 
         val bArray = str.toByteArray(StandardCharsets.UTF_8)
         val sendLen = bArray.size
-        dos.writeInt(sendLen)
-        dos.flush()
-        dos.write(bArray, 0, sendLen)
+        dos.apply {
+            writeInt(sendLen)
+            flush()
+            write(bArray, 0, sendLen)
+        }
     }
 
     private fun offline(socket: Socket, dis: DataInputStream?, dos: DataOutputStream?) {

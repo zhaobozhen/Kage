@@ -2,8 +2,6 @@ package com.absinthe.kage.device
 
 import android.bluetooth.BluetoothAdapter
 import android.os.Build
-import android.os.Handler
-import android.os.Looper
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.OnLifecycleEvent
@@ -14,6 +12,9 @@ import com.absinthe.kage.device.DeviceScanner.IScanCallback
 import com.absinthe.kage.device.cmd.PromptPhoneConnectedCommand
 import com.absinthe.kage.device.model.DeviceConfig
 import com.absinthe.kage.device.model.DeviceInfo
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.util.*
 
@@ -24,7 +25,6 @@ object DeviceManager : KageObservable(), LifecycleObserver {
     private val LOCK = ByteArray(0)
     private val observers: MutableList<IDeviceObserver> = ArrayList()
     private val mProxyList: MutableList<IProxy> = ArrayList()
-    private val mHandler = Handler(Looper.getMainLooper())
 
     private var mDeviceScanner: DeviceScanner = DeviceScanner()
     private var mConnectState: ConnectState = StateIdle()
@@ -41,9 +41,7 @@ object DeviceManager : KageObservable(), LifecycleObserver {
         }
 
     fun init() {
-        val defaultAdapter = BluetoothAdapter.getDefaultAdapter()
-
-        config.name = if (defaultAdapter != null) defaultAdapter.name else Build.MODEL
+        config.name = BluetoothAdapter.getDefaultAdapter().name ?: Build.MODEL
         mDeviceScanner.setConfig(config)
     }
 
@@ -53,7 +51,6 @@ object DeviceManager : KageObservable(), LifecycleObserver {
             disConnectDevice()
         }
         mDeviceScanner.stopScan()
-        mHandler.removeCallbacksAndMessages(null)
     }
 
     fun startMonitorDevice() {
@@ -67,24 +64,32 @@ object DeviceManager : KageObservable(), LifecycleObserver {
      * @return resultCode
      */
     private fun startMonitorDevice(period: Int): Int {
-        val b = mDeviceScanner.startScan(period, object : IScanCallback {
+        val scanResult = mDeviceScanner.startScan(period, object : IScanCallback {
             override fun onDeviceOnline(device: Device?) {
-                mHandler.post { notifyFindDevice(device) }
+                GlobalScope.launch(Dispatchers.Main) {
+                    notifyFindDevice(device)
+                }
             }
 
             override fun onDeviceOffline(device: Device?) {
-                mHandler.post { notifyLostDevice(device) }
+                GlobalScope.launch(Dispatchers.Main) {
+                    notifyLostDevice(device)
+                }
             }
 
             override fun onDeviceInfoChanged(device: Device?) {
-                mHandler.post { notifyDeviceInfoChanged(device) }
+                GlobalScope.launch(Dispatchers.Main) {
+                    notifyDeviceInfoChanged(device)
+                }
             }
 
             override fun onDeviceNotice(device: Device?) {
-                mHandler.post { notifyDeviceNotice(device) }
+                GlobalScope.launch(Dispatchers.Main) {
+                    notifyDeviceNotice(device)
+                }
             }
         })
-        return if (b) {
+        return if (scanResult) {
             Result.RESULT_START_MONITOR_DEVICE_SUCCESS.ordinal
         } else {
             Result.RESULT_START_MONITOR_DEVICE_FAILED_INTERNAL_ERROR.ordinal
@@ -321,20 +326,26 @@ object DeviceManager : KageObservable(), LifecycleObserver {
                                 code = ConnectFailedReason.CONNECT_ERROR_CODE_CONNECT_UNKNOWN.ordinal
                             }
                         }
-                        mHandler.post { notifyDeviceConnectFailed(device, code, errorMessage) }
+
+                        GlobalScope.launch(Dispatchers.Main) {
+                            notifyDeviceConnectFailed(device, code, errorMessage)
+                        }
                     }
                 }
 
                 override fun onConnected() {
                     Timber.d("onConnectedSuccess")
                     synchronized(LOCK) {
-                        val promptPhoneConnectedCommand = PromptPhoneConnectedCommand()
-                        promptPhoneConnectedCommand.localIp = config.localHost
-                        promptPhoneConnectedCommand.phoneName = config.name
-                        device.sendCommand(promptPhoneConnectedCommand)
+                        device.sendCommand(PromptPhoneConnectedCommand().apply {
+                            localIp = config.localHost
+                            phoneName = config.name
+                        })
                         setConnectState(StateConnected(device))
                         notifyDeviceChangedToProxy(device)
-                        mHandler.post { notifyDeviceConnected(device) }
+
+                        GlobalScope.launch(Dispatchers.Main) {
+                            notifyDeviceConnected(device)
+                        }
                     }
                 }
 
@@ -343,13 +354,13 @@ object DeviceManager : KageObservable(), LifecycleObserver {
                         mCurrentDeviceKey = null
                         setConnectState(StateIdle())
                         notifyDeviceDisconnectToProxy(device)
-                        mHandler.post { notifyDeviceDisconnect(device) }
+                        GlobalScope.launch(Dispatchers.Main) {
+                            notifyDeviceDisconnect(device)
+                        }
 
-                        if (null != delayToConnectDeviceInfoIp) {
-                            val dev = mDeviceScanner.queryDevice(delayToConnectDeviceInfoIp)
-
-                            if (dev != null) {
-                                connectDevice(dev.deviceInfo)
+                        delayToConnectDeviceInfoIp?.let { ip ->
+                            mDeviceScanner.queryDevice(ip)?.let {
+                                connectDevice(it.deviceInfo)
                                 delayToConnectDeviceInfoIp = null
                             }
                         }
@@ -357,7 +368,9 @@ object DeviceManager : KageObservable(), LifecycleObserver {
                 }
             })
             device.connect(t)
-            mHandler.post { notifyDeviceConnecting(device) }
+            GlobalScope.launch(Dispatchers.Main) {
+                notifyDeviceConnecting(device)
+            }
         }
 
         override fun disConnect() {}

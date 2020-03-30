@@ -26,12 +26,15 @@ object MediaHelper {
                 val dirId = cursor.getLong(cursor.getColumnIndex("bucket_id"))
                 val dirName = cursor.getString(cursor.getColumnIndex("bucket_display_name"))
                 val path = cursor.getString(cursor.getColumnIndex("_data"))
+
                 if (!(TextUtils.isEmpty(title) || 0L == dirId || TextUtils.isEmpty(dirName))) {
-                    val media = LocalMedia()
-                    media.title = title
-                    media.filePath = path
-                    media.type = TYPE_IMAGE
+                    val media = LocalMedia().apply {
+                        this.title = title
+                        this.filePath = path
+                        this.type = TYPE_IMAGE
+                    }
                     var flag = false
+
                     for (directory in result) {
                         if (directory.id == dirId && directory.name == dirName) {
                             directory.addMedia(media)
@@ -39,15 +42,17 @@ object MediaHelper {
                         }
                     }
                     if (!flag) {
-                        val directory = MediaDirectory()
-                        directory.id = dirId
-                        directory.name = dirName
-                        directory.type = TYPE_IMAGE
-                        directory.addMedia(media)
+                        val directory = MediaDirectory().apply {
+                            id = dirId
+                            name = dirName
+                            type = TYPE_IMAGE
+                            addMedia(media)
+                        }
                         result.add(directory)
                     }
                 }
             } while (cursor.moveToNext())
+
             cursor.close()
         }
         return result
@@ -63,11 +68,13 @@ object MediaHelper {
                 val dirName = cursor.getString(cursor.getColumnIndex("bucket_display_name"))
                 val path = cursor.getString(cursor.getColumnIndex("_data"))
                 if (!(TextUtils.isEmpty(title) || 0L == dirId || TextUtils.isEmpty(dirName))) {
-                    val media = LocalMedia()
-                    media.title = title
-                    media.type = TYPE_VIDEO
-                    media.filePath = path
+                    val media = LocalMedia().apply {
+                        this.title = title
+                        this.type = TYPE_VIDEO
+                        this.filePath = path
+                    }
                     var flag = false
+
                     for (directory in result) {
                         if (directory.id == dirId && directory.name == dirName) {
                             directory.addMedia(media)
@@ -75,15 +82,17 @@ object MediaHelper {
                         }
                     }
                     if (!flag) {
-                        val directory = MediaDirectory()
-                        directory.id = dirId
-                        directory.name = dirName
-                        directory.type = TYPE_VIDEO
-                        directory.addMedia(media)
+                        val directory = MediaDirectory().apply {
+                            id = dirId
+                            name = dirName
+                            type = TYPE_VIDEO
+                            addMedia(media)
+                        }
                         result.add(directory)
                     }
                 }
             } while (cursor.moveToNext())
+            
             cursor.close()
         }
         return result
@@ -113,7 +122,7 @@ object MediaHelper {
         return stringBuilder.toString()
     }
 
-   fun encodePath(path: String?): String {
+    fun encodePath(path: String?): String {
         val strs = path!!.split("/").toTypedArray()
         val builder = StringBuilder()
         try {

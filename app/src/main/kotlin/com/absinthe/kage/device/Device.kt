@@ -18,8 +18,8 @@ class Device(config: DeviceConfig, protocolVersionString: String?) {
 
     private lateinit var mSocket: KageSocket
     private var mProtocolHandler: IProtocolHandler
-    private var mConnectCallback: IConnectCallback? = null
     private var mHeartbeatSender: HeartbeatSender
+    private var mConnectCallback: IConnectCallback? = null
 
     private val mOnReceiveMsgListeners: MutableList<OnReceiveMsgListener> = ArrayList()
     val deviceInfo: DeviceInfo = DeviceInfo()

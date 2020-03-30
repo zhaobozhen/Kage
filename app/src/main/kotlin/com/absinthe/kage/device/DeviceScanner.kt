@@ -141,8 +141,10 @@ class DeviceScanner {
 
     fun stopScan() {
         synchronized(LOCK) {
-            mNoticeOnlineThread.isStopped = true
-            mNoticeOnlineThread.interrupt()
+            mNoticeOnlineThread.apply {
+                isStopped = true
+                interrupt()
+            }
 
             mUDP.stopReceive()
             offlineALlDevices()

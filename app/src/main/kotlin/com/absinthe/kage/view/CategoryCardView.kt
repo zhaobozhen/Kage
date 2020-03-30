@@ -12,14 +12,13 @@ class CategoryCardView : MaterialCardView {
 
     constructor(context: Context?) : super(context)
 
-    constructor(context: Context?, attrs: AttributeSet?) : super(context, attrs) {
+    constructor(context: Context, attrs: AttributeSet?) : super(context, attrs) {
         LayoutInflater.from(context).inflate(R.layout.layout_category_card_view, this)
-        val a = context!!.obtainStyledAttributes(attrs, R.styleable.CategoryCardView)
-
-        findViewById<TextView>(R.id.tv_title)?.text = a.getString(R.styleable.CategoryCardView_categoryTitle)
-        findViewById<ImageView>(R.id.image)?.setImageResource(a.getResourceId(R.styleable.CategoryCardView_categoryImage, 0))
-
-        a.recycle()
+        context.obtainStyledAttributes(attrs, R.styleable.CategoryCardView).apply {
+            findViewById<TextView>(R.id.tv_title)?.text = getString(R.styleable.CategoryCardView_categoryTitle)
+            findViewById<ImageView>(R.id.image)?.setImageResource(getResourceId(R.styleable.CategoryCardView_categoryImage, 0))
+            recycle()
+        }
 
         isClickable = true
         isFocusable = true

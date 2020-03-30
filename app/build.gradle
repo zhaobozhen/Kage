@@ -36,7 +36,7 @@ android {
 }
 
 dependencies {
-    def appCenterSdkVersion = '3.0.0'
+    def appCenterSdkVersion = '3.1.0'
 
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation project(':matisse')

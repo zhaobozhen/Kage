@@ -53,12 +53,14 @@ class TCPService : LifecycleService() {
         super.onCreate()
         startForeground(1, notificationInstance)
 
-        DeviceManager.init()
-        addProxy(DeviceManager)
-        DeviceManager.scanPeriod = 2000
-        DeviceManager.startMonitorDevice()
-        lifecycle.addObserver(DeviceManager)
-        DeviceManager.register(deviceObserver)
+        DeviceManager.apply {
+            init()
+            addProxy(this)
+            scanPeriod = 2000
+            startMonitorDevice()
+            lifecycle.addObserver(this)
+            register(deviceObserver)
+        }
 
         GlobalScope.launch(Dispatchers.IO) {
             try {
@@ -81,6 +83,11 @@ class TCPService : LifecycleService() {
         } catch (e: IOException) {
             e.printStackTrace()
         }
+    }
+
+    override fun onStart(intent: Intent?, startId: Int) {
+        super.onStart(intent, startId)
+        startForeground(1, notificationInstance)
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -125,18 +132,22 @@ class TCPService : LifecycleService() {
         }
 
     private fun addProxy(deviceManager: DeviceManager) {
-        deviceManager.addProxy(ImageProxy)
-        deviceManager.addProxy(AudioProxy)
-        deviceManager.addProxy(VideoProxy)
-        deviceManager.addProxy(RemoteControlProxy)
+        deviceManager.apply {
+            addProxy(ImageProxy)
+            addProxy(AudioProxy)
+            addProxy(VideoProxy)
+            addProxy(RemoteControlProxy)
+        }
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
     private fun removeProxy(deviceManager: DeviceManager) {
-        deviceManager.removeProxy(ImageProxy)
-        deviceManager.removeProxy(AudioProxy)
-        deviceManager.removeProxy(VideoProxy)
-        deviceManager.removeProxy(RemoteControlProxy)
+        deviceManager.apply {
+            removeProxy(ImageProxy)
+            removeProxy(AudioProxy)
+            removeProxy(VideoProxy)
+            removeProxy(RemoteControlProxy)
+        }
     }
 
     companion object {
@@ -154,8 +165,9 @@ class TCPService : LifecycleService() {
 
         @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
         fun stop(context: Context) {
-            val intent = Intent(context, TCPService::class.java)
-            context.stopService(intent)
+            context.stopService(
+                    Intent(context, TCPService::class.java)
+            )
         }
     }
 }
