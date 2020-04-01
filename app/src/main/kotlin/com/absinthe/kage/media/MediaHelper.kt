@@ -108,17 +108,20 @@ object MediaHelper {
         val remainder = thisTime % 3600.toLong()
         val minutes = remainder / 60
         val secs = remainder % 60
-        val stringBuilder = StringBuilder()
-        if (hours != 0L) {
-            stringBuilder.append(if (hours < 10) "0" else "")
-            stringBuilder.append(hours)
-            stringBuilder.append(":")
+        val stringBuilder = StringBuilder().apply {
+            if (hours != 0L) {
+                append(if (hours < 10) "0" else "")
+                append(hours)
+                append(":")
+            }
+            append(if (minutes < 10) "0" else "")
+            append(minutes)
+            append(":")
+            append(if (secs < 10) "0" else "")
+            append(secs)
         }
-        stringBuilder.append(if (minutes < 10) "0" else "")
-        stringBuilder.append(minutes)
-        stringBuilder.append(":")
-        stringBuilder.append(if (secs < 10) "0" else "")
-        stringBuilder.append(secs)
+
+
         return stringBuilder.toString()
     }
 

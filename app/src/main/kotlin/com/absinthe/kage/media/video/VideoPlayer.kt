@@ -223,7 +223,6 @@ open class VideoPlayer : FrameLayout, Playback.Callback {
     }
 
     private fun doPauseResume() {
-        Timber.d("state=%d", mPlayback.state)
         if (isPlaying) {
             Timber.d("doPauseResume")
             mPlayback.pause()

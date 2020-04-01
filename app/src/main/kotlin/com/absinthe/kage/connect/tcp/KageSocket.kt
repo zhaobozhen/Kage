@@ -18,13 +18,6 @@ class KageSocket {
     private var mPacketWriter: IPacketWriter? = null
     private var mPacketReader: IPacketReader? = null
 
-    private val isConnected: Boolean
-        get() = null != mSocket
-                && null != mIn
-                && null != mOut
-                && null != mPacketWriter
-                && null != mPacketReader
-    
     fun connect(ip: String?, port: Int, timeout: Int) {
         synchronized(KageSocket::class.java) {
             if (mSocket == null) {
@@ -41,23 +34,25 @@ class KageSocket {
             synchronized(KageSocket::class.java) {
                 if (mSocket == null) {
                     try {
-                        mSocket = Socket().apply {
-                            connect(InetSocketAddress(ip, port), timeout)
-                            keepAlive = true
-                            mIn = DataInputStream(getInputStream())
-                            mOut = DataOutputStream(getOutputStream())
-                        }
+                        mSocket = Socket()
 
-                        mOut?.let {
-                            mPacketWriter = PacketWriter(it, mSocketCallback)
-                            mPacketReader = PacketReader(mIn, mSocketCallback)
-                        }
+                        mSocket?.let {
+                            it.connect(InetSocketAddress(ip, port), timeout)
+                            it.keepAlive = true
 
-                        GlobalScope.launch(Dispatchers.Main) {
-                            mSocketCallback?.onConnected()
+                            mIn = DataInputStream(it.getInputStream()).apply {
+                                mPacketReader = PacketReader(this, mSocketCallback)
+                            }
+                            mOut = DataOutputStream(it.getOutputStream()).apply {
+                                mPacketWriter = PacketWriter(this, mSocketCallback)
+                            }
+
+                            GlobalScope.launch(Dispatchers.Main) {
+                                mSocketCallback?.onConnected()
+                            }
                         }
                     } catch (e: Exception) {
-                        Timber.i("Socket connection Exception: $e")
+                        Timber.e("Socket connection Exception: $e")
                         mSocket = null
                         when (e) {
                             is SocketTimeoutException -> {
@@ -85,32 +80,30 @@ class KageSocket {
 
     fun disconnect(): Boolean {
         synchronized(KageSocket::class.java) {
-            mSocket?.let {
-                return if (it.isConnected) {
-                    try {
-                        mIn?.close()
-                        mOut?.close()
-                        mPacketWriter?.shutdown()
-                        mPacketReader?.shutdown()
-                        it.close()
+            return if (mSocket != null && mSocket!!.isConnected) {
+                try {
+                    mIn?.close()
+                    mOut?.close()
+                    mSocket?.close()
+                    mIn = null
+                    mOut = null
+                    mSocket = null
 
-                        mIn = null
-                        mOut = null
-                        mSocket = null
-                        mPacketWriter = null
-                        mPacketReader = null
+                    mPacketWriter?.shutdown()
+                    mPacketWriter = null
 
-                        GlobalScope.launch(Dispatchers.Main) {
-                            mSocketCallback?.onDisConnected()
-                        }
-                        true
-                    } catch (e: IOException) {
-                        Timber.e(e.toString())
-                        false
+                    mPacketReader?.shutdown()
+                    mPacketReader = null
+
+                    GlobalScope.launch(Dispatchers.Main) {
+                        mSocketCallback?.onDisConnected()
                     }
-                } else false
-            }
-            return false
+                    true
+                } catch (e: IOException) {
+                    Timber.e(e.toString())
+                    false
+                }
+            } else false
         }
     }
 

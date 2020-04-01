@@ -101,6 +101,7 @@ class LocalAudioPlayback internal constructor(context: Context) : Playback {
     override fun seekTo(position: Int) {
         var pos = position
         Timber.d("SeekTo: $pos")
+
         if (position < 0) {
             pos = 0
         }
@@ -109,6 +110,7 @@ class LocalAudioPlayback internal constructor(context: Context) : Playback {
             if (pos > bufferPos) {
                 pos = bufferPos
             }
+
             mMediaPlayer.seekTo(pos)
         }
     }
@@ -118,9 +120,7 @@ class LocalAudioPlayback internal constructor(context: Context) : Playback {
         state = PlaybackState.STATE_STOPPED
 
         if (isStop) {
-            if (mCallback != null) {
-                mCallback!!.onPlaybackStateChanged(state)
-            }
+            mCallback?.onPlaybackStateChanged(state)
         }
 
         try {
@@ -159,9 +159,7 @@ class LocalAudioPlayback internal constructor(context: Context) : Playback {
         } else if (state == PlaybackState.STATE_PAUSED && mMediaPlayer.isPlaying) {
             mMediaPlayer.pause()
         }
-        if (mCallback != null) {
-            mCallback!!.onPlaybackStateChanged(state)
-        }
+        mCallback?.onPlaybackStateChanged(state)
     }
 
     private val isPlayOrPause: Boolean
@@ -170,6 +168,7 @@ class LocalAudioPlayback internal constructor(context: Context) : Playback {
     private fun createAudioFocusChangeListener() {
         mFocusChangeListener = OnAudioFocusChangeListener { focusChange: Int ->
             Timber.d("onAudioFocusChange: $focusChange")
+
             if (focusChange == AudioManager.AUDIOFOCUS_GAIN) {
                 mAudioFocus = AUDIO_FOCUSED
                 if (state == PlaybackState.STATE_PAUSED) {
@@ -190,9 +189,9 @@ class LocalAudioPlayback internal constructor(context: Context) : Playback {
 
     private fun tryToGetAudioFocus() {
         Timber.d("Try to get AudioFocus")
+
         if (mAudioFocus != AUDIO_FOCUSED) {
-            val result: Int
-            result = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val result: Int = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 val mAudioAttributes = AudioAttributes.Builder()
                         .setUsage(AudioAttributes.USAGE_MEDIA)
                         .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
@@ -215,9 +214,9 @@ class LocalAudioPlayback internal constructor(context: Context) : Playback {
 
     private fun abandonAudioFocus() {
         Timber.d("abandonAudioFocus")
+
         if (mAudioFocus == AUDIO_FOCUSED) {
-            val result: Int
-            result = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val result: Int = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 val mAudioAttributes = AudioAttributes.Builder()
                         .setUsage(AudioAttributes.USAGE_MEDIA)
                         .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)

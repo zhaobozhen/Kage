@@ -9,8 +9,8 @@ android {
         applicationId "com.absinthe.kage"
         minSdkVersion rootProject.ext.android.minSdkVersion
         targetSdkVersion rootProject.ext.android.targetSdkVersion
-        versionCode 404
-        versionName "0.4.4"
+        versionCode 406
+        versionName "0.4.6"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
@@ -71,7 +71,7 @@ dependencies {
     implementation 'com.jakewharton.timber:timber:4.7.1'
 
     testImplementation 'junit:junit:4.13'
-    debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.1'
+    debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.2'
     annotationProcessor "com.github.bumptech.glide:compiler:$glide_version"
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'

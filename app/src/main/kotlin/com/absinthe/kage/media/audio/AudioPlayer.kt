@@ -14,7 +14,7 @@ import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.util.*
 
-object AudioPlayer: Observable(), Playback.Callback {
+object AudioPlayer : Observable(), Playback.Callback {
 
     private const val EXTRA_PLAY_MODE = "EXTRA_PLAY_MODE"
     private const val NOT_REPEATING = 0
@@ -25,13 +25,65 @@ object AudioPlayer: Observable(), Playback.Callback {
     private var mPlayback: Playback? = null
     private var mPlaylist: PlayList = PlayList()
     private var mWakeLock: WakeLock
+    private var playType = TYPE_LOCAL
     private var mPosition = 0
 
     private val mPlayMode = NOT_REPEATING
 
-    private var playType = TYPE_LOCAL
     var playState = PlaybackState.STATE_NONE
         private set
+
+    val currentMedia: LocalMedia?
+        get() = mPlaylist.currentMedia
+
+    val playbackState: PlaybackState
+        get() {
+            playState = mPlayback?.state ?: PlaybackState.STATE_NONE
+            var actions = if (playState == PlaybackState.STATE_PLAYING) {
+                (PlaybackState.ACTION_STOP or PlaybackState.ACTION_PAUSE
+                        or PlaybackState.ACTION_REWIND or PlaybackState.ACTION_FAST_FORWARD
+                        or PlaybackState.ACTION_SEEK_TO)
+            } else {
+                PlaybackState.ACTION_STOP or PlaybackState.ACTION_PLAY
+            }
+
+            if (hasNext()) {
+                actions = actions or PlaybackState.ACTION_SKIP_TO_NEXT
+            }
+            if (hasPre()) {
+                actions = actions or PlaybackState.ACTION_SKIP_TO_PREVIOUS
+            }
+
+            val builder = PlaybackState.Builder().apply {
+                setActions(actions)
+                setState(playState, mPlayback!!.currentPosition.toLong(), 1.0f)
+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
+                    val extras = Bundle().apply {
+                        putInt(EXTRA_PLAY_MODE, mPlayMode)
+                    }
+                    setExtras(extras)
+                }
+                setActiveQueueItemId(mPlaylist.currentIndex.toLong())
+            }
+
+            return builder.build()
+        }
+
+    val duration: Int
+        get() = if (mPlayback != null && isPlayOrPause) {
+            mPlayback!!.duration
+        } else 0
+
+    val bufferPosition: Int
+        get() = if (mPlayback != null && isPlayOrPause) {
+            mPlayback!!.bufferPosition
+        } else 0
+
+    val currentPosition: Int
+        get() = if (mPlayback != null && isPlayOrPause) {
+            mPlayback!!.currentPosition
+        } else 0
 
     init {
         val pm = Utils.getApp().applicationContext.getSystemService(Context.POWER_SERVICE) as PowerManager
@@ -42,6 +94,7 @@ object AudioPlayer: Observable(), Playback.Callback {
         playState = PlaybackState.STATE_NONE
         mPlayback?.stop(false)
         deleteObservers()
+
         if (mWakeLock.isHeld) {
             mWakeLock.release()
         }
@@ -49,10 +102,11 @@ object AudioPlayer: Observable(), Playback.Callback {
 
     fun setPlayerType(type: Int) {
         playType = type
-        if (mPlayback != null) {
-            mPosition = mPlayback!!.currentPosition
-            mPlayback!!.stop(true)
+        mPlayback?.let {
+            mPosition = it.currentPosition
+            it.stop(true)
         }
+
         if (type == TYPE_LOCAL) {
             mPlayback = LocalAudioPlayback(Utils.getApp().applicationContext)
             (mPlayback as LocalAudioPlayback).setCallback(this)
@@ -60,9 +114,7 @@ object AudioPlayer: Observable(), Playback.Callback {
             mPlayback = RemoteAudioPlayback()
             (mPlayback as RemoteAudioPlayback).setCallback(this)
         }
-        if (mPlayback != null) {
-            mPlaylist.currentMedia?.let { mPlayback?.playMedia(it) }
-        }
+        mPlaylist.currentMedia?.let { mPlayback?.playMedia(it) }
     }
 
     @Synchronized
@@ -78,18 +130,18 @@ object AudioPlayer: Observable(), Playback.Callback {
         mPlayback?.playMedia(media)
     }
 
-    fun playMediaList(playList: PlayList?) {
+    fun playMediaList(playList: PlayList) {
         mPosition = 0
+
         if (mWakeLock.isHeld) {
             mWakeLock.acquire(10 * 60 * 1000L /*10 minutes*/)
         }
-        if (playList != null) {
-            mPlaylist.setList(playList.list, playList.currentIndex)
-            if (mPlayback is RemoteAudioPlayback) {
-                (mPlayback as RemoteAudioPlayback).playListMedia(mPlaylist)
-            } else if (mPlayback is LocalAudioPlayback) {
-                mPlaylist.currentMedia?.let { (mPlayback as LocalAudioPlayback).playMedia(it) }
-            }
+        mPlaylist.setList(playList.list, playList.currentIndex)
+
+        if (mPlayback is RemoteAudioPlayback) {
+            (mPlayback as RemoteAudioPlayback).playListMedia(mPlaylist)
+        } else if (mPlayback is LocalAudioPlayback) {
+            mPlaylist.currentMedia?.let { (mPlayback as LocalAudioPlayback).playMedia(it) }
         }
     }
 
@@ -97,15 +149,12 @@ object AudioPlayer: Observable(), Playback.Callback {
         if (mWakeLock.isHeld) {
             mWakeLock.acquire(10 * 60 * 1000L /*10 minutes*/)
         }
-        if (mPlayback != null) {
-            mPlayback!!.play()
-        }
+        mPlayback?.play()
     }
 
     fun pause() {
-        if (mPlayback != null) {
-            mPlayback!!.pause()
-        }
+        mPlayback?.pause()
+
         if (mWakeLock.isHeld) {
             mWakeLock.release()
         }
@@ -130,61 +179,8 @@ object AudioPlayer: Observable(), Playback.Callback {
     }
 
     fun seekTo(to: Int) {
-        if (mPlayback != null) {
-            mPlayback!!.seekTo(to)
-        }
+        mPlayback?.seekTo(to)
     }
-
-    val currentMedia: LocalMedia?
-        get() = mPlaylist.currentMedia
-
-    val playbackState: PlaybackState
-        get() {
-            var actions: Long
-            playState = mPlayback!!.state
-            actions = if (playState == PlaybackState.STATE_PLAYING) {
-                (PlaybackState.ACTION_STOP or PlaybackState.ACTION_PAUSE
-                        or PlaybackState.ACTION_REWIND or PlaybackState.ACTION_FAST_FORWARD
-                        or PlaybackState.ACTION_SEEK_TO)
-            } else {
-                PlaybackState.ACTION_STOP or PlaybackState.ACTION_PLAY
-            }
-
-            if (hasNext()) {
-                actions = actions or PlaybackState.ACTION_SKIP_TO_NEXT
-            }
-            if (hasPre()) {
-                actions = actions or PlaybackState.ACTION_SKIP_TO_PREVIOUS
-            }
-
-            val extras = Bundle()
-            extras.putInt(EXTRA_PLAY_MODE, mPlayMode)
-            val builder = PlaybackState.Builder()
-            builder.setActions(actions)
-            builder.setState(playState, mPlayback!!.currentPosition.toLong(), 1.0f)
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
-                builder.setExtras(extras)
-            }
-            builder.setActiveQueueItemId(mPlaylist.currentIndex.toLong())
-
-            return builder.build()
-        }
-
-    val duration: Int
-        get() = if (mPlayback != null && isPlayOrPause) {
-            mPlayback!!.duration
-        } else 0
-
-    val bufferPosition: Int
-        get() = if (mPlayback != null && isPlayOrPause) {
-            mPlayback!!.bufferPosition
-        } else 0
-
-    val currentPosition: Int
-        get() = if (mPlayback != null && isPlayOrPause) {
-            mPlayback!!.currentPosition
-        } else 0
 
     override fun onCompletion() {
         if (playState == PlaybackState.STATE_PLAYING) {
@@ -195,11 +191,14 @@ object AudioPlayer: Observable(), Playback.Callback {
     }
 
     override fun onPlaybackStateChanged(state: Int) {
-        if (mPlayback != null && playState == PlaybackState.STATE_BUFFERING && state == PlaybackState.STATE_PLAYING && mPosition > 0) {
-            Timber.d("Seek to: $mPosition")
-            mPlayback!!.seekTo(mPosition)
-            mPosition = 0
+        mPlayback?.let {
+            if (playState == PlaybackState.STATE_BUFFERING && state == PlaybackState.STATE_PLAYING && mPosition > 0) {
+                Timber.d("Seek to: $mPosition")
+                it.seekTo(mPosition)
+                mPosition = 0
+            }
         }
+
         if (playState != state) {
             updateMediaPlayState()
             playState = state

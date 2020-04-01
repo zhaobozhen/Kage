@@ -19,6 +19,18 @@ class RemoteAudioPlayback internal constructor() : Playback {
     private val mAudioProxy = AudioProxy
     private var mPlayList: PlayList? = null
 
+    override var state = PlaybackState.STATE_NONE
+        private set
+
+    override val duration: Int
+        get() = mAudioProxy.duration
+
+    override val bufferPosition: Int
+        get() = mAudioProxy.duration
+
+    override val currentPosition: Int
+        get() = mAudioProxy.currentPosition
+
     init {
         mAudioProxy.setOnPlayListener(object : AudioProxy.OnPlayListener {
 
@@ -26,6 +38,7 @@ class RemoteAudioPlayback internal constructor() : Playback {
 
             override fun onPlayStateChanged(oldState: Int, newState: Int) {
                 Timber.d("onPlayStateChanged: $newState")
+
                 when {
                     newState == AudioProxy.PlayStatue.INVALIDATE -> {
                         state = PlaybackState.STATE_NONE
@@ -35,8 +48,8 @@ class RemoteAudioPlayback internal constructor() : Playback {
                     }
                     newState != AudioProxy.PlayStatue.DISCONNECT -> {
                         when (newState) {
-                            AudioProxy.PlayStatue.STOPPED -> state = PlaybackState.STATE_STOPPED
                             AudioProxy.PlayStatue.TRANSITIONING -> state = PlaybackState.STATE_BUFFERING
+                            AudioProxy.PlayStatue.STOPPED -> state = PlaybackState.STATE_STOPPED
                             AudioProxy.PlayStatue.PLAYING -> state = PlaybackState.STATE_PLAYING
                             AudioProxy.PlayStatue.PAUSED -> state = PlaybackState.STATE_PAUSED
                         }
@@ -50,16 +63,15 @@ class RemoteAudioPlayback internal constructor() : Playback {
 
             override fun onPlayIndexChanged(index: Int) {
                 Timber.d("onPlayIndexChanged: $index")
-                mPlayList!!.currentIndex = index
-                if (mCallback != null) {
-                    mPlayList!!.currentMedia?.let { mCallback!!.onMediaMetadataChanged(it) }
+                mPlayList?.let {
+                    it.currentIndex = index
+                    it.currentMedia?.let { media ->
+                        mCallback?.onMediaMetadataChanged(media)
+                    }
                 }
             }
         })
     }
-
-    override var state = PlaybackState.STATE_NONE
-        private set
 
     fun playListMedia(playlist: PlayList) {
         mPlayList = playlist
@@ -67,30 +79,29 @@ class RemoteAudioPlayback internal constructor() : Playback {
 
         for (media in playlist.list) {
             if (media is LocalMusic) {
-                val audioInfo = AudioInfo()
-                audioInfo.name = media.title
-                audioInfo.url = media.url
-                audioInfo.artist = media.artist
-                audioInfo.album = media.album
-                audioInfos.add(audioInfo)
+                audioInfos.add(AudioInfo().apply {
+                    name = media.title
+                    url = media.url
+                    artist = media.artist
+                    album = media.album
+                })
             }
         }
-        mAudioProxy.playList(mPlayList!!.currentIndex, audioInfos)
+        mAudioProxy.playList(playlist.currentIndex, audioInfos)
         state = PlaybackState.STATE_BUFFERING
 
-        if (mCallback != null) {
-            mPlayList!!.currentMedia?.let { mCallback?.onMediaMetadataChanged(it) }
-            mCallback?.onPlaybackStateChanged(state)
-        }
+        playlist.currentMedia?.let { mCallback?.onMediaMetadataChanged(it) }
+        mCallback?.onPlaybackStateChanged(state)
     }
 
     override fun playMedia(localMedia: LocalMedia) {
         if (localMedia is LocalMusic) {
-            val info = AudioInfo()
-            info.name = localMedia.title
-            info.url = localMedia.url
-            info.artist = localMedia.artist
-            info.album = localMedia.album
+            val info = AudioInfo().apply {
+                name = localMedia.title
+                url = localMedia.url
+                artist = localMedia.artist
+                album = localMedia.album
+            }
 
             if (localAddress.isNotEmpty()) {
                 info.coverPath = (String.format(Const.HTTP_SERVER_FORMAT, localAddress)
@@ -99,10 +110,9 @@ class RemoteAudioPlayback internal constructor() : Playback {
             }
             mAudioProxy.play(info)
             state = PlaybackState.STATE_BUFFERING
-            if (mCallback != null) {
-                mCallback?.onMediaMetadataChanged(localMedia)
-                mCallback?.onPlaybackStateChanged(state)
-            }
+
+            mCallback?.onMediaMetadataChanged(localMedia)
+            mCallback?.onPlaybackStateChanged(state)
         }
     }
 
@@ -119,15 +129,6 @@ class RemoteAudioPlayback internal constructor() : Playback {
     override fun seekTo(position: Int) {
         mAudioProxy.seekTo(position)
     }
-
-    override val duration: Int
-        get() = mAudioProxy.duration
-
-    override val bufferPosition: Int
-        get() = mAudioProxy.duration
-
-    override val currentPosition: Int
-        get() = mAudioProxy.currentPosition
 
     override fun setCallback(callback: Playback.Callback) {
         mCallback = callback
@@ -150,8 +151,6 @@ class RemoteAudioPlayback internal constructor() : Playback {
                 mAudioProxy.pause()
             }
         }
-        if (mCallback != null) {
-            mCallback!!.onPlaybackStateChanged(state)
-        }
+        mCallback?.onPlaybackStateChanged(state)
     }
 }

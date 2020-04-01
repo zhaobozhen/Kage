@@ -68,9 +68,13 @@ class DeviceScanner {
                 var device = mDevices[ip]
 
                 when (cmd) {
-                    IpMessageConst.IP_MSG_BR_EXIT -> if (!device!!.isConnected) {
-                        mDevices.remove(ip)
-                        mScanCallback.onDeviceOffline(device)
+                    IpMessageConst.IP_MSG_BR_EXIT -> {
+                        device?.let {
+                            if (!it.isConnected) {
+                                mDevices.remove(ip)
+                                mScanCallback.onDeviceOffline(it)
+                            }
+                        }
                     }
                     IpMessageConst.IP_MSG_BR_ENTRY -> {
                         val ipMsgSend = IpMessageProtocol().apply {
@@ -121,11 +125,11 @@ class DeviceScanner {
             mNoticeOnlineThread.apply {
                 isStopped = true
                 interrupt()
+            }
 
-                mNoticeOnlineThread = NoticeOnlineThread(mUDP).apply {
-                    this.period = period
-                    start()
-                }
+            mNoticeOnlineThread = NoticeOnlineThread(mUDP).apply {
+                this.period = period
+                start()
             }
         }
         return true
@@ -158,7 +162,7 @@ class DeviceScanner {
             val protocolVersion = deviceInfo.protocolVersion
             val functionCode = deviceInfo.functionCode
 
-            if (TextUtils.isEmpty(protocolVersion) || TextUtils.isEmpty(functionCode)) {
+            if (TextUtils.isEmpty(protocolVersion) or TextUtils.isEmpty(functionCode)) {
                 return null
             }
 

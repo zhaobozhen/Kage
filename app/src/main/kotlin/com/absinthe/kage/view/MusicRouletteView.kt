@@ -189,6 +189,9 @@ class MusicRouletteView : AppCompatImageView {
                 mBitmapPaint.apply {
                     isAntiAlias = true
                     shader = mBitmapShader
+                }
+                mBorderPaint.apply {
+                    isAntiAlias = true
                     style = Paint.Style.STROKE
                     color = mBorderColor
                     strokeWidth = mBorderWidth.toFloat()
@@ -235,7 +238,7 @@ class MusicRouletteView : AppCompatImageView {
     private fun initAnimator() {
         mCurrentRotation = 0.0f
         mObjectAnimator.apply {
-            target = this
+            target = this@MusicRouletteView
             duration = 20000
             interpolator = LinearInterpolator()
             repeatCount = ValueAnimator.INFINITE

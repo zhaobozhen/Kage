@@ -6,6 +6,9 @@ import com.absinthe.kage.connect.proxy.*
 import com.absinthe.kage.device.Command
 import com.absinthe.kage.device.CommandBuilder
 import com.absinthe.kage.device.client.Client
+import com.absinthe.kage.media.audio.AudioPlayer
+import com.absinthe.kage.media.video.LocalVideoPlayback
+import timber.log.Timber
 
 class MediaPausePlayingCommand : Command() {
 
@@ -18,12 +21,14 @@ class MediaPausePlayingCommand : Command() {
 
     override fun doWork(client: Client, received: String) {
         if (BaseProxy.CURRENT_MODE == MODE_AUDIO) {
-            if (AudioProxy.playState == PlaybackState.STATE_PLAYING) {
-                AudioProxy.pause()
+            Timber.d("PlaybackState.STATE_PLAYING")
+            if (AudioPlayer.playState == PlaybackState.STATE_PLAYING) {
+                AudioPlayer.pause()
             }
         } else if (BaseProxy.CURRENT_MODE == MODE_VIDEO) {
-            if (VideoProxy.playState == PlaybackState.STATE_PLAYING) {
-                VideoProxy.pause()
+            LocalVideoPlayback.INSTANCE?.let {
+                if (it.state == PlaybackState.STATE_PAUSED)
+                it.play()
             }
         }
     }

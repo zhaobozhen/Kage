@@ -40,6 +40,45 @@ object DeviceManager : KageObservable(), LifecycleObserver {
             mDeviceScanner.scanPeriod = value
         }
 
+    val deviceInfoList: List<DeviceInfo>
+        get() {
+            val deviceInfoList: MutableList<DeviceInfo> = ArrayList()
+            val devices = mDeviceScanner.devices
+            for (device in devices.values) {
+                val deviceInfo = device.deviceInfo
+                if (device.state != DeviceInfo.STATE_IDLE) {
+                    deviceInfoList.add(0, deviceInfo)
+                } else {
+                    deviceInfoList.add(deviceInfo)
+                }
+            }
+            return deviceInfoList
+        }
+
+    val currentDeviceInfo: DeviceInfo?
+        get() {
+            val device = currentDevice ?: return null
+            return device.deviceInfo
+        }
+
+    val isConnected: Boolean
+        get() {
+            val currentDevice = currentDevice
+            return currentDevice?.isConnected ?: false
+        }
+
+    private val currentDevice: Device?
+        get() {
+            var device: Device?
+            synchronized(LOCK) {
+                if (null == mCurrentDeviceKey) {
+                    return null
+                }
+                device = mDeviceScanner.queryDevice(mCurrentDeviceKey)
+            }
+            return device
+        }
+
     fun init() {
         config.name = BluetoothAdapter.getDefaultAdapter().name ?: Build.MODEL
         mDeviceScanner.setConfig(config)
@@ -55,6 +94,47 @@ object DeviceManager : KageObservable(), LifecycleObserver {
 
     fun startMonitorDevice() {
         startMonitorDevice(scanPeriod)
+    }
+
+    /**
+     * 停止监测设备
+     */
+    @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
+    fun stopMonitorDevice() {
+        mDeviceScanner.stopScan()
+    }
+
+    /**
+     * 连接指定的设备，已连接事件会通知Observer。
+     */
+    fun connectDevice(deviceInfo: DeviceInfo) {
+        synchronized(LOCK) {
+            mConnectState.connect(deviceInfo)
+        }
+    }
+
+    /**
+     * @param deviceInfo Device info
+     * @param timeout    连接超时时间，单位为毫秒
+     */
+    @Synchronized
+    fun connectDevice(deviceInfo: DeviceInfo, timeout: Int) {
+        mConnectState.connect(deviceInfo, timeout)
+    }
+
+    /**
+     * 如果已连接设备，断开当前连接。已断开事件会通知Observer
+     */
+    fun disConnectDevice() {
+        mConnectState.disConnect()
+    }
+
+    fun onlineDevice(deviceInfo: DeviceInfo): DeviceInfo? {
+        return mDeviceScanner.onlineDevice(deviceInfo)
+    }
+
+    fun offlineDevice(deviceInfo: DeviceInfo?): Boolean {
+        return mDeviceScanner.offlineDevice(deviceInfo)
     }
 
     /**
@@ -95,29 +175,6 @@ object DeviceManager : KageObservable(), LifecycleObserver {
             Result.RESULT_START_MONITOR_DEVICE_FAILED_INTERNAL_ERROR.ordinal
         }
     }
-
-    /**
-     * 停止监测设备
-     */
-    @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
-    fun stopMonitorDevice() {
-        mDeviceScanner.stopScan()
-    }
-
-    val deviceInfoList: List<DeviceInfo>
-        get() {
-            val deviceInfoList: MutableList<DeviceInfo> = ArrayList()
-            val devices = mDeviceScanner.devices
-            for (device in devices.values) {
-                val deviceInfo = device.deviceInfo
-                if (device.state != DeviceInfo.STATE_IDLE) {
-                    deviceInfoList.add(0, deviceInfo)
-                } else {
-                    deviceInfoList.add(deviceInfo)
-                }
-            }
-            return deviceInfoList
-        }
 
     @Synchronized
     override fun register(observer: IDeviceObserver?) {
@@ -219,65 +276,8 @@ object DeviceManager : KageObservable(), LifecycleObserver {
         }
     }
 
-    /**
-     * 连接指定的设备，已连接事件会通知Observer。
-     */
-    fun connectDevice(deviceInfo: DeviceInfo) {
-        synchronized(LOCK) {
-            mConnectState.connect(deviceInfo)
-        }
-    }
-
-    /**
-     * @param deviceInfo Device info
-     * @param timeout    连接超时时间，单位为毫秒
-     */
-    @Synchronized
-    fun connectDevice(deviceInfo: DeviceInfo?, timeout: Int) {
-        mConnectState.connect(deviceInfo, timeout)
-    }
-
-    /**
-     * 如果已连接设备，断开当前连接。已断开事件会通知Observer
-     */
-    fun disConnectDevice() {
-        mConnectState.disConnect()
-    }
-
     private fun setConnectState(connectState: ConnectState) {
         mConnectState = connectState
-    }
-
-    val currentDeviceInfo: DeviceInfo?
-        get() {
-            val device = currentDevice ?: return null
-            return device.deviceInfo
-        }
-
-    private val currentDevice: Device?
-        get() {
-            var device: Device?
-            synchronized(LOCK) {
-                if (null == mCurrentDeviceKey) {
-                    return null
-                }
-                device = mDeviceScanner.queryDevice(mCurrentDeviceKey)
-            }
-            return device
-        }
-
-    val isConnected: Boolean
-        get() {
-            val currentDevice = currentDevice
-            return currentDevice?.isConnected ?: false
-        }
-
-    fun onlineDevice(deviceInfo: DeviceInfo?): DeviceInfo? {
-        return mDeviceScanner.onlineDevice(deviceInfo!!)
-    }
-
-    fun offlineDevice(deviceInfo: DeviceInfo?): Boolean {
-        return mDeviceScanner.offlineDevice(deviceInfo)
     }
 
     private class StateIdle : ConnectState {
@@ -285,15 +285,14 @@ object DeviceManager : KageObservable(), LifecycleObserver {
             connect(deviceInfo, DEFAULT_CONNECT_TIMEOUT)
         }
 
-        override fun connect(deviceInfo: DeviceInfo?, timeout: Int) {
+        override fun connect(deviceInfo: DeviceInfo, timeout: Int) {
             var t = timeout
             Timber.d("StateIdle connect")
-            if (deviceInfo == null) {
-                return
-            }
+
             if (timeout < 0) {
                 t = DEFAULT_CONNECT_TIMEOUT
             }
+
             val key = deviceInfo.ip
             val device = mDeviceScanner.queryDevice(key) ?: return
 
@@ -307,7 +306,8 @@ object DeviceManager : KageObservable(), LifecycleObserver {
                         mCurrentDeviceKey = null
                         setConnectState(StateIdle())
                         var errorMessage: String? = "Unknown error"
-                        if (null != e) {
+
+                        if (e != null) {
                             errorMessage = e.message
                         }
                         var code = ConnectFailedReason.CONNECT_ERROR_CODE_CONNECT_UNKNOWN.ordinal
@@ -389,14 +389,18 @@ object DeviceManager : KageObservable(), LifecycleObserver {
     }
 
     private class StateConnecting internal constructor() : ConnectState {
+
         override fun connect(deviceInfo: DeviceInfo) {}
-        override fun connect(deviceInfo: DeviceInfo?, timeout: Int) {}
+
+        override fun connect(deviceInfo: DeviceInfo, timeout: Int) {}
+
         override fun disConnect() {
             synchronized(LOCK) { mCurrentDeviceKey = null }
         }
     }
 
     private class StateConnected internal constructor(private val mDevice: Device) : ConnectState {
+
         override fun connect(deviceInfo: DeviceInfo) {
             val ip = deviceInfo.ip
             if (mDevice.ip != ip) {
@@ -405,7 +409,8 @@ object DeviceManager : KageObservable(), LifecycleObserver {
             }
         }
 
-        override fun connect(deviceInfo: DeviceInfo?, timeout: Int) {}
+        override fun connect(deviceInfo: DeviceInfo, timeout: Int) {}
+
         override fun disConnect() {
             mDevice.disConnect()
         }
@@ -454,7 +459,7 @@ object DeviceManager : KageObservable(), LifecycleObserver {
          * @param deviceInfo device info
          * @param timeout    the timeout value in milliseconds
          */
-        fun connect(deviceInfo: DeviceInfo?, timeout: Int)
+        fun connect(deviceInfo: DeviceInfo, timeout: Int)
         fun disConnect()
     }
 }
