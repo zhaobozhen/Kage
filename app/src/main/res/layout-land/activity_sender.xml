@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/container"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/appbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="@color/backgroundNormal"
+            app:titleTextColor="@color/textNormal" />
+
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <com.absinthe.kage.view.CategoryCardView
+        android:id="@+id/card_image"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_margin="@dimen/category_card_margin"
+        app:categoryImage="@mipmap/pic_image"
+        app:categoryTitle="@string/btn_cast_image"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/card_video"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/appbar" />
+
+    <com.absinthe.kage.view.CategoryCardView
+        android:id="@+id/card_video"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_margin="@dimen/category_card_margin"
+        app:categoryImage="@mipmap/pic_video"
+        app:categoryTitle="@string/btn_cast_video"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/card_music"
+        app:layout_constraintStart_toEndOf="@id/card_image"
+        app:layout_constraintTop_toBottomOf="@id/appbar" />
+
+    <com.absinthe.kage.view.CategoryCardView
+        android:id="@+id/card_music"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_margin="@dimen/category_card_margin"
+        app:categoryImage="@mipmap/pic_music"
+        app:categoryTitle="@string/btn_cast_music"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/card_video"
+        app:layout_constraintTop_toBottomOf="@id/appbar" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

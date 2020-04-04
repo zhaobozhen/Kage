@@ -5,17 +5,17 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.absinthe.kage.BaseActivity
 import com.absinthe.kage.R
-import com.absinthe.kage.viewholder.SpacesItemDecoration
 import com.absinthe.kage.databinding.ActivityMainBinding
 import com.absinthe.kage.device.DeviceManager
 import com.absinthe.kage.device.DeviceObserverImpl
 import com.absinthe.kage.device.model.DeviceInfo
+import com.absinthe.kage.manager.GlobalManager
 import com.absinthe.kage.service.TCPService
 import com.absinthe.kage.ui.about.AboutActivity
+import com.absinthe.kage.viewholder.SpacesItemDecoration
 import com.absinthe.kage.viewholder.delegate.CastItemViewBinder
 import com.absinthe.kage.viewholder.delegate.ConnectItemViewBinder
 import com.absinthe.kage.viewholder.delegate.DeviceItemViewBinder
@@ -24,26 +24,26 @@ import com.absinthe.kage.viewholder.model.CastItem
 import com.absinthe.kage.viewholder.model.ConnectItem
 import com.absinthe.kage.viewholder.model.DeviceItem
 import com.absinthe.kage.viewholder.model.ServiceRunningItem
-import com.absinthe.kage.viewmodel.MainViewModel
 import com.blankj.utilcode.util.ServiceUtils
 import com.drakeet.multitype.MultiTypeAdapter
 
 class MainActivity : BaseActivity() {
 
-    lateinit var viewModel: MainViewModel
     private lateinit var binding: ActivityMainBinding
-    private val adapter = MultiTypeAdapter()
+    private var deviceItem = DeviceItem()
+
     private val items = ArrayList<Any>()
+    private val adapter = MultiTypeAdapter(items)
     private val deviceObserver = object : DeviceObserverImpl() {
 
         override fun onDeviceConnected(deviceInfo: DeviceInfo) {
-            val deviceItem = DeviceItem(deviceInfo.name, deviceInfo.ip)
+            deviceItem = DeviceItem(deviceInfo.name, deviceInfo.ip)
             items.add(1, deviceItem)
             adapter.notifyItemInserted(1)
         }
 
         override fun onDeviceDisConnect(deviceInfo: DeviceInfo) {
-            items.removeAt(1)
+            items.remove(deviceItem)
             adapter.notifyItemRemoved(1)
         }
     }
@@ -53,7 +53,6 @@ class MainActivity : BaseActivity() {
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        viewModel = ViewModelProvider(this).get(MainViewModel::class.java)
         DeviceManager.register(deviceObserver)
 
         initView()
@@ -92,10 +91,24 @@ class MainActivity : BaseActivity() {
         adapter.items = items
         adapter.notifyDataSetChanged()
 
-        viewModel.isServiceRunning.observe(this, Observer {
+        GlobalManager.isServiceRunning.observe(this, Observer {
+            if (items.isEmpty()) {
+                return@Observer
+            }
+
             (items[0] as ServiceRunningItem).isServiceRunning = it
+
+            var result = false
+            if (!it) {
+                result = items.remove(deviceItem)
+            }
+
             adapter.items = items
             adapter.notifyItemChanged(0)
+
+            if (!it && result) {
+                adapter.notifyItemRemoved(1)
+            }
         })
     }
 

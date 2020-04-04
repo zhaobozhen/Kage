@@ -22,7 +22,7 @@ import com.absinthe.kage.device.DeviceObserverImpl
 import com.absinthe.kage.device.client.Client
 import com.absinthe.kage.device.model.DeviceInfo
 import com.absinthe.kage.device.server.KageServer
-import com.absinthe.kage.manager.ActivityStackManager
+import com.absinthe.kage.manager.GlobalManager
 import com.absinthe.kage.ui.main.MainActivity
 import com.absinthe.kage.utils.NotificationUtils
 import com.absinthe.kage.utils.NotificationUtils.createTCPChannel
@@ -30,7 +30,6 @@ import com.zhihu.matisse.internal.entity.SelectionSpec
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import timber.log.Timber
 import java.io.DataInputStream
 import java.io.DataOutputStream
 import java.io.IOException
@@ -91,25 +90,14 @@ class TCPService : LifecycleService() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        val activity = ActivityStackManager.topActivity
-        if (activity is MainActivity) {
-            activity.viewModel.isServiceRunning.value = true
-        }
+        GlobalManager.isServiceRunning.value = true
 
         return super.onStartCommand(intent, flags, startId)
     }
 
     override fun onDestroy() {
         DeviceManager.unregister(deviceObserver)
-
-        try {
-            val activity = ActivityStackManager.topActivity
-            if (activity is MainActivity) {
-                activity.viewModel.isServiceRunning.value = false
-            }
-        } catch (e: NoSuchElementException) {
-            Timber.e(e)
-        }
+        GlobalManager.isServiceRunning.value = false
 
         super.onDestroy()
     }

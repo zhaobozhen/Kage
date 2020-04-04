@@ -80,7 +80,7 @@ object DeviceManager : KageObservable(), LifecycleObserver {
         }
 
     fun init() {
-        config.name = BluetoothAdapter.getDefaultAdapter().name ?: Build.MODEL
+        config.name = BluetoothAdapter.getDefaultAdapter()?.name ?: Build.MODEL
         mDeviceScanner.setConfig(config)
     }
 
