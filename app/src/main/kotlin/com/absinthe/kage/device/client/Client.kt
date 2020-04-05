@@ -128,7 +128,7 @@ class Client(val context: Context,
     private fun offline(socket: Socket, dis: DataInputStream?, dos: DataOutputStream?) {
         Timber.i("Offline: %s", socket.inetAddress)
 
-        synchronized(Client::class.java) {
+        synchronized(this) {
             try {
                 dis?.close()
                 dos?.close()

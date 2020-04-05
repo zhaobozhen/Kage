@@ -98,6 +98,7 @@ object ImageProxy : BaseProxy() {
             if (it.isConnected) {
                 mPlayInfo.playState = PlayStatue.TRANSITIONING
                 it.registerOnReceiveMsgListener(mOnReceiveMsgListener)
+
                 if (needStop) {
                     it.sendCommand(StopCommand())
                 }
@@ -211,8 +212,8 @@ object ImageProxy : BaseProxy() {
         mDevice?.let {
             it.unregisterOnReceiveMsgListener(mOnReceiveMsgListener)
             cancelInquiryPlayState()
-            mDevice = device
         }
+        mDevice = device
     }
 
     override fun onDeviceDisconnected(device: Device) {

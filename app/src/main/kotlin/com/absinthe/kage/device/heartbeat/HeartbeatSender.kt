@@ -11,7 +11,7 @@ class HeartbeatSender(private val mSocket: KageSocket) {
     private var isInit = false
 
     fun init() {
-        synchronized(HeartbeatSender::class.java) { isInit = true }
+        synchronized(this) { isInit = true }
     }
 
     fun beat(heartbeatId: String, timeout: Int, callback: IHeartbeatCallback?) {
@@ -19,21 +19,21 @@ class HeartbeatSender(private val mSocket: KageSocket) {
 
         heartbeatTask.setHeartbeatCallback(object : IHeartbeatCallback {
             override fun onBeatSuccess(heartbeatId: String) {
-                synchronized(HeartbeatSender::class.java) { mHeartbeatTaskList.remove(heartbeatTask) }
+                synchronized(this) { mHeartbeatTaskList.remove(heartbeatTask) }
                 callback?.onBeatSuccess(heartbeatId)
             }
 
             override fun onBeatTimeout(heartbeatId: String) {
-                synchronized(HeartbeatSender::class.java) { mHeartbeatTaskList.remove(heartbeatTask) }
+                synchronized(this) { mHeartbeatTaskList.remove(heartbeatTask) }
                 callback?.onBeatTimeout(heartbeatId)
             }
 
             override fun onBeatCancel(heartbeatId: String) {
-                synchronized(HeartbeatSender::class.java) { mHeartbeatTaskList.remove(heartbeatTask) }
+                synchronized(this) { mHeartbeatTaskList.remove(heartbeatTask) }
                 callback?.onBeatCancel(heartbeatId)
             }
         })
-        synchronized(HeartbeatSender::class.java) {
+        synchronized(this) {
             if (isInit) {
                 mHeartbeatTaskList.add(heartbeatTask)
                 mExecutorService.submit(heartbeatTask)
@@ -44,7 +44,7 @@ class HeartbeatSender(private val mSocket: KageSocket) {
     }
 
     fun release() {
-        synchronized(HeartbeatSender::class.java) {
+        synchronized(this) {
             isInit = false
         }
         for (heartbeatTask in mHeartbeatTaskList) {

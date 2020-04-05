@@ -23,14 +23,14 @@ class DeviceScanner {
 
     var scanPeriod: Int
         get() {
-            synchronized(LOCK) {
+            synchronized(this) {
                 return if (!mNoticeOnlineThread.isStopped) {
                     mNoticeOnlineThread.period
                 } else -1
             }
         }
         set(value) {
-            synchronized(LOCK) {
+            synchronized(this) {
                 if (!mNoticeOnlineThread.isStopped) {
                     mNoticeOnlineThread.period = value
                 }
@@ -38,7 +38,7 @@ class DeviceScanner {
         }
 
     fun setConfig(config: DeviceConfig) {
-        synchronized(LOCK) { mConfig = config }
+        synchronized(this) { mConfig = config }
     }
 
     fun queryDevice(key: String?): Device? {
@@ -48,7 +48,7 @@ class DeviceScanner {
     fun startScan(period: Int, scanCallback: IScanCallback): Boolean {
         mScanCallback = scanCallback
 
-        synchronized(LOCK) {
+        synchronized(this) {
             mUDP.stopReceive()
             mUDP = UDP(mConfig.localHost, mConfig.broadcastMonitorPort)
         }
@@ -114,6 +114,7 @@ class DeviceScanner {
                             }
                             mScanCallback.onDeviceInfoChanged(device)
                         }
+
                         mScanCallback.onDeviceNotice(device)
                         updateOnlineTime(device)
                     }
@@ -121,7 +122,7 @@ class DeviceScanner {
             }
 
         })
-        synchronized(LOCK) {
+        synchronized(this) {
             mNoticeOnlineThread.apply {
                 isStopped = true
                 interrupt()
@@ -144,7 +145,7 @@ class DeviceScanner {
     }
 
     fun stopScan() {
-        synchronized(LOCK) {
+        synchronized(this) {
             mNoticeOnlineThread.apply {
                 isStopped = true
                 interrupt()
@@ -278,6 +279,5 @@ class DeviceScanner {
         private const val TIMEOUT = 5000 //5 秒间隔询问无回复则判定为无响应
         private const val MIN_PERIOD = 1000 //间隔至少1秒
         private const val DEFAULT_PERIOD = 6000
-        private val LOCK = ByteArray(0)
     }
 }

@@ -22,7 +22,6 @@ object DeviceManager : KageObservable(), LifecycleObserver {
 
     private const val DEFAULT_CONNECT_TIMEOUT = 10 * 1000
 
-    private val LOCK = ByteArray(0)
     private val observers: MutableList<IDeviceObserver> = ArrayList()
     private val mProxyList: MutableList<IProxy> = ArrayList()
 
@@ -70,7 +69,7 @@ object DeviceManager : KageObservable(), LifecycleObserver {
     private val currentDevice: Device?
         get() {
             var device: Device?
-            synchronized(LOCK) {
+            synchronized(this) {
                 if (null == mCurrentDeviceKey) {
                     return null
                 }
@@ -108,7 +107,7 @@ object DeviceManager : KageObservable(), LifecycleObserver {
      * 连接指定的设备，已连接事件会通知Observer。
      */
     fun connectDevice(deviceInfo: DeviceInfo) {
-        synchronized(LOCK) {
+        synchronized(this) {
             mConnectState.connect(deviceInfo)
         }
     }
@@ -232,7 +231,9 @@ object DeviceManager : KageObservable(), LifecycleObserver {
 
     override fun notifyDeviceDisconnect(device: Device?) {
         var localObservers: Array<IDeviceObserver>
+
         synchronized(this) { localObservers = observers.toTypedArray() }
+
         for (observer in localObservers) {
             val deviceInfo = device!!.deviceInfo
             deviceInfo.state = DeviceInfo.STATE_IDLE
@@ -242,7 +243,9 @@ object DeviceManager : KageObservable(), LifecycleObserver {
 
     override fun notifyDeviceConnectFailed(device: Device?, errorCode: Int, errorMessage: String?) {
         var localObservers: Array<IDeviceObserver>
+
         synchronized(this) { localObservers = observers.toTypedArray() }
+
         for (observer in localObservers) {
             val deviceInfo = device!!.deviceInfo
             observer.onDeviceConnectFailed(deviceInfo, errorCode, errorMessage)
@@ -296,13 +299,14 @@ object DeviceManager : KageObservable(), LifecycleObserver {
             val key = deviceInfo.ip
             val device = mDeviceScanner.queryDevice(key) ?: return
 
-            synchronized(LOCK) { mCurrentDeviceKey = key }
+            synchronized(this) { mCurrentDeviceKey = key }
+
             setConnectState(StateConnecting())
             device.setConnectCallback(object : IConnectCallback {
 
                 override fun onConnectedFailed(errorCode: Int, e: Exception?) {
                     Timber.d("onConnectedFailed")
-                    synchronized(LOCK) {
+                    synchronized(this) {
                         mCurrentDeviceKey = null
                         setConnectState(StateIdle())
                         var errorMessage: String? = "Unknown error"
@@ -335,7 +339,7 @@ object DeviceManager : KageObservable(), LifecycleObserver {
 
                 override fun onConnected() {
                     Timber.d("onConnectedSuccess")
-                    synchronized(LOCK) {
+                    synchronized(this) {
                         device.sendCommand(PromptPhoneConnectedCommand().apply {
                             localIp = config.localHost
                             phoneName = config.name
@@ -350,7 +354,7 @@ object DeviceManager : KageObservable(), LifecycleObserver {
                 }
 
                 override fun onDisConnect() {
-                    synchronized(LOCK) {
+                    synchronized(this) {
                         mCurrentDeviceKey = null
                         setConnectState(StateIdle())
                         notifyDeviceDisconnectToProxy(device)
@@ -395,7 +399,7 @@ object DeviceManager : KageObservable(), LifecycleObserver {
         override fun connect(deviceInfo: DeviceInfo, timeout: Int) {}
 
         override fun disConnect() {
-            synchronized(LOCK) { mCurrentDeviceKey = null }
+            synchronized(this) { mCurrentDeviceKey = null }
         }
     }
 
@@ -418,11 +422,12 @@ object DeviceManager : KageObservable(), LifecycleObserver {
     }
 
     fun addProxy(proxy: IProxy) {
-        val currentDevice = currentDevice
-        if (null != currentDevice && currentDevice.isConnected) {
-            proxy.onDeviceConnected(currentDevice)
+        currentDevice?.let {
+            if (it.isConnected) {
+                proxy.onDeviceConnected(it)
+            }
         }
-        synchronized(LOCK) {
+        synchronized(this) {
             if (!mProxyList.contains(proxy)) {
                 mProxyList.add(proxy)
             }
@@ -430,12 +435,11 @@ object DeviceManager : KageObservable(), LifecycleObserver {
     }
 
     fun removeProxy(proxy: IProxy) {
-        synchronized(LOCK) { mProxyList.remove(proxy) }
+        synchronized(this) { mProxyList.remove(proxy) }
     }
 
-    fun sendCommandToCurrentDevice(command: Command?) {
-        val device = currentDevice
-        device?.sendCommand(command!!)
+    fun sendCommandToCurrentDevice(command: Command) {
+        currentDevice?.sendCommand(command)
     }
 
     enum class ConnectFailedReason {

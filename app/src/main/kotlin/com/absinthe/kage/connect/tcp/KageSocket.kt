@@ -19,7 +19,7 @@ class KageSocket {
     private var mPacketReader: IPacketReader? = null
 
     fun connect(ip: String?, port: Int, timeout: Int) {
-        synchronized(KageSocket::class.java) {
+        synchronized(this) {
             if (mSocket == null) {
                 ConnectThread(ip, port, timeout).start()
             } else {
@@ -31,7 +31,7 @@ class KageSocket {
     private inner class ConnectThread(private val ip: String?, private val port: Int, private val timeout: Int) : Thread() {
 
         override fun run() {
-            synchronized(KageSocket::class.java) {
+            synchronized(this) {
                 if (mSocket == null) {
                     try {
                         mSocket = Socket()
@@ -79,7 +79,7 @@ class KageSocket {
     }
 
     fun disconnect(): Boolean {
-        synchronized(KageSocket::class.java) {
+        synchronized(this) {
             return if (mSocket != null && mSocket!!.isConnected) {
                 try {
                     mIn?.close()
@@ -108,7 +108,7 @@ class KageSocket {
     }
 
     fun send(packet: Packet) {
-        synchronized(KageSocket::class.java) {
+        synchronized(this) {
             if (mPacketWriter != null) {
                 if (packet is Request) {
                     packet.id = System.currentTimeMillis().toString()

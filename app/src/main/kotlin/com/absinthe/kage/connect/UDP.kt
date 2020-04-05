@@ -1,6 +1,7 @@
 package com.absinthe.kage.connect
 
 import com.absinthe.kage.connect.protocol.IpMessageProtocol
+import com.absinthe.kage.utils.ToastUtil
 import timber.log.Timber
 import java.io.IOException
 import java.net.*
@@ -16,6 +17,7 @@ class UDP(private val mLocalIpAddress: String, monitorPort: Int) {
             mDatagramSocket = DatagramSocket(monitorPort)
         } catch (e: SocketException) {
             Timber.e("Create DatagramSocket error: $e")
+            ToastUtil.makeText("Server port may be occupied")
         }
     }
 
@@ -40,21 +42,8 @@ class UDP(private val mLocalIpAddress: String, monitorPort: Int) {
         }
     }
 
-    fun stopReceive() {
-        synchronized(UDP::class.java) {
-            mReceivePacketThread?.isStop = true
-            mReceivePacketThread = null
-
-            mDatagramSocket?.let {
-                if (!it.isClosed) {
-                    it.close()
-                }
-            }
-        }
-    }
-
     fun startReceive(callback: IUDPCallback?) {
-        synchronized(UDP::class.java) {
+        synchronized(this) {
             mReceivePacketThread?.apply {
                 isStop = true
                 interrupt()
@@ -62,6 +51,19 @@ class UDP(private val mLocalIpAddress: String, monitorPort: Int) {
             mReceivePacketThread = ReceivePacketThread(mDatagramSocket, mLocalIpAddress).apply {
                 this.callback = callback
                 start()
+            }
+        }
+    }
+
+    fun stopReceive() {
+        synchronized(this) {
+            mReceivePacketThread?.isStop = true
+            mReceivePacketThread = null
+
+            mDatagramSocket?.let {
+                if (!it.isClosed) {
+                    it.close()
+                }
             }
         }
     }

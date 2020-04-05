@@ -469,8 +469,8 @@ object AudioProxy : BaseProxy() {
 
     override fun onDeviceConnected(device: Device) {
         if (mDevice != device) {
-            if (mDevice != null) {
-                mDevice!!.unregisterOnReceiveMsgListener(mOnReceiveMsgListener)
+            mDevice?.let {
+                it.unregisterOnReceiveMsgListener(mOnReceiveMsgListener)
                 cancelInquiryPlayState()
                 cancelInquiryCurrentPosition()
                 cancelInquiryDuration()
