@@ -7,7 +7,8 @@ object IpMessageConst {
     const val IP_MSG_BR_EXIT = 0x00000002 //Offline
     const val IP_MSG_ANS_ENTRY = 0x00000003 //Online response
     const val IP_MSG_BR_ABSENCE = 0x00000004
-    const val IS_ONLINE = 0x00000001 //Heartbeat
+
+    const val HEARTBEAT = 0x00000001 //Heartbeat
     const val GET_DEVICE_INFO = 0x00000002 //Get device info
     const val PROMPT_PHONE_CONNECT = 0x00000003 //Device connected response
     const val MEDIA_SET_PLAYER_STATUS = 0x00000004 //Set player status

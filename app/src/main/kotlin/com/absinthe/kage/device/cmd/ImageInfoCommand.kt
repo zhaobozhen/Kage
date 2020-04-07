@@ -22,9 +22,9 @@ class ImageInfoCommand : Command() {
 
     override fun doWork(client: Client, received: String) {
         if (parseReceived(received)) {
-            if (!TextUtils.isEmpty(info) && client.deviceInfo != null) {
+            if (!TextUtils.isEmpty(info)) {
                 var imageUri = info
-                val ip = client.deviceInfo!!.ip
+                val ip = client.deviceInfo.ip
 
                 if (!TextUtils.isEmpty(ip)) {
                     imageUri = String.format(Const.HTTP_SERVER_FORMAT, ip) + imageUri

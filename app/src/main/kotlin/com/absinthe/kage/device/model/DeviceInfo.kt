@@ -1,13 +1,14 @@
 package com.absinthe.kage.device.model
 
 import com.absinthe.kage.connect.protocol.Config
+import com.absinthe.kage.connect.protocol.IpMessageConst
 
 class DeviceInfo {
 
     var name: String = "Unknown"
     var ip: String = Config.ADDRESS
-    var protocolVersion: String? = null
-    var functionCode: String? = null
+    var protocolVersion: String = IpMessageConst.VERSION.toString()
+    var functionCode: String = ""
     var isConnected = false
     var state = STATE_IDLE
 

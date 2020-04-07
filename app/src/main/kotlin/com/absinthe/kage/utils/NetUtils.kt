@@ -27,7 +27,6 @@ object NetUtils {
     private const val REGEX_B_IP = "^172\\.(1[6-9]|2\\d|3[0-1])\\.(\\d|[1-9]\\d|1\\d{2}|2[0-4]\\d|25\\d)\\.(\\d|[1-9]\\d|1\\d{2}|2[0-4]\\d|25\\d)$"
     private val IP_PATTERN = Pattern.compile("($REGEX_A_IP)|($REGEX_B_IP)|($REGEX_C_IP)")
 
-    @JvmStatic
     val localAddress: String
         get() {
             val hostIp: String
@@ -41,6 +40,11 @@ object NetUtils {
             if (networkInterfaces != null) {
                 while (networkInterfaces.hasMoreElements()) {
                     val networkInterface = networkInterfaces.nextElement()
+
+                    if (networkInterface.isLoopback || networkInterface.isVirtual) {
+                        continue
+                    }
+
                     val inetAddresses = networkInterface.inetAddresses
 
                     while (inetAddresses.hasMoreElements()) {

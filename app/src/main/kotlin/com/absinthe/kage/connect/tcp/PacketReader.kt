@@ -5,6 +5,7 @@ import com.absinthe.kage.device.cmd.HeartbeatCommand
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import timber.log.Timber
 import java.io.DataInputStream
 import java.io.IOException
@@ -29,14 +30,13 @@ class PacketReader(private val mIn: DataInputStream?, private val mSocketCallbac
             try {
                 while (!shutdown) {
                     val packet = mPackets.poll(timeout, TimeUnit.MILLISECONDS)
-                    synchronized(PacketReader::class.java) {
-                        if (shutdown) {
-                            return@launch
-                        }
-                        if (null == packet) {
-                            GlobalScope.launch(Dispatchers.Main) {
-                                mSocketCallback?.onReaderIdle()
-                            }
+
+                    if (shutdown) {
+                        return@launch
+                    }
+                    if (packet == null) {
+                        withContext(Dispatchers.Main) {
+                            mSocketCallback?.onReaderIdle()
                         }
                     }
                 }
@@ -47,11 +47,11 @@ class PacketReader(private val mIn: DataInputStream?, private val mSocketCallbac
     }
 
     override fun addRequest(request: Request) {
-        synchronized(PacketReader::class.java) { mRequests.put(request.id, request) }
+        synchronized(this) { mRequests.put(request.id, request) }
     }
 
     override fun shutdown() {
-        synchronized(PacketReader::class.java) {
+        synchronized(this) {
             shutdown = true
             mExecutorService.shutdownNow()
             mRequests.clear()
@@ -64,17 +64,15 @@ class PacketReader(private val mIn: DataInputStream?, private val mSocketCallbac
         override fun run() {
             while (!shutdown) {
                 if (mIn != null) {
-                    val data: String?
-                    data = try {
+                    val data = try {
                         readFromStream(mIn)
                     } catch (e: IllegalArgumentException) {
-                        e.printStackTrace()
-                        Timber.d("PacketReader error")
+                        Timber.e("PacketReader error")
                         mSocketCallback?.onReadAndWriteError(ISocketCallback.READ_ERROR_CODE_RECEIVE_LENGTH_TOO_BIG)
                         return
                     }
 
-                    synchronized(PacketReader::class.java) {
+                    synchronized(this@PacketReader) {
                         if (shutdown) {
                             return
                         }
@@ -101,6 +99,7 @@ class PacketReader(private val mIn: DataInputStream?, private val mSocketCallbac
                         }
 
                         responseAllHeartBeat() //收到任何数据都消费掉所有的心跳超时
+
                         if (!isHeartBeat(data)) {
                             GlobalScope.launch(Dispatchers.Main) {
                                 mSocketCallback?.onReceiveMsg(data)
@@ -123,7 +122,7 @@ class PacketReader(private val mIn: DataInputStream?, private val mSocketCallbac
      */
     private fun responseAllHeartBeat() {
         val tempMap: MutableMap<String?, Request?> = TreeMap()
-        synchronized(PacketReader::class.java) {
+        synchronized(this) {
             if (mRequests.isNotEmpty()) {
                 tempMap.putAll(mRequests)
                 mRequests.clear()
@@ -145,8 +144,7 @@ class PacketReader(private val mIn: DataInputStream?, private val mSocketCallbac
 
     @Throws(IllegalArgumentException::class)
     private fun readNextPacket(dis: DataInputStream): ByteArray? {
-        val receiveLength: Int
-        receiveLength = try {
+        val receiveLength = try {
             dis.readInt()
         } catch (e: IOException) {
             e.printStackTrace()

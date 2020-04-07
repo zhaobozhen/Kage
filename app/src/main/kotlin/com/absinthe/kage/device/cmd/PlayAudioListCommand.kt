@@ -31,12 +31,12 @@ class PlayAudioListCommand : Command() {
 
     override fun doWork(client: Client, received: String) {
         if (parseReceived(received)) {
-            if (!TextUtils.isEmpty(listInfo) && client.deviceInfo != null) {
+            if (!TextUtils.isEmpty(listInfo)) {
                 val localMusicList = Gson().fromJson<List<AudioInfo>>(listInfo, object : TypeToken<List<AudioInfo?>?>() {}.type)
 
                 if (localMusicList != null && localMusicList.isNotEmpty()) {
                     val audioInfo = localMusicList[0]
-                    val ip = client.deviceInfo!!.ip
+                    val ip = client.deviceInfo.ip
 
                     if (!TextUtils.isEmpty(ip)) {
                         val localMusic = LocalMusic()

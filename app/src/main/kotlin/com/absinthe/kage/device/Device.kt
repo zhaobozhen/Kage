@@ -26,7 +26,7 @@ class Device(config: DeviceConfig, protocolVersionString: String?) {
     var onlineTime: Long = 0
 
     init {
-        deviceInfo.protocolVersion = protocolVersionString
+        deviceInfo.protocolVersion = protocolVersionString ?: ""
 
         val mProtocolHandlerCallback: IProtocolHandleCallback = object : IProtocolHandleCallback {
             override fun onProtocolConnected() {
@@ -183,7 +183,7 @@ class Device(config: DeviceConfig, protocolVersionString: String?) {
     var functionCode: String?
         get() = deviceInfo.functionCode
         set(functionCode) {
-            deviceInfo.functionCode = functionCode
+            deviceInfo.functionCode = functionCode ?: ""
         }
 
     interface IConnectCallback {

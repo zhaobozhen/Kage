@@ -27,8 +27,8 @@ class VideoInfoCommand : Command() {
 
     override fun doWork(client: Client, received: String) {
         if (parseReceived(received)) {
-            if (!TextUtils.isEmpty(url) && client.deviceInfo != null) {
-                val ip = client.deviceInfo!!.ip
+            if (!TextUtils.isEmpty(url)) {
+                val ip = client.deviceInfo.ip
 
                 if (!TextUtils.isEmpty(ip)) {
                     val localMedia = LocalMedia()

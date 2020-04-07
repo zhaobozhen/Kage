@@ -122,6 +122,7 @@ class DeviceScanner {
             }
 
         })
+
         synchronized(this) {
             mNoticeOnlineThread.apply {
                 isStopped = true
@@ -218,8 +219,8 @@ class DeviceScanner {
                 additionalSection = mConfig.uuid
             }
             val broadCastHost = mConfig.broadcastHostInWifi
-            val broadcastPort = mConfig.broadcastPort
             val broadCastHostInAp = mConfig.broadcastHostInAp
+            val broadcastPort = mConfig.broadcastPort
 
             while (!isInterrupted && !isStopped) {
                 checkOffline()
@@ -229,7 +230,7 @@ class DeviceScanner {
                 try {
                     sleep(mPeriod.toLong())
                 } catch (e: InterruptedException) {
-                    Timber.e("NoticeOnlineThread InterruptedException,")
+                    Timber.e("NoticeOnlineThread InterruptedException")
                 }
                 if (isStopped) {
                     break

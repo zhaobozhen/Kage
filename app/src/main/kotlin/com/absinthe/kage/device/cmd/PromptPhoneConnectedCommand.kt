@@ -5,7 +5,6 @@ import com.absinthe.kage.connect.protocol.IpMessageProtocol
 import com.absinthe.kage.device.Command
 import com.absinthe.kage.device.CommandBuilder
 import com.absinthe.kage.device.client.Client
-import com.absinthe.kage.device.model.DeviceInfo
 
 class PromptPhoneConnectedCommand : Command() {
 
@@ -21,12 +20,9 @@ class PromptPhoneConnectedCommand : Command() {
     }
 
     override fun doWork(client: Client, received: String) {
-        if (client.deviceInfo == null) {
-            client.deviceInfo = DeviceInfo()
-        }
         if (parseReceived(received)) {
-            client.deviceInfo!!.name = phoneName!!
-            client.deviceInfo!!.ip = localIp!!
+            client.deviceInfo.name = phoneName!!
+            client.deviceInfo.ip = localIp!!
         }
     }
 

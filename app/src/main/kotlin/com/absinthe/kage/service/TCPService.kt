@@ -69,6 +69,7 @@ class TCPService : LifecycleService() {
                     val socket = mServerSocket.accept()
                     val dis = DataInputStream(socket.getInputStream())
                     val dos = DataOutputStream(socket.getOutputStream())
+
                     Client(this@TCPService, socket, dis, dos).start()
                 }
             } catch (e: IOException) {

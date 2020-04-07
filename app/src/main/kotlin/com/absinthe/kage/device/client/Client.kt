@@ -17,7 +17,7 @@ class Client(val context: Context,
              private val dis: DataInputStream,
              private val dos: DataOutputStream) : Thread(), Runnable {
 
-    var deviceInfo: DeviceInfo? = null
+    var deviceInfo: DeviceInfo = DeviceInfo()
 
     override fun run() {
         while (true) {
@@ -40,7 +40,7 @@ class Client(val context: Context,
             }
 
             when (commandNum) {
-                IpMessageConst.IS_ONLINE -> HeartbeatCommand().doWork(this, command)
+                IpMessageConst.HEARTBEAT -> HeartbeatCommand().doWork(this, command)
                 IpMessageConst.GET_DEVICE_INFO -> InquiryDeviceInfoCommand().doWork(this, command)
                 IpMessageConst.PROMPT_PHONE_CONNECT -> PromptPhoneConnectedCommand().doWork(this, command)
                 IpMessageConst.MEDIA_STOP -> StopCommand().doWork(this, command)

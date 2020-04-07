@@ -46,6 +46,6 @@ class HeartbeatCommand : Command() {
     }
 
     init {
-        cmd = IpMessageConst.IS_ONLINE
+        cmd = IpMessageConst.HEARTBEAT
     }
 }
