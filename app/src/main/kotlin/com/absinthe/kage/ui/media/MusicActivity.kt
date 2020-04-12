@@ -24,6 +24,7 @@ import com.absinthe.kage.device.DeviceManager.isConnected
 import com.absinthe.kage.device.DeviceObserverImpl
 import com.absinthe.kage.device.IDeviceObserver
 import com.absinthe.kage.device.model.DeviceInfo
+import com.absinthe.kage.manager.GlobalManager
 import com.absinthe.kage.media.*
 import com.absinthe.kage.media.audio.AudioPlayer
 import com.absinthe.kage.media.audio.LocalMusic
@@ -216,10 +217,10 @@ class MusicActivity : BaseActivity(), Observer {
 
         if (type == TYPE_SENDER) {
             val playList = PlayList()
-            for (localMedia in MusicList.musicList) {
+            for (localMedia in GlobalManager.musicList) {
                 playList.addMedia(localMedia)
             }
-            playList.currentIndex = MusicList.musicList.indexOf(mLocalMusic)
+            playList.currentIndex = GlobalManager.musicList.indexOf(mLocalMusic)
             mAudioPlayer.playMediaList(playList)
         } else if (type == TYPE_RECEIVER) {
             mLocalMusic?.let { mAudioPlayer.playMedia(it) }

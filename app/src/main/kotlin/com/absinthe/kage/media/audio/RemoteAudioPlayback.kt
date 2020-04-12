@@ -15,9 +15,9 @@ import java.util.*
 
 class RemoteAudioPlayback internal constructor() : Playback {
 
-    private var mCallback: Playback.Callback? = null
     private val mAudioProxy = AudioProxy
     private var mPlayList: PlayList? = null
+    private var mCallback: Playback.Callback? = null
 
     override var state = PlaybackState.STATE_NONE
         private set

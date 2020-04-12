@@ -7,7 +7,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.absinthe.kage.BaseActivity
 import com.absinthe.kage.databinding.ActivityMusicListBinding
-import com.absinthe.kage.media.MusicList
+import com.absinthe.kage.manager.GlobalManager
 import com.absinthe.kage.media.audio.LocalMusic
 import com.absinthe.kage.viewholder.delegate.LocalMusicViewBinder
 import com.absinthe.kage.viewmodel.MusicViewModel
@@ -44,8 +44,8 @@ class MusicListActivity : BaseActivity() {
             mBinding.srlContainer.isRefreshing = false
             mItems.clear()
             mItems.addAll(localMusics)
-            MusicList.musicList.clear()
-            MusicList.musicList.addAll(localMusics)
+            GlobalManager.musicList.clear()
+            GlobalManager.musicList.addAll(localMusics)
             mAdapter.items = mItems
             mAdapter.notifyDataSetChanged()
             mBinding.srlContainer.isEnabled = false

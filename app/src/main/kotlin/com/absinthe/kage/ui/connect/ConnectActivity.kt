@@ -2,7 +2,6 @@ package com.absinthe.kage.ui.connect
 
 import android.os.Bundle
 import android.view.MenuItem
-import androidx.recyclerview.widget.LinearLayoutManager
 import com.absinthe.kage.BaseActivity
 import com.absinthe.kage.R
 import com.absinthe.kage.databinding.ActivityConnectBinding
@@ -11,6 +10,7 @@ import com.absinthe.kage.device.DeviceObserverImpl
 import com.absinthe.kage.device.IDeviceObserver
 import com.absinthe.kage.device.model.DeviceInfo
 import com.absinthe.kage.utils.ToastUtil.makeText
+import com.absinthe.kage.viewholder.WrappedLinearLayoutManager
 import com.absinthe.kage.viewholder.delegate.DeviceInfoItemViewBinder
 import com.drakeet.multitype.MultiTypeAdapter
 import timber.log.Timber
@@ -53,15 +53,21 @@ class ConnectActivity : BaseActivity() {
     private fun initView() {
         setSupportActionBar(mBinding.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        mBinding.vfContainer.setInAnimation(this, R.anim.anim_fade_in)
-        mBinding.vfContainer.setOutAnimation(this, R.anim.anim_fade_out)
+        mBinding.vfContainer.apply {
+            setInAnimation(this@ConnectActivity, R.anim.anim_fade_in)
+            setOutAnimation(this@ConnectActivity, R.anim.anim_fade_out)
+        }
 
         mAdapter.register(DeviceInfoItemViewBinder())
-        mBinding.rvDevices.adapter = mAdapter
-        mBinding.rvDevices.layoutManager = LinearLayoutManager(this)
+
+        mBinding.rvDevices.apply {
+            adapter = mAdapter
+            layoutManager = WrappedLinearLayoutManager(this@ConnectActivity)
+        }
 
         mItems.clear()
         mItems.addAll(mDeviceManager.deviceInfoList)
+
         if (mItems.isNotEmpty()) {
             mAdapter.items = mItems
             switchContainer(VF_DEVICE_LIST)
