@@ -64,7 +64,7 @@ dependencies {
     implementation 'com.drakeet.about:about:2.4.1'
     implementation 'com.drakeet.multitype:multitype:4.2.0'
     implementation 'it.sephiroth.android.library.imagezoom:imagezoom:2.3.0'
-    implementation 'com.blankj:utilcodex:1.26.0'
+    implementation 'com.blankj:utilcodex:1.27.0'
     implementation 'com.google.code.gson:gson:2.8.6'
     implementation 'com.airbnb.android:lottie:3.4.0'
     implementation 'com.google.android.exoplayer:exoplayer:2.11.3'

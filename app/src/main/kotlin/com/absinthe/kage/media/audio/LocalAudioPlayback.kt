@@ -59,9 +59,7 @@ class LocalAudioPlayback internal constructor(context: Context) : Playback {
             }
 
             state = PlaybackState.STATE_BUFFERING
-            if (mCallback != null) {
-                mCallback!!.onPlaybackStateChanged(state)
-            }
+            mCallback?.onPlaybackStateChanged(state)
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 val mAudioAttributes = AudioAttributes.Builder()
@@ -78,9 +76,7 @@ class LocalAudioPlayback internal constructor(context: Context) : Playback {
         } catch (e: Exception) {
             e.printStackTrace()
             state = PlaybackState.STATE_ERROR
-            if (mCallback != null) {
-                mCallback!!.onPlaybackStateChanged(state)
-            }
+            mCallback?.onPlaybackStateChanged(state)
         }
     }
 

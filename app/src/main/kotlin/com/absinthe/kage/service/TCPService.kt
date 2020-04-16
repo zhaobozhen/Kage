@@ -56,9 +56,9 @@ class TCPService : LifecycleService() {
             init()
             addProxy(this)
             scanPeriod = 2000
-            startMonitorDevice()
             lifecycle.addObserver(this)
             register(deviceObserver)
+            startMonitorDevice()
         }
 
         GlobalScope.launch(Dispatchers.IO) {

@@ -136,6 +136,27 @@ object DeviceManager : KageObservable(), LifecycleObserver {
         return mDeviceScanner.offlineDevice(deviceInfo)
     }
 
+    fun addProxy(proxy: IProxy) {
+        currentDevice?.let {
+            if (it.isConnected) {
+                proxy.onDeviceConnected(it)
+            }
+        }
+        synchronized(this) {
+            if (!mProxyList.contains(proxy)) {
+                mProxyList.add(proxy)
+            }
+        }
+    }
+
+    fun removeProxy(proxy: IProxy) {
+        synchronized(this) { mProxyList.remove(proxy) }
+    }
+
+    fun sendCommandToCurrentDevice(command: Command) {
+        currentDevice?.sendCommand(command)
+    }
+
     /**
      * 开始监测设备
      *
@@ -419,27 +440,6 @@ object DeviceManager : KageObservable(), LifecycleObserver {
             mDevice.disConnect()
         }
 
-    }
-
-    fun addProxy(proxy: IProxy) {
-        currentDevice?.let {
-            if (it.isConnected) {
-                proxy.onDeviceConnected(it)
-            }
-        }
-        synchronized(this) {
-            if (!mProxyList.contains(proxy)) {
-                mProxyList.add(proxy)
-            }
-        }
-    }
-
-    fun removeProxy(proxy: IProxy) {
-        synchronized(this) { mProxyList.remove(proxy) }
-    }
-
-    fun sendCommandToCurrentDevice(command: Command) {
-        currentDevice?.sendCommand(command)
     }
 
     enum class ConnectFailedReason {

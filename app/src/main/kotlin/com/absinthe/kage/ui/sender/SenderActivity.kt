@@ -12,6 +12,7 @@ import com.absinthe.kage.media.TYPE_VIDEO
 import com.absinthe.kage.ui.connect.ConnectActivity
 import com.absinthe.kage.ui.media.VideoActivity
 import com.absinthe.kage.utils.ToastUtil.makeText
+import com.microsoft.appcenter.analytics.Analytics
 import com.tbruyelle.rxpermissions2.RxPermissions
 import com.zhihu.matisse.Matisse
 import com.zhihu.matisse.MimeType
@@ -97,6 +98,7 @@ class SenderActivity : BaseActivity() {
                             makeText(R.string.toast_grant_storage_perm)
                         }
                     }
+            Analytics.trackEvent("Cast Image clicked")
         }
         mBinding.cardVideo.setOnClickListener {
             rxPermissions.request(Manifest.permission.READ_EXTERNAL_STORAGE)
@@ -115,6 +117,7 @@ class SenderActivity : BaseActivity() {
                             makeText(R.string.toast_grant_storage_perm)
                         }
                     }
+            Analytics.trackEvent("Cast Video clicked")
         }
         mBinding.cardMusic.setOnClickListener {
             rxPermissions.request(Manifest.permission.READ_EXTERNAL_STORAGE)
@@ -125,6 +128,7 @@ class SenderActivity : BaseActivity() {
                             makeText(R.string.toast_grant_storage_perm)
                         }
                     }
+            Analytics.trackEvent("Cast Music clicked")
         }
     }
 

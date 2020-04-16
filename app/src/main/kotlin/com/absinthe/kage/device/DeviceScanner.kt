@@ -201,21 +201,20 @@ class DeviceScanner {
 
     internal inner class NoticeOnlineThread(private val udp: UDP) : Thread() {
 
-        @Transient
         var isStopped = false
-        private var mPeriod = DEFAULT_PERIOD
-
         var period: Int
             get() = mPeriod
             set(period) {
                 mPeriod = period.coerceAtLeast(MIN_PERIOD)
             }
 
+        private var mPeriod = DEFAULT_PERIOD
+
         override fun run() {
             val ipMsgSend = IpMessageProtocol().apply {
                 version = IpMessageConst.VERSION.toString()
                 senderName = mConfig.name
-                cmd = IpMessageConst.IP_MSG_BR_ENTRY // 上线命令
+                cmd = IpMessageConst.IP_MSG_BR_ENTRY // Online Command
                 additionalSection = mConfig.uuid
             }
             val broadCastHost = mConfig.broadcastHostInWifi
