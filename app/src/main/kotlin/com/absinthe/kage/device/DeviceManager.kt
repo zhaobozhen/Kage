@@ -83,16 +83,16 @@ object DeviceManager : KageObservable(), LifecycleObserver {
         mDeviceScanner.setConfig(config)
     }
 
+    fun startMonitorDevice() {
+        startMonitorDevice(scanPeriod)
+    }
+
     @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
     fun release() {
         if (isConnected) {
             disConnectDevice()
         }
         mDeviceScanner.stopScan()
-    }
-
-    fun startMonitorDevice() {
-        startMonitorDevice(scanPeriod)
     }
 
     /**
@@ -165,25 +165,25 @@ object DeviceManager : KageObservable(), LifecycleObserver {
      */
     private fun startMonitorDevice(period: Int): Int {
         val scanResult = mDeviceScanner.startScan(period, object : IScanCallback {
-            override fun onDeviceOnline(device: Device?) {
+            override fun onDeviceOnline(device: Device) {
                 GlobalScope.launch(Dispatchers.Main) {
                     notifyFindDevice(device)
                 }
             }
 
-            override fun onDeviceOffline(device: Device?) {
+            override fun onDeviceOffline(device: Device) {
                 GlobalScope.launch(Dispatchers.Main) {
                     notifyLostDevice(device)
                 }
             }
 
-            override fun onDeviceInfoChanged(device: Device?) {
+            override fun onDeviceInfoChanged(device: Device) {
                 GlobalScope.launch(Dispatchers.Main) {
                     notifyDeviceInfoChanged(device)
                 }
             }
 
-            override fun onDeviceNotice(device: Device?) {
+            override fun onDeviceNotice(device: Device) {
                 GlobalScope.launch(Dispatchers.Main) {
                     notifyDeviceNotice(device)
                 }
@@ -222,81 +222,80 @@ object DeviceManager : KageObservable(), LifecycleObserver {
         observers.remove(observer)
     }
 
-    override fun notifyFindDevice(device: Device?) {
+    override fun notifyFindDevice(device: Device) {
         var localObservers: Array<IDeviceObserver>
         synchronized(this) { localObservers = observers.toTypedArray() }
+
         for (observer in localObservers) {
-            val deviceInfo = device!!.deviceInfo
-            observer.onFindDevice(deviceInfo)
+            observer.onFindDevice(device.deviceInfo)
         }
     }
 
-    override fun notifyLostDevice(device: Device?) {
+    override fun notifyLostDevice(device: Device) {
         var localObservers: Array<IDeviceObserver>
         synchronized(this) { localObservers = observers.toTypedArray() }
+
         for (observer in localObservers) {
-            val deviceInfo = device!!.deviceInfo
-            observer.onLostDevice(deviceInfo)
+            observer.onLostDevice(device.deviceInfo)
         }
     }
 
-    override fun notifyDeviceConnected(device: Device?) {
+    override fun notifyDeviceConnected(device: Device) {
         var localObservers: Array<IDeviceObserver>
         synchronized(this) { localObservers = observers.toTypedArray() }
+
         for (observer in localObservers) {
-            val deviceInfo = device!!.deviceInfo
-            deviceInfo.state = DeviceInfo.STATE_CONNECTED
-            observer.onDeviceConnected(deviceInfo)
+            observer.onDeviceConnected(device.deviceInfo.apply {
+                state = DeviceInfo.STATE_CONNECTED
+            })
         }
     }
 
-    override fun notifyDeviceDisconnect(device: Device?) {
+    override fun notifyDeviceDisconnect(device: Device) {
         var localObservers: Array<IDeviceObserver>
-
         synchronized(this) { localObservers = observers.toTypedArray() }
 
         for (observer in localObservers) {
-            val deviceInfo = device!!.deviceInfo
-            deviceInfo.state = DeviceInfo.STATE_IDLE
-            observer.onDeviceDisConnect(deviceInfo)
+            observer.onDeviceDisConnect(device.deviceInfo.apply {
+                state = DeviceInfo.STATE_IDLE
+            })
         }
     }
 
-    override fun notifyDeviceConnectFailed(device: Device?, errorCode: Int, errorMessage: String?) {
+    override fun notifyDeviceConnectFailed(device: Device, errorCode: Int, errorMessage: String?) {
         var localObservers: Array<IDeviceObserver>
 
         synchronized(this) { localObservers = observers.toTypedArray() }
 
         for (observer in localObservers) {
-            val deviceInfo = device!!.deviceInfo
-            observer.onDeviceConnectFailed(deviceInfo, errorCode, errorMessage)
+            observer.onDeviceConnectFailed(device.deviceInfo, errorCode, errorMessage)
         }
     }
 
-    private fun notifyDeviceInfoChanged(device: Device?) {
+    private fun notifyDeviceInfoChanged(device: Device) {
         var localObservers: Array<IDeviceObserver>
         synchronized(this) { localObservers = observers.toTypedArray() }
+
         for (observer in localObservers) {
-            val deviceInfo = device!!.deviceInfo
-            observer.onDeviceInfoChanged(deviceInfo)
+            observer.onDeviceInfoChanged(device.deviceInfo)
         }
     }
 
     private fun notifyDeviceConnecting(device: Device) {
         var localObservers: Array<IDeviceObserver>
         synchronized(this) { localObservers = observers.toTypedArray() }
+
         for (observer in localObservers) {
-            val deviceInfo = device.deviceInfo
-            observer.onDeviceConnecting(deviceInfo)
+            observer.onDeviceConnecting(device.deviceInfo)
         }
     }
 
-    private fun notifyDeviceNotice(device: Device?) {
+    private fun notifyDeviceNotice(device: Device) {
         var localObservers: Array<IDeviceObserver>
         synchronized(this) { localObservers = observers.toTypedArray() }
+
         for (observer in localObservers) {
-            val deviceInfo = device!!.deviceInfo
-            observer.onDeviceNotice(deviceInfo)
+            observer.onDeviceNotice(device.deviceInfo)
         }
     }
 
@@ -379,6 +378,7 @@ object DeviceManager : KageObservable(), LifecycleObserver {
                         mCurrentDeviceKey = null
                         setConnectState(StateIdle())
                         notifyDeviceDisconnectToProxy(device)
+
                         GlobalScope.launch(Dispatchers.Main) {
                             notifyDeviceDisconnect(device)
                         }

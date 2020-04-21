@@ -1,6 +1,5 @@
 package com.absinthe.kage.device
 
-import android.text.TextUtils
 import com.absinthe.kage.connect.UDP
 import com.absinthe.kage.connect.protocol.IpMessageConst
 import com.absinthe.kage.connect.protocol.IpMessageProtocol
@@ -164,7 +163,7 @@ class DeviceScanner {
             val protocolVersion = deviceInfo.protocolVersion
             val functionCode = deviceInfo.functionCode
 
-            if (TextUtils.isEmpty(protocolVersion) or TextUtils.isEmpty(functionCode)) {
+            if (protocolVersion.isEmpty() || functionCode.isEmpty()) {
                 return null
             }
 
@@ -269,10 +268,10 @@ class DeviceScanner {
     }
 
     interface IScanCallback {
-        fun onDeviceOnline(device: Device?)
-        fun onDeviceOffline(device: Device?)
-        fun onDeviceInfoChanged(device: Device?)
-        fun onDeviceNotice(device: Device?)
+        fun onDeviceOnline(device: Device)
+        fun onDeviceOffline(device: Device)
+        fun onDeviceInfoChanged(device: Device)
+        fun onDeviceNotice(device: Device)
     }
 
     companion object {

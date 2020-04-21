@@ -52,44 +52,46 @@ class Device(config: DeviceConfig, protocolVersionString: String?) {
 
         mProtocolHandler = ProtocolHandler(this, config, mProtocolHandlerCallback)
 
-        mSocket = KageSocket()
-        mSocket.setSocketCallback(object : ISocketCallback {
+        mSocket = KageSocket().apply {
+            setSocketCallback(object : ISocketCallback {
 
-            override fun onConnected() {
-                mProtocolHandler.handleSocketConnectedEvent()
-            }
-
-            override fun onDisConnected() {
-                mProtocolHandler.handleSocketDisConnectEvent()
-            }
-
-            override fun onReceiveMsg(msg: String) {
-                Timber.d("onReceiveMsg: $msg")
-                mProtocolHandler.handleSocketMassage(msg)
-                if (!deviceInfo.isConnected) {
-                    return
+                override fun onConnected() {
+                    mProtocolHandler.handleSocketConnectedEvent()
                 }
-                synchronized(this@Device) {
-                    for (listener in mOnReceiveMsgListeners) {
-                        listener.onReceiveMsg(msg)
+
+                override fun onDisConnected() {
+                    mProtocolHandler.handleSocketDisConnectEvent()
+                }
+
+                override fun onReceiveMsg(msg: String) {
+                    Timber.d("onReceiveMsg: $msg")
+                    mProtocolHandler.handleSocketMassage(msg)
+                    if (!deviceInfo.isConnected) {
+                        return
+                    }
+                    synchronized(this@Device) {
+                        for (listener in mOnReceiveMsgListeners) {
+                            listener.onReceiveMsg(msg)
+                        }
                     }
                 }
-            }
 
-            override fun onConnectError(errorCode: Int, e: Exception) {
-                mProtocolHandler.handleSocketConnectFail(errorCode, e)
-            }
+                override fun onConnectError(errorCode: Int, e: Exception) {
+                    mProtocolHandler.handleSocketConnectFail(errorCode, e)
+                }
 
-            override fun onReadAndWriteError(errorCode: Int) {
-                mProtocolHandler.handleSocketSendOrReceiveError()
-            }
+                override fun onReadAndWriteError(errorCode: Int) {
+                    mProtocolHandler.handleSocketSendOrReceiveError()
+                }
 
-            override fun onWriterIdle() {
-                heartbeat()
-            }
+                override fun onWriterIdle() {
+                    heartbeat()
+                }
 
-            override fun onReaderIdle() {}
-        })
+                override fun onReaderIdle() {}
+            })
+        }
+
         mHeartbeatSender = HeartbeatSender(mSocket)
     }
 
@@ -114,19 +116,17 @@ class Device(config: DeviceConfig, protocolVersionString: String?) {
     }
 
     @Synchronized
-    fun registerOnReceiveMsgListener(listener: OnReceiveMsgListener?) {
-        if (null != listener && !mOnReceiveMsgListeners.contains(listener)) {
+    fun registerOnReceiveMsgListener(listener: OnReceiveMsgListener) {
+        if (!mOnReceiveMsgListeners.contains(listener)) {
             mOnReceiveMsgListeners.add(listener)
             Timber.d("registerOnReceiveMsgListener")
         }
     }
 
     @Synchronized
-    fun unregisterOnReceiveMsgListener(listener: OnReceiveMsgListener?) {
-        if (null != listener) {
-            mOnReceiveMsgListeners.remove(listener)
-            Timber.d("unregisterOnReceiveMsgListener")
-        }
+    fun unregisterOnReceiveMsgListener(listener: OnReceiveMsgListener) {
+        mOnReceiveMsgListeners.remove(listener)
+        Timber.d("unregisterOnReceiveMsgListener")
     }
 
     fun disConnect() {

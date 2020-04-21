@@ -145,8 +145,8 @@ open class VideoPlayer : FrameLayout, Playback.Callback {
             mPlayback = RemoteVideoPlayback()
             (mPlayback as RemoteVideoPlayback).setCallback(this)
         }
-        if (mLocalMedia != null) {
-            mPlayback.playMedia(mLocalMedia!!)
+        mLocalMedia?.let {
+            mPlayback.playMedia(it)
         }
     }
 

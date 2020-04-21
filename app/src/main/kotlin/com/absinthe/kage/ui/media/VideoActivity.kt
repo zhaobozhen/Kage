@@ -4,8 +4,10 @@ import android.content.Intent
 import android.graphics.Color
 import android.media.session.PlaybackState
 import android.os.Bundle
+import android.view.KeyEvent
 import android.view.View
 import com.absinthe.kage.BaseActivity
+import com.absinthe.kage.connect.proxy.RemoteControlProxy
 import com.absinthe.kage.databinding.ActivityVideoBinding
 import com.absinthe.kage.device.DeviceManager
 import com.absinthe.kage.device.DeviceObserverImpl
@@ -55,6 +57,19 @@ class VideoActivity : BaseActivity() {
         mVideoPlayer.release()
         mDeviceManager.unregister(mObserver)
         super.onDestroy()
+    }
+
+    override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
+        when (event?.keyCode) {
+            KeyEvent.KEYCODE_VOLUME_UP -> {
+                RemoteControlProxy.sendVolumeUpKeyAction()
+            }
+            KeyEvent.KEYCODE_VOLUME_DOWN -> {
+                RemoteControlProxy.sendVolumeDownKeyAction()
+            }
+        }
+        return super.onKeyDown(keyCode, event)
+
     }
 
     private fun initView() {
