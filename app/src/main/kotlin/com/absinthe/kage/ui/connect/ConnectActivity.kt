@@ -23,11 +23,18 @@ class ConnectActivity : BaseActivity() {
     private var mItems = ArrayList<Any>()
     private var mDeviceManager: DeviceManager = DeviceManager
 
+    override fun setViewBinding() {
+        mBinding = ActivityConnectBinding.inflate(layoutInflater)
+        setContentView(mBinding.root)
+    }
+
+    override fun setToolbar() {
+        mToolbar = mBinding.toolbar
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        mBinding = ActivityConnectBinding.inflate(layoutInflater)
-        setContentView(mBinding.root)
         initView()
         initObserver()
     }

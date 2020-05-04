@@ -56,11 +56,17 @@ class MusicActivity : BaseActivity(), Observer {
         }
     }
 
+    override fun setViewBinding() {
+        mBinding = ActivityMusicBinding.inflate(layoutInflater)
+        setContentView(mBinding.root)
+    }
+
+    override fun setToolbar() {
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        mBinding = ActivityMusicBinding.inflate(layoutInflater)
-        setContentView(mBinding.root)
         initListener()
         initView()
         processIntent(intent)
@@ -131,25 +137,21 @@ class MusicActivity : BaseActivity(), Observer {
         when (type) {
             TYPE_NONE -> finish()
             TYPE_SENDER -> {
-                mBinding.btnCast.visibility = View.VISIBLE
-                mBinding.toolbar.ibConnect.visibility = View.VISIBLE
+                mBinding.apply {
+                    btnCast.visibility = View.VISIBLE
+                    toolbar.ibConnect.visibility = View.VISIBLE
+                }
             }
             TYPE_RECEIVER -> {
-                mBinding.btnCast.visibility = View.GONE
-                mBinding.toolbar.ibConnect.visibility = View.GONE
+                mBinding.apply {
+                    btnCast.visibility = View.GONE
+                    toolbar.ibConnect.visibility = View.GONE
+                }
             }
         }
     }
 
     private fun initView() {
-        window.apply {
-            decorView.systemUiVisibility = (View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                    or View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                    or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION)
-            statusBarColor = Color.TRANSPARENT
-            navigationBarColor = Color.TRANSPARENT
-        }
-
         mBinding.toolbar.ibConnect.isSelected = mDeviceManager.isConnected
     }
 
@@ -166,49 +168,55 @@ class MusicActivity : BaseActivity(), Observer {
         }
         mDeviceManager.register(deviceObserver)
 
-        mBinding.toolbar.ibBack.setOnClickListener { finish() }
-        mBinding.toolbar.ibConnect.setOnClickListener {
-            startActivity(Intent(this@MusicActivity, ConnectActivity::class.java))
-        }
-        mBinding.layoutSeekBar.seekBar.setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
-
-            override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
-                mHandler.removeCallbacks(mShowProgressTask)
-            }
-
-            override fun onStartTrackingTouch(seekBar: SeekBar) {}
-
-            override fun onStopTrackingTouch(seekBar: SeekBar) {
-                isSeekBarTouch = true
-                if (seekBar.progress > seekBar.secondaryProgress) {
-                    seekBar.progress = seekBar.secondaryProgress
+        mBinding.apply {
+            toolbar.apply {
+                ibBack.setOnClickListener { finish() }
+                ibConnect.setOnClickListener {
+                    startActivity(Intent(this@MusicActivity, ConnectActivity::class.java))
                 }
-                mAudioPlayer.seekTo(seekBar.progress)
-                mHandler.post(mShowProgressTask)
             }
-        })
-        mBinding.btnCast.setOnClickListener {
-            if (isConnected) {
-                mAudioPlayer.setPlayerType(TYPE_REMOTE)
-            } else {
-                startActivity(Intent(this@MusicActivity, ConnectActivity::class.java))
+            layoutSeekBar.seekBar.setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
+
+                override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
+                    mHandler.removeCallbacks(mShowProgressTask)
+                }
+
+                override fun onStartTrackingTouch(seekBar: SeekBar) {}
+
+                override fun onStopTrackingTouch(seekBar: SeekBar) {
+                    isSeekBarTouch = true
+                    if (seekBar.progress > seekBar.secondaryProgress) {
+                        seekBar.progress = seekBar.secondaryProgress
+                    }
+                    mAudioPlayer.seekTo(seekBar.progress)
+                    mHandler.post(mShowProgressTask)
+                }
+            })
+            btnCast.setOnClickListener {
+                if (isConnected) {
+                    mAudioPlayer.setPlayerType(TYPE_REMOTE)
+                } else {
+                    startActivity(Intent(this@MusicActivity, ConnectActivity::class.java))
+                }
             }
-        }
-        mBinding.layoutControls.btnPlay.setOnClickListener {
-            val state = mAudioPlayer.playState
-            if (state == PlaybackState.STATE_PLAYING || state == PlaybackState.STATE_BUFFERING) {
-                mBinding.layoutControls.btnPlay.setIconResource(R.drawable.ic_play_arrow)
-                mAudioPlayer.pause()
-            } else if (state == PlaybackState.STATE_PAUSED) {
-                mBinding.layoutControls.btnPlay.setIconResource(R.drawable.ic_pause)
-                mAudioPlayer.play()
+            layoutControls.apply {
+                btnPlay.setOnClickListener {
+                    val state = mAudioPlayer.playState
+                    if (state == PlaybackState.STATE_PLAYING || state == PlaybackState.STATE_BUFFERING) {
+                        btnPlay.setIconResource(R.drawable.ic_play_arrow)
+                        mAudioPlayer.pause()
+                    } else if (state == PlaybackState.STATE_PAUSED) {
+                        btnPlay.setIconResource(R.drawable.ic_pause)
+                        mAudioPlayer.play()
+                    }
+                }
+                btnPrevious.setOnClickListener {
+                    mAudioPlayer.playPrevious()
+                }
+                btnNext.setOnClickListener {
+                    mAudioPlayer.playNext()
+                }
             }
-        }
-        mBinding.layoutControls.btnPrevious.setOnClickListener {
-            mAudioPlayer.playPrevious()
-        }
-        mBinding.layoutControls.btnNext.setOnClickListener {
-            mAudioPlayer.playNext()
         }
     }
 
@@ -239,9 +247,11 @@ class MusicActivity : BaseActivity(), Observer {
             mBinding.layoutSeekBar.seekBar.progress = current
         }
 
-        mBinding.layoutSeekBar.seekBar.secondaryProgress = buffer
-        mBinding.layoutSeekBar.tvCurrentTime.text = MediaHelper.millisecondToTimeString(current)
-        mBinding.layoutSeekBar.tvDuration.text = MediaHelper.millisecondToTimeString(max)
+        mBinding.layoutSeekBar.apply {
+            seekBar.secondaryProgress = buffer
+            tvCurrentTime.text = MediaHelper.millisecondToTimeString(current)
+            tvDuration.text = MediaHelper.millisecondToTimeString(max)
+        }
 
         return current
     }
@@ -256,19 +266,25 @@ class MusicActivity : BaseActivity(), Observer {
             }
             PlaybackState.STATE_PLAYING -> {
                 mHandler.post(mShowProgressTask)
-                mBinding.musicRoulette.startAnimation()
-                mBinding.layoutControls.btnPlay.setIconResource(R.drawable.ic_pause)
+                mBinding.apply {
+                    musicRoulette.startAnimation()
+                    layoutControls.btnPlay.setIconResource(R.drawable.ic_pause)
+                }
             }
             else -> {
                 mHandler.removeCallbacks(mShowProgressTask)
-                mBinding.musicRoulette.pauseAnimation()
-                mBinding.layoutControls.btnPlay.setIconResource(R.drawable.ic_play_arrow)
+                mBinding.apply {
+                    musicRoulette.pauseAnimation()
+                    layoutControls.btnPlay.setIconResource(R.drawable.ic_play_arrow)
+                }
             }
         }
 
         val actions = playbackState.actions
-        mBinding.layoutControls.btnPrevious.isEnabled = PlaybackState.ACTION_SKIP_TO_PREVIOUS and actions != 0L
-        mBinding.layoutControls.btnNext.isEnabled = PlaybackState.ACTION_SKIP_TO_NEXT and actions != 0L
+        mBinding.layoutControls.apply {
+            btnPrevious.isEnabled = PlaybackState.ACTION_SKIP_TO_PREVIOUS and actions != 0L
+            btnNext.isEnabled = PlaybackState.ACTION_SKIP_TO_NEXT and actions != 0L
+        }
 
         if (isNotify && state == PlaybackState.STATE_STOPPED) {
             finish()
@@ -279,8 +295,10 @@ class MusicActivity : BaseActivity(), Observer {
     private fun updateMediaInfo(media: LocalMedia?) {
         if (media != null) {
             if (media is LocalMusic) {
-                mBinding.toolbar.tvMusicName.text = media.title
-                mBinding.toolbar.tvArtist.text = media.artist
+                mBinding.toolbar.apply {
+                    tvMusicName.text = media.title
+                    tvArtist.text = media.artist
+                }
 
                 if (type == TYPE_SENDER) {
                     applyRouletteAndBlurBackground(media.albumId, null)
@@ -289,8 +307,10 @@ class MusicActivity : BaseActivity(), Observer {
                 }
                 mHandler.post(mShowProgressTask)
             }
-            mBinding.layoutSeekBar.tvCurrentTime.text = "00:00"
-            mBinding.layoutSeekBar.tvDuration.text = MediaHelper.millisecondToTimeString(media.duration.toInt())
+            mBinding.layoutSeekBar.apply {
+                tvCurrentTime.text = "00:00"
+                tvDuration.text = MediaHelper.millisecondToTimeString(media.duration.toInt())
+            }
         }
     }
 
@@ -335,8 +355,10 @@ class MusicActivity : BaseActivity(), Observer {
                                 }
 
                                 override fun onAnimationEnd(animation: Animation?) {
-                                    mBinding.ivBackground.setImageBitmap(result)
-                                    mBinding.ivBackground.startAnimation(animIn)
+                                    mBinding.ivBackground.apply {
+                                        setImageBitmap(result)
+                                        startAnimation(animIn)
+                                    }
                                 }
 
                                 override fun onAnimationStart(animation: Animation?) {
@@ -359,9 +381,11 @@ class MusicActivity : BaseActivity(), Observer {
                 .fallback(R.mipmap.pic_album_placeholder)
                 .into(object : CustomTarget<Drawable>() {
                     override fun onResourceReady(resource: Drawable, transition: Transition<in Drawable>?) {
-                        mBinding.musicRoulette.setImageDrawable(resource)
-                        mBinding.musicRoulette.invalidate()
-                        mBinding.musicRoulette.startAnimation()
+                        mBinding.musicRoulette.apply {
+                            setImageDrawable(resource)
+                            invalidate()
+                            startAnimation()
+                        }
                     }
 
                     override fun onLoadCleared(placeholder: Drawable?) {

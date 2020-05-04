@@ -4,9 +4,9 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:backgroundTint="@color/green"
-    app:rippleColor="@null"
     app:cardCornerRadius="@dimen/main_card_corner"
     app:cardElevation="2dp"
+    app:rippleColor="@null"
     app:strokeColor="@color/cardBorder"
     app:strokeWidth="0dp">
 

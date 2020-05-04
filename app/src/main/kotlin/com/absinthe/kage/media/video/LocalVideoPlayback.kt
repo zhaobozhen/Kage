@@ -35,9 +35,7 @@ class LocalVideoPlayback(private val exoPlayer: SimpleExoPlayer) : Playback {
                     ExoPlayer.STATE_ENDED -> {
                         Timber.i("Complete")
                         state = PlaybackState.STATE_PAUSED
-                        if (mCallback != null) {
-                            mCallback!!.onCompletion()
-                        }
+                        mCallback?.onCompletion()
                         shouldPlay = true
                     }
                     Player.STATE_BUFFERING -> {
@@ -70,10 +68,8 @@ class LocalVideoPlayback(private val exoPlayer: SimpleExoPlayer) : Playback {
 
         setVideo(Uri.parse(localMedia.filePath))
 
-        if (mCallback != null) {
-            mCallback?.onMediaMetadataChanged(localMedia)
-            mCallback?.onPlaybackStateChanged(state)
-        }
+        mCallback?.onMediaMetadataChanged(localMedia)
+        mCallback?.onPlaybackStateChanged(state)
     }
 
     override fun play() {
@@ -96,9 +92,7 @@ class LocalVideoPlayback(private val exoPlayer: SimpleExoPlayer) : Playback {
 
     override fun stop(isStop: Boolean) {
         if (isStop) {
-            if (mCallback != null) {
-                mCallback!!.onPlaybackStateChanged(state)
-            }
+            mCallback?.onPlaybackStateChanged(state)
         }
     }
 
@@ -108,9 +102,7 @@ class LocalVideoPlayback(private val exoPlayer: SimpleExoPlayer) : Playback {
         } else if (state == PlaybackState.STATE_PAUSED) {
             exoPlayer.playWhenReady = false
         }
-        if (mCallback != null) {
-            mCallback?.onPlaybackStateChanged(state)
-        }
+        mCallback?.onPlaybackStateChanged(state)
     }
 
     private fun setVideo(playerUri : Uri) {

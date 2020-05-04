@@ -79,7 +79,7 @@ class DeviceScanner {
                         val ipMsgSend = IpMessageProtocol().apply {
                             this.version = IpMessageConst.VERSION.toString()
                             this.senderName = mConfig.name
-                            this.cmd = IpMessageConst.IP_MSG_ANS_ENTRY // 回送报文命令
+                            this.cmd = IpMessageConst.IP_MSG_ANS_ENTRY // Send back the packet
                             this.additionalSection = mConfig.uuid
                         }
                         mUDP.notify(ipMsgSend, ip, port)

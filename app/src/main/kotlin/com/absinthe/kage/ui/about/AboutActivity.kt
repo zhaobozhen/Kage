@@ -1,9 +1,12 @@
 package com.absinthe.kage.ui.about
 
+import android.os.Bundle
+import android.os.PersistableBundle
 import android.widget.ImageView
 import android.widget.TextView
 import com.absinthe.kage.BuildConfig
 import com.absinthe.kage.R
+import com.absinthe.kage.utils.UiUtils
 import com.drakeet.about.*
 
 class AboutActivity : AbsAboutActivity() {
@@ -12,6 +15,12 @@ class AboutActivity : AbsAboutActivity() {
         icon.setImageResource(R.drawable.pic_splash)
         slogan.setText(R.string.app_name)
         version.text = String.format("Version: %s", BuildConfig.VERSION_NAME)
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?, persistentState: PersistableBundle?) {
+        super.onCreate(savedInstanceState, persistentState)
+        UiUtils.setDarkMode(this)
+        UiUtils.setSystemBarTransparent(this)
     }
 
     override fun onItemsCreated(items: MutableList<Any>) {

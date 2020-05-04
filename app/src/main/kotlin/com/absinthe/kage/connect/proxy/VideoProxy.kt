@@ -123,9 +123,8 @@ object VideoProxy : BaseProxy() {
                 IpMessageConst.RESPONSE_SET_PLAYBACK_PROGRESS -> {
                     val position = split[1].toInt()
 
-                    if (isPlayerWorking) {
-                        mPlayInfo.position = position
-                    } else {
+                    mPlayInfo.position = position
+                    if (!isPlayerWorking) {
                         recycle()
                     }
                     notifyOnCurrentPositionChanged(mPlayInfo.duration, mPlayInfo.position)
@@ -257,6 +256,7 @@ object VideoProxy : BaseProxy() {
                 }
                 val updatePeriodMillis = mUpdatePeriod
                 val inquiryPeriodMillis = mInquiryPeriod
+
                 if (mNoInquiryMills >= inquiryPeriodMillis) {
                     //do inquiry remote
                     mDevice.sendCommand(inquiryCurrentPositionCmd)

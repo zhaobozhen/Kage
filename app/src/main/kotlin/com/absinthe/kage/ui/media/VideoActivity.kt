@@ -1,7 +1,6 @@
 package com.absinthe.kage.ui.media
 
 import android.content.Intent
-import android.graphics.Color
 import android.media.session.PlaybackState
 import android.os.Bundle
 import android.view.KeyEvent
@@ -18,6 +17,7 @@ import com.absinthe.kage.media.TYPE_LOCAL
 import com.absinthe.kage.media.TYPE_REMOTE
 import com.absinthe.kage.media.video.VideoPlayer
 import com.absinthe.kage.ui.connect.ConnectActivity
+import com.blankj.utilcode.util.BarUtils
 
 class VideoActivity : BaseActivity() {
 
@@ -41,10 +41,16 @@ class VideoActivity : BaseActivity() {
         }
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+    override fun setViewBinding() {
         mBinding = ActivityVideoBinding.inflate(layoutInflater)
         setContentView(mBinding.root)
+    }
+
+    override fun setToolbar() {
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
 
         getType()
         getMedia()
@@ -73,11 +79,12 @@ class VideoActivity : BaseActivity() {
     }
 
     private fun initView() {
-        window.decorView.systemUiVisibility = (View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                or View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION)
-        window.statusBarColor = Color.TRANSPARENT
-        window.navigationBarColor = Color.TRANSPARENT
+        window.decorView.systemUiVisibility = (
+                View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                        or View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                        or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION)
+
+        mBinding.toolbar.root.setPadding(0, BarUtils.getStatusBarHeight(), 0, 0)
 
         mVideoPlayer = mBinding.videoPlayer
         mVideoPlayer.setVideoPlayCallback(object : VideoPlayer.VideoPlayCallback {
@@ -89,22 +96,25 @@ class VideoActivity : BaseActivity() {
                 mPlayState = state
             }
         })
-        mBinding.toolbar.ibBack.setOnClickListener { finish() }
 
-        if (mType == TYPE_SENDER) {
-            mBinding.toolbar.ibConnect.setOnClickListener {
-                startActivity(Intent(this, ConnectActivity::class.java))
-            }
-            mBinding.videoPlayer.setCastButtonClickListener(View.OnClickListener {
-                if (DeviceManager.isConnected) {
-                    mVideoPlayer.setPlayerType(TYPE_REMOTE)
-                } else {
+        mBinding.apply {
+            toolbar.ibBack.setOnClickListener { finish() }
+
+            if (mType == TYPE_SENDER) {
+                toolbar.ibConnect.setOnClickListener {
                     startActivity(Intent(this@VideoActivity, ConnectActivity::class.java))
                 }
-            })
-        } else {
-            mBinding.toolbar.ibConnect.visibility = View.GONE
-            mBinding.videoPlayer.setCastButtonVisibility(View.GONE)
+                videoPlayer.setCastButtonClickListener(View.OnClickListener {
+                    if (DeviceManager.isConnected) {
+                        mVideoPlayer.setPlayerType(TYPE_REMOTE)
+                    } else {
+                        startActivity(Intent(this@VideoActivity, ConnectActivity::class.java))
+                    }
+                })
+            } else {
+                toolbar.ibConnect.visibility = View.GONE
+                videoPlayer.setCastButtonVisibility(View.GONE)
+            }
         }
     }
 
@@ -114,9 +124,7 @@ class VideoActivity : BaseActivity() {
 
     private fun getMedia() {
         mLocalMedia = intent.getParcelableExtra(EXTRA_MEDIA)
-        if (mLocalMedia == null) {
-            finish()
-        }
+        mLocalMedia ?: finish()
     }
 
     private fun initPlayer() {

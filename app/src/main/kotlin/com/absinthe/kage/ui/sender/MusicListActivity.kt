@@ -20,12 +20,19 @@ class MusicListActivity : BaseActivity() {
     private var mAdapter = MultiTypeAdapter()
     private var mItems = ArrayList<Any>()
 
+    override fun setViewBinding() {
+        mBinding = ActivityMusicListBinding.inflate(layoutInflater)
+        setContentView(mBinding.root)
+    }
+
+    override fun setToolbar() {
+        mToolbar = mBinding.toolbar
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        mBinding = ActivityMusicListBinding.inflate(layoutInflater)
         mViewModel = ViewModelProvider(this).get(MusicViewModel::class.java)
-        setContentView(mBinding.root)
         initView()
         initData()
     }
@@ -35,17 +42,23 @@ class MusicListActivity : BaseActivity() {
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
         mAdapter.register(LocalMusicViewBinder())
-        mBinding.rvMusicList.adapter = mAdapter
-        mBinding.rvMusicList.layoutManager = LinearLayoutManager(this)
+        mBinding.rvMusicList.apply {
+            adapter = mAdapter
+            layoutManager = LinearLayoutManager(this@MusicListActivity)
+        }
     }
 
     private fun initData() {
         mViewModel.musicList.observe(this, Observer { localMusics: MutableList<LocalMusic> ->
             mBinding.srlContainer.isRefreshing = false
-            mItems.clear()
-            mItems.addAll(localMusics)
-            GlobalManager.musicList.clear()
-            GlobalManager.musicList.addAll(localMusics)
+            mItems.apply {
+                clear()
+                addAll(localMusics)
+            }
+            GlobalManager.musicList.apply {
+                clear()
+                addAll(localMusics)
+            }
             mAdapter.items = mItems
             mAdapter.notifyDataSetChanged()
             mBinding.srlContainer.isEnabled = false

@@ -28,6 +28,53 @@ class KageSocket {
         }
     }
 
+    fun disconnect(): Boolean {
+        synchronized(this) {
+            return if (mSocket != null && mSocket!!.isConnected) {
+                try {
+                    mIn?.close()
+                    mOut?.close()
+                    mSocket?.close()
+                    mIn = null
+                    mOut = null
+                    mSocket = null
+
+                    mPacketWriter?.shutdown()
+                    mPacketWriter = null
+
+                    mPacketReader?.shutdown()
+                    mPacketReader = null
+
+                    GlobalScope.launch(Dispatchers.Main) {
+                        mSocketCallback?.onDisConnected()
+                    }
+                    true
+                } catch (e: IOException) {
+                    Timber.e(e.toString())
+                    false
+                }
+            } else false
+        }
+    }
+
+    fun send(packet: Packet) {
+        synchronized(this) {
+            if (mPacketWriter != null) {
+                if (packet is Request) {
+                    packet.id = System.currentTimeMillis().toString()
+                    mPacketReader?.addRequest(packet)
+                }
+                mPacketWriter?.writePacket(packet)
+            } else {
+                Timber.e("Send error: PacketWriter == null")
+            }
+        }
+    }
+
+    fun setSocketCallback(socketCallback: ISocketCallback) {
+        mSocketCallback = socketCallback
+    }
+
     private inner class ConnectThread(private val ip: String?, private val port: Int, private val timeout: Int) : Thread() {
 
         override fun run() {
@@ -75,54 +122,6 @@ class KageSocket {
                 }
             }
         }
-
-    }
-
-    fun disconnect(): Boolean {
-        synchronized(this) {
-            return if (mSocket != null && mSocket!!.isConnected) {
-                try {
-                    mIn?.close()
-                    mOut?.close()
-                    mSocket?.close()
-                    mIn = null
-                    mOut = null
-                    mSocket = null
-
-                    mPacketWriter?.shutdown()
-                    mPacketWriter = null
-
-                    mPacketReader?.shutdown()
-                    mPacketReader = null
-
-                    GlobalScope.launch(Dispatchers.Main) {
-                        mSocketCallback?.onDisConnected()
-                    }
-                    true
-                } catch (e: IOException) {
-                    Timber.e(e.toString())
-                    false
-                }
-            } else false
-        }
-    }
-
-    fun send(packet: Packet) {
-        synchronized(this) {
-            if (mPacketWriter != null) {
-                if (packet is Request) {
-                    packet.id = System.currentTimeMillis().toString()
-                    mPacketReader?.addRequest(packet)
-                }
-                mPacketWriter?.writePacket(packet)
-            } else {
-                Timber.e("Send error: PacketWriter == null")
-            }
-        }
-    }
-
-    fun setSocketCallback(socketCallback: ISocketCallback) {
-        mSocketCallback = socketCallback
     }
 
     interface ISocketCallback {

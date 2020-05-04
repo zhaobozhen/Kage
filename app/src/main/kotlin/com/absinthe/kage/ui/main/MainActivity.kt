@@ -48,11 +48,18 @@ class MainActivity : BaseActivity() {
         }
     }
 
+    override fun setViewBinding() {
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+    }
+
+    override fun setToolbar() {
+        mToolbar = binding.toolbar
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        binding = ActivityMainBinding.inflate(layoutInflater)
-        setContentView(binding.root)
         DeviceManager.register(deviceObserver)
 
         initView()
@@ -71,22 +78,28 @@ class MainActivity : BaseActivity() {
     private fun initView() {
         setSupportActionBar(binding.toolbar)
 
-        adapter.register(ServiceRunningItemViewBinder())
-        adapter.register(CastItemViewBinder())
-        adapter.register(ConnectItemViewBinder())
-        adapter.register(DeviceItemViewBinder())
+        adapter.apply {
+            register(ServiceRunningItemViewBinder())
+            register(CastItemViewBinder())
+            register(ConnectItemViewBinder())
+            register(DeviceItemViewBinder())
+        }
 
-        binding.recyclerview.adapter = adapter
-        binding.recyclerview.layoutManager = LinearLayoutManager(this)
-        binding.recyclerview.addItemDecoration(SpacesItemDecoration(resources.getDimension(R.dimen.main_card_padding).toInt()))
+        binding.recyclerview.apply {
+            adapter = this@MainActivity.adapter
+            layoutManager = LinearLayoutManager(this@MainActivity)
+            addItemDecoration(SpacesItemDecoration(resources.getDimension(R.dimen.main_card_padding).toInt()))
+        }
 
         val serviceRunning = ServiceRunningItem(true)
         val castItem = CastItem()
         val connectItem = ConnectItem()
 
-        items.add(serviceRunning)
-        items.add(castItem)
-        items.add(connectItem)
+        items.apply {
+            add(serviceRunning)
+            add(castItem)
+            add(connectItem)
+        }
 
         adapter.items = items
         adapter.notifyDataSetChanged()

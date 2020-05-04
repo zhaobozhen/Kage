@@ -55,7 +55,9 @@ class HeartbeatSender(private val mSocket: KageSocket) {
     private inner class HeartbeatTask constructor(private val mId: String, private val mTimeout: Int) : Runnable {
 
         private var mCallback: IHeartbeatCallback? = null
-        private val mHeartbeatRequest: HeartbeatRequest = HeartbeatRequest()
+        private val mHeartbeatRequest: HeartbeatRequest = HeartbeatRequest().apply {
+            id = mId
+        }
 
         override fun run() {
             mSocket.send(mHeartbeatRequest)
@@ -79,10 +81,6 @@ class HeartbeatSender(private val mSocket: KageSocket) {
 
         fun setHeartbeatCallback(callback: IHeartbeatCallback?) {
             mCallback = callback
-        }
-
-        init {
-            mHeartbeatRequest.id = mId
         }
     }
 

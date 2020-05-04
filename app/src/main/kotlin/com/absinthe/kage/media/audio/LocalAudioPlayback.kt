@@ -241,9 +241,7 @@ class LocalAudioPlayback internal constructor(context: Context) : Playback {
         }
         mMediaPlayer.setOnCompletionListener {
             Timber.d("MediaPlayer#onCompletion")
-            if (mCallback != null) {
-                mCallback!!.onCompletion()
-            }
+            mCallback?.onCompletion()
         }
         mMediaPlayer.setOnPreparedListener {
             Timber.d("SetOnPreparedListener")

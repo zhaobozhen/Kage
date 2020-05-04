@@ -28,10 +28,17 @@ class SenderActivity : BaseActivity() {
     private lateinit var mVideoListener: AlbumMediaAdapter.OnMediaClickListener
     private val rxPermissions = RxPermissions(this)
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+    override fun setViewBinding() {
         mBinding = ActivitySenderBinding.inflate(layoutInflater)
         setContentView(mBinding.root)
+    }
+
+    override fun setToolbar() {
+        mToolbar = mBinding.toolbar
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
 
         initView()
     }

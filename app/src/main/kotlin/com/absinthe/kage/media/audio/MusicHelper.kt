@@ -12,6 +12,7 @@ object MusicHelper {
         val result: MutableList<LocalMusic> = ArrayList()
         val cursor = context.contentResolver.query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
                 null, null, null, MediaStore.Audio.Media.DEFAULT_SORT_ORDER)
+
         if (cursor != null && cursor.moveToFirst()) {
             do {
                 val title = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.TITLE))

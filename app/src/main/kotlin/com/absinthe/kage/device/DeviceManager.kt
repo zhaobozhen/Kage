@@ -96,7 +96,7 @@ object DeviceManager : KageObservable(), LifecycleObserver {
     }
 
     /**
-     * 停止监测设备
+     * Stop monitoring devices
      */
     @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
     fun stopMonitorDevice() {
@@ -104,7 +104,7 @@ object DeviceManager : KageObservable(), LifecycleObserver {
     }
 
     /**
-     * 连接指定的设备，已连接事件会通知Observer。
+     * Connect to device
      */
     fun connectDevice(deviceInfo: DeviceInfo) {
         synchronized(this) {
@@ -114,7 +114,7 @@ object DeviceManager : KageObservable(), LifecycleObserver {
 
     /**
      * @param deviceInfo Device info
-     * @param timeout    连接超时时间，单位为毫秒
+     * @param timeout    Connection timeout (ms)
      */
     @Synchronized
     fun connectDevice(deviceInfo: DeviceInfo, timeout: Int) {
@@ -122,7 +122,7 @@ object DeviceManager : KageObservable(), LifecycleObserver {
     }
 
     /**
-     * 如果已连接设备，断开当前连接。已断开事件会通知Observer
+     * Disconnect to device
      */
     fun disConnectDevice() {
         mConnectState.disConnect()
@@ -158,7 +158,7 @@ object DeviceManager : KageObservable(), LifecycleObserver {
     }
 
     /**
-     * 开始监测设备
+     * Start monitoring devices
      *
      * @param period period
      * @return resultCode

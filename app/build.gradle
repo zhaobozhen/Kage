@@ -9,8 +9,8 @@ android {
         applicationId "com.absinthe.kage"
         minSdkVersion rootProject.ext.android.minSdkVersion
         targetSdkVersion rootProject.ext.android.targetSdkVersion
-        versionCode 407
-        versionName "0.4.7"
+        versionCode 500
+        versionName "0.5.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
@@ -36,7 +36,7 @@ android {
 }
 
 dependencies {
-    def appCenterSdkVersion = '3.1.0'
+    def appCenterSdkVersion = '3.2.1'
 
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation project(':matisse')
@@ -64,10 +64,10 @@ dependencies {
     implementation 'com.drakeet.about:about:2.4.1'
     implementation 'com.drakeet.multitype:multitype:4.2.0'
     implementation 'it.sephiroth.android.library.imagezoom:imagezoom:2.3.0'
-    implementation 'com.blankj:utilcodex:1.27.0'
+    implementation 'com.blankj:utilcodex:1.28.3'
     implementation 'com.google.code.gson:gson:2.8.6'
     implementation 'com.airbnb.android:lottie:3.4.0'
-    implementation 'com.google.android.exoplayer:exoplayer:2.11.3'
+    implementation 'com.google.android.exoplayer:exoplayer:2.11.4'
     implementation 'com.jakewharton.timber:timber:4.7.1'
 
     testImplementation 'junit:junit:4.13'

@@ -51,5 +51,6 @@ class ServiceRunningItemViewBinder : ItemViewBinder<ServiceRunningItem, ServiceR
         val info: TextView = itemView.findViewById(R.id.tv_info)
         val tip: TextView = itemView.findViewById(R.id.tv_tip)
         val icon: ImageView = itemView.findViewById(R.id.iv_icon)
+
     }
 }

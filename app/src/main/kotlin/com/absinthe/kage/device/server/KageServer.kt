@@ -30,7 +30,11 @@ class KageServer : NanoHTTPD(Config.HTTP_SERVER_PORT) {
         return filesList?.let { responsePage(it) } ?: responseFile(filepath)
     }
 
-    //对于请求目录的，返回文件列表
+    /**
+     * Return files list if request a directory
+     *
+     * @param filesList Files list
+     */
     private fun responsePage(filesList: Array<File>): Response {
         val builder = StringBuilder().apply {
             append("<!DOCTYPER html><html><body>")
@@ -46,16 +50,19 @@ class KageServer : NanoHTTPD(Config.HTTP_SERVER_PORT) {
             append("</body></html>\n")
         }
 
-        //回送应答
+        //Response
         return newFixedLengthResponse(builder.toString())
     }
 
-    //对于请求文件的，返回下载的文件
+    /**
+     * Return itself if request a file
+     *
+     * @param uri URI of the file
+     */
     private fun responseFile(uri: String): Response {
         try {
-            //文件输入流
             val fis = FileInputStream(uri)
-            // 返回OK，同时传送文件
+            // Response OK and transfer the file
             return newFixedLengthResponse(Response.Status.OK,
                     "application/octet-stream", fis, fis.available().toLong())
         } catch (e: IOException) {
@@ -65,7 +72,11 @@ class KageServer : NanoHTTPD(Config.HTTP_SERVER_PORT) {
         return responseNotExist(uri)
     }
 
-    //页面不存在，或者文件不存在时
+    /**
+     * Return Error info if request an invalid path
+     *
+     * @param url Invalid URL
+     */
     private fun responseNotExist(url: String): Response {
         val builder = StringBuilder().apply {
             append("<!DOCTYPE html><html><body>")
@@ -76,7 +87,9 @@ class KageServer : NanoHTTPD(Config.HTTP_SERVER_PORT) {
         return newFixedLengthResponse(builder.toString())
     }
 
-    //非客户端禁止访问
+    /**
+     * Refuse to access the server if it is not a client
+     */
     private fun responseNoAccess(): Response {
         val builder = StringBuilder().apply {
             append("<!DOCTYPE html><html><body>")
