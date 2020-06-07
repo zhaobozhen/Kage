@@ -28,7 +28,7 @@ class AboutActivity : AbsAboutActivity() {
         items.add(Card(getString(R.string.about_info)))
 
         items.add(Category("Developers"))
-        items.add(Contributor(R.mipmap.pic_rabbit, "Absinthe", "Developer & Designer", "https://www.coolapk.com/u/482045"))
+        items.add(Contributor(R.mipmap.pic_rabbit, "Absinthe", "Developer & Designer", "https://github.com/zhaobozhen"))
 
         items.add(Category("Open Source Licenses"))
         items.add(License("kotlin", "JetBrains", License.APACHE_2, "https://github.com/JetBrains/kotlin"))
