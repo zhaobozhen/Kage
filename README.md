@@ -1,5 +1,5 @@
 # Kage
-A cast app based on Android.
+A real-time displayed multimedia projection system based on Android.
 
 ## What's this?
 This application is my graduation project. First and foremost, I would like to express my sincere gratitude to my supervisor, Professor Xu, for his intellectual guidance, invaluable instructions and comments on my thesis. It is with his valuable assistance that I have finally accomplished this thesis.
