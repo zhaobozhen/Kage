@@ -1,6 +1,7 @@
 package com.absinthe.kage
 
 import android.app.Application
+import com.absinthe.kage.connect.Const
 import com.absinthe.kage.service.TCPService
 import com.absinthe.kage.utils.timber.ReleaseTree
 import com.absinthe.kage.utils.timber.ThreadAwareDebugTree
@@ -19,7 +20,7 @@ class KageApplication : Application() {
             Timber.plant(ThreadAwareDebugTree())
         } else {
             Timber.plant(ReleaseTree())
-            AppCenter.start(this, "4b4faea6-9eed-4c30-a734-3fb9330da2cc",
+            AppCenter.start(this, Const.APP_CENTER_SECRET,
                     Analytics::class.java, Crashes::class.java)
         }
 

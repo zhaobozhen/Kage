@@ -117,9 +117,6 @@ class PacketReader(private val mIn: DataInputStream?, private val mSocketCallbac
         }
     }
 
-    /**
-     * 响应所有心跳
-     */
     private fun responseAllHeartBeat() {
         val tempMap: MutableMap<String?, Request?> = TreeMap()
         synchronized(this) {
@@ -152,7 +149,7 @@ class PacketReader(private val mIn: DataInputStream?, private val mSocketCallbac
             return null
         }
 
-        require(receiveLength < MAX_READ_LENGTH) { "receiveLength too big, receiveLength = $receiveLength" }
+        require(receiveLength < MAX_READ_LENGTH) { "receiveLength is too large, receiveLength = $receiveLength" }
         val bArray = ByteArray(receiveLength)
         var bytesRead = 0
 

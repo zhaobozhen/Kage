@@ -19,6 +19,10 @@
 
     <!--  Receiver  -->
     <string name="title_loading">加载中</string>
+    <string name="title_save_media">保存</string>
+    <string name="message_save_media">是否保存此媒体到设备？</string>
+    <string name="saving">保存中…</string>
+    <string name="save_success">保存成功</string>
 
     <!--  About  -->
     <string name="about_info">Kage - 一款可以向其它 Android 设备投射多媒体文件的 App</string>

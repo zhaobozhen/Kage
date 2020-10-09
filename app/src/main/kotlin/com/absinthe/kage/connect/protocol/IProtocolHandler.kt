@@ -8,9 +8,6 @@ interface IProtocolHandler {
     fun handleSocketConnectFail(errorCode: Int, e: Exception)
     fun handleSocketSendOrReceiveError()
 
-    /**
-     * 为避免多线程安全问题，回调方法都在KageProtocolThreadHandler里执行
-     */
     interface IProtocolHandleCallback {
         fun onProtocolConnected()
         fun onProtocolDisConnect()

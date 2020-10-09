@@ -27,6 +27,10 @@
 
     <!--  Receiver  -->
     <string name="title_loading">Loading</string>
+    <string name="title_save_media">Save</string>
+    <string name="message_save_media">Do you want to save this media to device?</string>
+    <string name="saving">Saving…</string>
+    <string name="save_success">Saving Success</string>
 
     <!--  About  -->
     <string name="about_info">Kage - An app which can cast multi-media files to other Android devices.</string>

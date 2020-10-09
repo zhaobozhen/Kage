@@ -1,5 +1,6 @@
 package com.absinthe.kage.viewholder.delegate
 
+import android.view.HapticFeedbackConstants
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -30,8 +31,9 @@ class ServiceRunningItemViewBinder : ItemViewBinder<ServiceRunningItem, ServiceR
             holder.icon.setImageResource(R.drawable.ic_done)
 
             holder.itemView.setOnClickListener {
-                holder.itemView.isEnabled = false
-                TCPService.stop(holder.itemView.context)
+                it.isEnabled = false
+                TCPService.stop(it.context)
+                it.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
             }
         } else {
             holder.info.text = holder.itemView.context.getString(R.string.service_is_not_running)
@@ -39,8 +41,9 @@ class ServiceRunningItemViewBinder : ItemViewBinder<ServiceRunningItem, ServiceR
             holder.icon.setImageResource(R.drawable.ic_no)
 
             holder.itemView.setOnClickListener {
-                holder.itemView.isEnabled = false
-                TCPService.start(holder.itemView.context)
+                it.isEnabled = false
+                TCPService.start(it.context)
+                it.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
             }
         }
 
@@ -51,6 +54,5 @@ class ServiceRunningItemViewBinder : ItemViewBinder<ServiceRunningItem, ServiceR
         val info: TextView = itemView.findViewById(R.id.tv_info)
         val tip: TextView = itemView.findViewById(R.id.tv_tip)
         val icon: ImageView = itemView.findViewById(R.id.iv_icon)
-
     }
 }

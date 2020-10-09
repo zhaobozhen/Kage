@@ -37,7 +37,7 @@ class MusicRouletteView : AppCompatImageView {
     private var mIsReady = false
     private var mIsSetupPending = false
 
-    constructor(context: Context?) : super(context) {
+    constructor(context: Context) : super(context) {
         mDrawableRect = RectF()
         mBorderRect = RectF()
         mShaderMatrix = Matrix()
