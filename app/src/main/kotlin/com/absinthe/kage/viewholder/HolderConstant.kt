@@ -1,6 +1,7 @@
 package com.absinthe.kage.viewholder
 
 import android.animation.ObjectAnimator
+import android.annotation.SuppressLint
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewConfiguration
@@ -11,6 +12,7 @@ class HolderConstant {
         private const val ANIMATION_DURATION: Long = 300
         private const val TRANSLATION_Z: Float = 10f
 
+        @SuppressLint("ClickableViewAccessibility")
         val onTouchListener: View.OnTouchListener = View.OnTouchListener { v, event ->
             var touchFlag = false
             var lastX = 0

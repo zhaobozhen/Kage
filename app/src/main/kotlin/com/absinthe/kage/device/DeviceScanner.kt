@@ -119,7 +119,6 @@ class DeviceScanner {
                     }
                 }
             }
-
         })
 
         synchronized(this) {
